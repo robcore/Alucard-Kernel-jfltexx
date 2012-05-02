@@ -4558,7 +4558,7 @@ copyfrags:
 		to->data_len += len;
 		goto merge;
 	}
-	if (from->head_frag) {
+	if (from->head_frag && !skb_cloned(from)) {
 		struct page *page;
 		unsigned int offset;
 
@@ -4568,12 +4568,7 @@ copyfrags:
 		offset = from->data - (unsigned char *)page_address(page);
 		skb_fill_page_desc(to, skb_shinfo(to)->nr_frags,
 				   page, offset, skb_headlen(from));
-
-		if (skb_cloned(from))
-			get_page(page);
-		else
-			*fragstolen = true;
-
+		*fragstolen = true;
 		delta = len; /* we dont know real truesize... */
 		goto copyfrags;
 	}
