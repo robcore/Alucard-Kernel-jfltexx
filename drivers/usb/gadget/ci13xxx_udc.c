@@ -2945,6 +2945,7 @@ static int ep_disable(struct usb_ep *ep)
 
 	mEp->desc = NULL;
 	mEp->ep.desc = NULL;
+	mEp->ep.maxpacket = USHRT_MAX;
 
 	spin_unlock_irqrestore(mEp->lock, flags);
 	return retval;
@@ -3474,7 +3475,7 @@ static int ci13xxx_start(struct usb_gadget_driver *driver,
 			mEp->ep.name      = mEp->name;
 			mEp->ep.ops       = &usb_ep_ops;
 			mEp->ep.maxpacket =
-				k ? (unsigned short)~0 : CTRL_PAYLOAD_MAX;
+				k ? USHRT_MAX : CTRL_PAYLOAD_MAX;
 
 			INIT_LIST_HEAD(&mEp->qh.queue);
 			spin_unlock_irqrestore(udc->lock, flags);
