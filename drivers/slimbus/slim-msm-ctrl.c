@@ -367,15 +367,16 @@ static int msm_slim_rx_dequeue(struct msm_slim_ctrl *dev, u8 *buf)
 static int msm_sat_enqueue(struct msm_slim_sat *sat, u32 *buf, u8 len)
 {
 	struct msm_slim_ctrl *dev = sat->dev;
-	spin_lock(&sat->lock);
+	unsigned long flags;
+	spin_lock_irqsave(&sat->lock, flags);
 	if ((sat->stail + 1) % SAT_CONCUR_MSG == sat->shead) {
-		spin_unlock(&sat->lock);
+		spin_unlock_irqrestore(&sat->lock, flags);
 		dev_err(dev->dev, "SAT QUEUE full!");
 		return -EXFULL;
 	}
 	memcpy(sat->sat_msgs[sat->stail], (u8 *)buf, len);
 	sat->stail = (sat->stail + 1) % SAT_CONCUR_MSG;
-	spin_unlock(&sat->lock);
+	spin_unlock_irqrestore(&sat->lock, flags);
 	return 0;
 }
 
