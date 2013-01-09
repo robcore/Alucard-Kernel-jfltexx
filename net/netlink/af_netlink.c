@@ -2876,7 +2876,6 @@ static struct pernet_operations __net_initdata netlink_net_ops = {
 
 static int __init netlink_proto_init(void)
 {
-	struct sk_buff *dummy_skb;
 	int i;
 	unsigned long limit;
 	unsigned int order;
@@ -2885,7 +2884,7 @@ static int __init netlink_proto_init(void)
 	if (err != 0)
 		goto out;
 
-	BUILD_BUG_ON(sizeof(struct netlink_skb_parms) > sizeof(dummy_skb->cb));
+	BUILD_BUG_ON(sizeof(struct netlink_skb_parms) > FIELD_SIZEOF(struct sk_buff, cb));
 
 	nl_table = kcalloc(MAX_LINKS, sizeof(*nl_table), GFP_KERNEL);
 	if (!nl_table)
