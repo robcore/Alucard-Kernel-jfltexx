@@ -1609,12 +1609,11 @@ static inline unsigned long exfat_hash(loff_t i_pos)
 static struct inode *exfat_iget(struct super_block *sb, loff_t i_pos) {
 	struct exfat_sb_info *sbi = EXFAT_SB(sb);
 	struct exfat_inode_info *info;
-	struct hlist_node *node;
 	struct hlist_head *head = sbi->inode_hashtable + exfat_hash(i_pos);
 	struct inode *inode = NULL;
 
 	spin_lock(&sbi->inode_hash_lock);
-	hlist_for_each_entry(info, node, head, i_hash_fat) {
+	hlist_for_each_entry(info, head, i_hash_fat) {
 		CHECK_ERR(info->vfs_inode.i_sb != sb);
 
 		if (i_pos != info->i_pos)
