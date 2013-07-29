@@ -1855,6 +1855,7 @@ static void disconnect_to_bam(void)
 			DMUX_LOG_KERR("%s: shutdown completion timed out\n",
 					__func__);
 			log_rx_timestamp();
+			ssrestart_check();
 		}
 	}
 
