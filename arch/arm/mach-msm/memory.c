@@ -30,11 +30,6 @@
 #include <mach/msm_memtypes.h>
 #include <mach/memory.h>
 #include <linux/hardirq.h>
-#if defined(CONFIG_MSM_NPA_REMOTE)
-#include "npa_remote.h"
-#include <linux/completion.h>
-#include <linux/err.h>
-#endif
 #include <mach/msm_iomap.h>
 #include <mach/socinfo.h>
 #include <linux/sched.h>
@@ -44,50 +39,6 @@
 #include <asm/tlbflush.h>
 #include <../../mm/mm.h>
 #include <linux/fmem.h>
-
-void *strongly_ordered_page;
-char strongly_ordered_mem[PAGE_SIZE*2-4];
-
-void map_page_strongly_ordered(void)
-{
-#if defined(CONFIG_ARCH_MSM7X27) && !defined(CONFIG_ARCH_MSM7X27A)
-	long unsigned int phys;
-	struct map_desc map;
-
-	if (strongly_ordered_page)
-		return;
-
-	strongly_ordered_page = (void*)PFN_ALIGN((int)&strongly_ordered_mem);
-	phys = __pa(strongly_ordered_page);
-
-	map.pfn = __phys_to_pfn(phys);
-	map.virtual = MSM_STRONGLY_ORDERED_PAGE;
-	map.length = PAGE_SIZE;
-	map.type = MT_DEVICE_STRONGLY_ORDERED;
-	create_mapping(&map);
-
-	printk(KERN_ALERT "Initialized strongly ordered page successfully\n");
-#endif
-}
-EXPORT_SYMBOL(map_page_strongly_ordered);
-
-void write_to_strongly_ordered_memory(void)
-{
-#if defined(CONFIG_ARCH_MSM7X27) && !defined(CONFIG_ARCH_MSM7X27A)
-	if (!strongly_ordered_page) {
-		if (!in_interrupt())
-			map_page_strongly_ordered();
-		else {
-			printk(KERN_ALERT "Cannot map strongly ordered page in "
-				"Interrupt Context\n");
-			/* capture it here before the allocation fails later */
-			BUG();
-		}
-	}
-	*(int *)MSM_STRONGLY_ORDERED_PAGE = 0;
-#endif
-}
-EXPORT_SYMBOL(write_to_strongly_ordered_memory);
 
 /* These cache related routines make the assumption (if outer cache is
  * available) that the associated physical memory is contiguous.
@@ -200,23 +151,10 @@ static void __init initialize_mempools(void)
 	}
 }
 
-#define  MAX_FIXED_AREA_SIZE 0x11000000
-
 void __init msm_reserve(void)
 {
-	unsigned long msm_fixed_area_size;
-	unsigned long msm_fixed_area_start;
-
 	memory_pool_init();
 	reserve_info->calculate_reserve_sizes();
-
-	msm_fixed_area_size = reserve_info->fixed_area_size;
-	msm_fixed_area_start = reserve_info->fixed_area_start;
-	if (msm_fixed_area_size)
-		if (msm_fixed_area_start > reserve_info->low_unstable_address
-			- MAX_FIXED_AREA_SIZE)
-			reserve_info->low_unstable_address =
-			msm_fixed_area_start;
 
 	calculate_reserve_limits();
 	adjust_reserve_sizes();
@@ -224,18 +162,10 @@ void __init msm_reserve(void)
 	initialize_mempools();
 }
 
-static int get_ebi_memtype(void)
-{
-	/* on 7x30 and 8x55 "EBI1 kernel PMEM" is really on EBI0 */
-	if (cpu_is_msm7x30() || cpu_is_msm8x55())
-		return MEMTYPE_EBI0;
-	return MEMTYPE_EBI1;
-}
-
 void *allocate_contiguous_ebi(unsigned long size,
 	unsigned long align, int cached)
 {
-	return allocate_contiguous_memory(size, get_ebi_memtype(),
+	return allocate_contiguous_memory(size, MEMTYPE_EBI1,
 		align, cached);
 }
 EXPORT_SYMBOL(allocate_contiguous_ebi);
@@ -243,7 +173,7 @@ EXPORT_SYMBOL(allocate_contiguous_ebi);
 unsigned long allocate_contiguous_ebi_nomap(unsigned long size,
 	unsigned long align)
 {
-	return _allocate_contiguous_memory_nomap(size, get_ebi_memtype(),
+	return _allocate_contiguous_memory_nomap(size, MEMTYPE_EBI1,
 		align, __builtin_return_address(0));
 }
 EXPORT_SYMBOL(allocate_contiguous_ebi_nomap);
@@ -472,15 +402,4 @@ void adjust_meminfo(unsigned long start, unsigned long size)
 			merge_meminfo();
 		}
 	}
-}
-
-unsigned long get_ddr_size(void)
-{
-	unsigned int i;
-	unsigned long ret = 0;
-
-	for (i = 0; i < meminfo.nr_banks; i++)
-		ret += meminfo.bank[i].size;
-
-	return ret;
 }
