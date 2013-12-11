@@ -1252,9 +1252,10 @@ out_adjust:
  * It also calls into the NTP code to handle leapsecond processing.
  *
  */
-static inline void accumulate_nsecs_to_secs(struct timekeeper *tk)
+static inline unsigned int accumulate_nsecs_to_secs(struct timekeeper *tk)
 {
 	u64 nsecps = (u64)NSEC_PER_SEC << tk->shift;
+	unsigned int clock_set = 0;
 
 	while (tk->xtime_nsec >= nsecps) {
 		int leap;
@@ -1276,9 +1277,10 @@ static inline void accumulate_nsecs_to_secs(struct timekeeper *tk)
 
 			__timekeeping_set_tai_offset(tk, tk->tai_offset - leap);
 
-			clock_was_set_delayed();
+			clock_set = 1;
 		}
 	}
+	return clock_set;
 }
 
 /**
@@ -1306,7 +1308,7 @@ static cycle_t logarithmic_accumulation(struct timekeeper *tk, cycle_t offset,
 	tk->cycle_last += interval;
 
 	tk->xtime_nsec += tk->xtime_interval << shift;
-	accumulate_nsecs_to_secs(tk);
+	*clock_set |= accumulate_nsecs_to_secs(tk);
 
 	/* Accumulate raw time */
 	raw_nsecs = (u64)tk->raw_interval << shift;
@@ -1421,7 +1423,7 @@ static void update_wall_time(void)
 	 * Finally, make sure that after the rounding
 	 * xtime_nsec isn't larger than NSEC_PER_SEC
 	 */
-	accumulate_nsecs_to_secs(tk);
+	clock_set |= accumulate_nsecs_to_secs(tk);
 
 	write_seqcount_begin(&timekeeper_seq);
 	/* Update clock->cycle_last with the new value */
@@ -1441,9 +1443,10 @@ static void update_wall_time(void)
 	write_seqcount_end(&timekeeper_seq);
 out:
 	raw_spin_unlock_irqrestore(&timekeeper_lock, flags);
-
 	if (clock_set)
+		/* have to call outside the timekeeper_seq */
 		clock_was_set_delayed();
+
 }
 
 /**
@@ -1703,10 +1706,12 @@ int do_adjtimex(struct timex *txc)
 	if (tai != orig_tai) {
 		__timekeeping_set_tai_offset(tk, tai);
 		timekeeping_update(tk, false, true);
-		clock_was_set_delayed();
 	}
 	write_seqcount_end(&timekeeper_seq);
 	raw_spin_unlock_irqrestore(&timekeeper_lock, flags);
+
+	if (tai != orig_tai)
+		clock_was_set();
 
 	ntp_notify_cmos_timer();
 
