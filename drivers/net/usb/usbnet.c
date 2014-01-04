@@ -357,7 +357,7 @@ void usbnet_defer_kevent (struct usbnet *dev, int work)
 		netdev_err(dev->net, "kevent %d may have been dropped\n", work);
 	} else {
 		netdev_dbg(dev->net, "kevent %d scheduled\n", work);
-        }
+	}
 }
 EXPORT_SYMBOL_GPL(usbnet_defer_kevent);
 

@@ -251,7 +251,7 @@ void __init S5000_tsp_input_init(int version)
 	el_type = (version >> 8) & 0x1;
 
 #if defined(CONFIG_MACH_JACTIVE_EUR) || defined(CONFIG_MACH_JACTIVE_ATT)
-	/* JACITVE USE ONLY B Type */ 
+	/* JACITVE USE ONLY B Type */
 	touch_sleep_time = SYNAPTICS_HW_RESET_TIME_B0;
 #else
 	/* IF TSP IS is A1, B0 version : ID2 value is 40

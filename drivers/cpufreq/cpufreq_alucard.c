@@ -94,8 +94,8 @@ static struct alucard_tuners {
 #else
 	.freq_responsiveness = ATOMIC_INIT(918000),
 #endif
-	.pump_inc_step = ATOMIC_INIT(1),
-	.pump_dec_step = ATOMIC_INIT(2),
+	.pump_inc_step = ATOMIC_INIT(2),
+	.pump_dec_step = ATOMIC_INIT(1),
 	.cpus_boost = ATOMIC_INIT(0),
 };
 
