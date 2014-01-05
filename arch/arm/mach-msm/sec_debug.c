@@ -1399,7 +1399,7 @@ int __init sec_debug_init(void)
 #endif
 
 	debug_semaphore_init();
-	
+
 	return 0;
 }
 
