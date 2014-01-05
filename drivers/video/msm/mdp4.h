@@ -384,9 +384,9 @@ struct mdp4_overlay_pipe {
 	struct completion comp;
 	struct completion dmas_comp;
 	struct mdp4_iommu_pipe_info iommu;
-#ifdef MDP_ODD_RESOLUTION_CTRL	
+#ifdef MDP_ODD_RESOLUTION_CTRL
 	uint32 check_odd_res;
-#endif	
+#endif
 };
 
 struct mdp4_statistic {

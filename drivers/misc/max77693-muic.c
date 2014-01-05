@@ -2590,7 +2590,6 @@ static int __devinit max77693_muic_probe(struct platform_device *pdev)
 		MAX77693_MUIC_REG_CDETCTRL1, cdetctrl1);
 	pr_info("%s: CDETCTRL1(0x%02x)\n", __func__, cdetctrl1);
 
-
 	/* Show Register State */
 	max77693_muic_monitor_status();
 

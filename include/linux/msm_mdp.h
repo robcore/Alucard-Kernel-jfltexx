@@ -515,6 +515,7 @@ struct msmfb_mdp_pp {
 		struct mdp_calib_config_data calib_cfg;
 	} data;
 };
+
 enum {
 	metadata_op_none,
 	metadata_op_base_blend,
@@ -534,7 +535,6 @@ struct msmfb_metadata {
 		uint32_t panel_frame_rate;
 	} data;
 };
-
 
 #define MDP_MAX_FENCE_FD	10
 #define MDP_BUF_SYNC_FLAG_WAIT	1
@@ -574,7 +574,7 @@ struct mdp_mixer_info {
 	int z_order;
 };
 
-#define MAX_PIPE_PER_MIXER 5 //ss fix 4-> 5.  this value should be (MDP4_MIXER_STAGE_MAX-MDP4_MIXER_STAGE_BASE)
+#define MAX_PIPE_PER_MIXER  5
 
 struct msmfb_mixer_info_req {
 	int mixer_num;

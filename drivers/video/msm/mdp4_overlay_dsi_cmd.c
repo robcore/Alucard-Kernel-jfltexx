@@ -291,11 +291,11 @@ int mdp4_dsi_cmd_pipe_commit(int cndx, int wait)
 
         mdp_update_pm(vctrl->mfd, vctrl->vsync_time);
 
-/*                                             
- * allow stage_commit without pipes queued     
+/*
+ * allow stage_commit without pipes queued
  * (vp->update_cnt == 0) to unstage pipes after
- * overlay_unset                               
- */                                            
+ * overlay_unset
+ */
 
 	vctrl->update_ndx++;
 	vctrl->update_ndx &= 0x01;
@@ -898,7 +898,7 @@ static void mdp4_overlay_update_dsi_cmd(struct msm_fb_data_type *mfd)
 
 	/* TE enabled */
 	mdp4_mipi_vsync_enable(mfd, pipe, 0);
-	
+
 	mdp4_overlay_mdp_pipe_req(pipe, mfd);
 	mdp4_calc_blt_mdp_bw(mfd, pipe);
 	MDP_OUTP(MDP_BASE + 0x021c, 10); /* read pointer */

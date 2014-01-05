@@ -201,8 +201,8 @@ int mdp4_overlay_writeback_off(struct platform_device *pdev)
 	}
 
 	complete(&vctrl->ov_comp);
-	msleep(20); 			  
-	mdp_clk_ctrl(1);		  
+	msleep(20);
+	mdp_clk_ctrl(1);
 
 	/* sanity check, free pipes besides base layer */
 	mdp4_overlay_unset_mixer(pipe->mixer_num);
