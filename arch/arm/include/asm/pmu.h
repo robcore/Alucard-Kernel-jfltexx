@@ -21,7 +21,6 @@
  */
 enum arm_pmu_type {
 	ARM_PMU_DEVICE_CPU	= 0,
-	ARM_PMU_DEVICE_L2CC	= 1,
 	ARM_NUM_PMU_DEVICES,
 };
 
@@ -108,16 +107,8 @@ struct arm_pmu {
 	enum arm_pmu_type type;
 	cpumask_t	active_irqs;
 	const char	*name;
-	int		num_events;
-	atomic_t	active_events;
-	struct mutex	reserve_mutex;
-	u64		max_period;
-	struct platform_device	*plat_device;
-	u32		from_idle;
 	irqreturn_t	(*handle_irq)(int irq_num, void *dev);
-	int     	(*request_pmu_irq)(int irq, irq_handler_t *irq_h);
-	void    	(*free_pmu_irq)(int irq);
-	void		(*enable)(struct hw_perf_event *evt, int idx, int cpu);
+	void		(*enable)(struct hw_perf_event *evt, int idx);
 	void		(*disable)(struct hw_perf_event *evt, int idx);
 	int		(*get_event_idx)(struct pmu_hw_events *hw_events,
 					 struct hw_perf_event *hwc);
@@ -129,14 +120,17 @@ struct arm_pmu {
 	void		(*stop)(void);
 	void		(*reset)(void *);
 	int		(*map_event)(struct perf_event *event);
+	int		num_events;
+	atomic_t	active_events;
+	struct mutex	reserve_mutex;
+	u64		max_period;
+	struct platform_device	*plat_device;
 	struct pmu_hw_events	*(*get_hw_events)(void);
-	int	(*test_set_event_constraints)(struct perf_event *event);
-	int	(*clear_event_constraints)(struct perf_event *event);
 };
 
 #define to_arm_pmu(p) (container_of(p, struct arm_pmu, pmu))
 
-int armpmu_register(struct arm_pmu *armpmu, char *name, int type);
+int __init armpmu_register(struct arm_pmu *armpmu, char *name, int type);
 
 u64 armpmu_event_update(struct perf_event *event,
 			struct hw_perf_event *hwc,

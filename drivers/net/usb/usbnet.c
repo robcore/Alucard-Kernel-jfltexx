@@ -33,11 +33,8 @@
 // #define	DEBUG			// error path messages, extra info
 // #define	VERBOSE			// more; success messages
 
-#define FD_WAKELOCK	/* define fast dormancy wakelock */
-
 #include <linux/module.h>
 #include <linux/init.h>
-#include <linux/if_arp.h>
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
 #include <linux/ctype.h>
@@ -49,11 +46,6 @@
 #include <linux/slab.h>
 #include <linux/kernel.h>
 #include <linux/pm_runtime.h>
-
-#ifdef FD_WAKELOCK
-#include <linux/wakelock.h>
-#include <linux/sec_class.h>
-#endif
 
 #define DRIVER_VERSION		"22-Aug-2005"
 
@@ -94,20 +86,12 @@ static u8	node_id [ETH_ALEN];
 
 static const char driver_name [] = "usbnet";
 
-static struct workqueue_struct	*usbnet_wq;
-
-static DECLARE_WAIT_QUEUE_HEAD(unlink_wakeup);
-
 /* use ethtool to change the level for any given device */
 static int msg_level = -1;
 module_param (msg_level, int, 0);
 MODULE_PARM_DESC (msg_level, "Override default message level");
 
 /*-------------------------------------------------------------------------*/
-#ifdef FD_WAKELOCK
-static struct wake_lock fd_wakelock;
-static unsigned int fdwakelock_time;
-#endif
 
 /* handles CDC Ethernet and many other network "bulk data" interfaces */
 int usbnet_get_endpoints(struct usbnet *dev, struct usb_interface *intf)
@@ -248,9 +232,7 @@ void usbnet_skb_return (struct usbnet *dev, struct sk_buff *skb)
 		return;
 	}
 
-	if (!skb->protocol)
-		skb->protocol = eth_type_trans(skb, dev->net);
-
+	skb->protocol = eth_type_trans (skb, dev->net);
 	dev->net->stats.rx_packets++;
 	dev->net->stats.rx_bytes += skb->len;
 
@@ -261,18 +243,10 @@ void usbnet_skb_return (struct usbnet *dev, struct sk_buff *skb)
 	if (skb_defer_rx_timestamp(skb))
 		return;
 
-	status = netif_rx_ni(skb);
+	status = netif_rx (skb);
 	if (status != NET_RX_SUCCESS)
 		netif_dbg(dev, rx_err, dev->net,
 			  "netif_rx status %d\n", status);
-#ifdef FD_WAKELOCK
-	if (dev->udev->descriptor.idProduct == 0x9048 ||
-		dev->udev->descriptor.idProduct == 0x904c) {
-		pr_debug("rx fast dormancy wakelock\n");
-		wake_lock_timeout(&fd_wakelock, fdwakelock_time);
-	}
-#endif
-
 }
 EXPORT_SYMBOL_GPL(usbnet_skb_return);
 
@@ -339,7 +313,7 @@ static enum skb_state defer_bh(struct usbnet *dev, struct sk_buff *skb,
 	spin_lock(&dev->done.lock);
 	__skb_queue_tail(&dev->done, skb);
 	if (dev->done.qlen == 1)
-		queue_work(usbnet_wq, &dev->bh_w);
+		tasklet_schedule(&dev->bh);
 	spin_unlock_irqrestore(&dev->done.lock, flags);
 	return old_state;
 }
@@ -352,12 +326,10 @@ static enum skb_state defer_bh(struct usbnet *dev, struct sk_buff *skb,
 void usbnet_defer_kevent (struct usbnet *dev, int work)
 {
 	set_bit (work, &dev->flags);
-	if (!schedule_work (&dev->kevent)) {
-		if (net_ratelimit())
+	if (!schedule_work (&dev->kevent))
 		netdev_err(dev->net, "kevent %d may have been dropped\n", work);
-	} else {
+	else
 		netdev_dbg(dev->net, "kevent %d scheduled\n", work);
-	}
 }
 EXPORT_SYMBOL_GPL(usbnet_defer_kevent);
 
@@ -380,9 +352,6 @@ static int rx_submit (struct usbnet *dev, struct urb *urb, gfp_t flags)
 		usb_free_urb (urb);
 		return -ENOMEM;
 	}
-
-	if (dev->net->type != ARPHRD_RAWIP)
-		skb_reserve(skb, NET_IP_ALIGN);
 
 	entry = (struct skb_data *) skb->cb;
 	entry->urb = urb;
@@ -415,10 +384,9 @@ static int rx_submit (struct usbnet *dev, struct urb *urb, gfp_t flags)
 		default:
 			netif_dbg(dev, rx_err, dev->net,
 				  "rx submit, %d\n", retval);
-			queue_work(usbnet_wq, &dev->bh_w);
+			tasklet_schedule (&dev->bh);
 			break;
 		case 0:
-			usb_mark_last_busy(dev->udev);
 			__usbnet_queue_skb(&dev->rxq, skb, rx_start);
 		}
 	} else {
@@ -608,7 +576,7 @@ void usbnet_resume_rx(struct usbnet *dev)
 		num++;
 	}
 
-	queue_work(usbnet_wq, &dev->bh_w);
+	tasklet_schedule(&dev->bh);
 
 	netif_dbg(dev, rx_status, dev->net,
 		  "paused rx queue disabled, %d skbs requeued\n", num);
@@ -677,7 +645,7 @@ void usbnet_unlink_rx_urbs(struct usbnet *dev)
 {
 	if (netif_running(dev->net)) {
 		(void) unlink_urbs (dev, &dev->rxq);
-		queue_work(usbnet_wq, &dev->bh_w);
+		tasklet_schedule(&dev->bh);
 	}
 }
 EXPORT_SYMBOL_GPL(usbnet_unlink_rx_urbs);
@@ -687,6 +655,7 @@ EXPORT_SYMBOL_GPL(usbnet_unlink_rx_urbs);
 // precondition: never called in_interrupt
 static void usbnet_terminate_urbs(struct usbnet *dev)
 {
+	DECLARE_WAIT_QUEUE_HEAD_ONSTACK(unlink_wakeup);
 	DECLARE_WAITQUEUE(wait, current);
 	int temp;
 
@@ -750,7 +719,7 @@ int usbnet_stop (struct net_device *net)
 	 */
 	dev->flags = 0;
 	del_timer_sync (&dev->delay);
-	cancel_work_sync(&dev->bh_w);
+	tasklet_kill (&dev->bh);
 	if (info->manage_power)
 		info->manage_power(dev, 0);
 	else
@@ -823,7 +792,7 @@ int usbnet_open (struct net_device *net)
 		   "simple");
 
 	// delay posting reads until we're fully open
-	queue_work(usbnet_wq, &dev->bh_w);
+	tasklet_schedule (&dev->bh);
 	if (info->manage_power) {
 		retval = info->manage_power(dev, 1);
 		if (retval < 0)
@@ -993,7 +962,7 @@ fail_halt:
 					   status);
 		} else {
 			clear_bit (EVENT_RX_HALT, &dev->flags);
-			queue_work(usbnet_wq, &dev->bh_w);
+			tasklet_schedule (&dev->bh);
 		}
 	}
 
@@ -1018,7 +987,7 @@ fail_halt:
 			usb_autopm_put_interface(dev->intf);
 fail_lowmem:
 			if (resched)
-				queue_work(usbnet_wq, &dev->bh_w);
+				tasklet_schedule (&dev->bh);
 		}
 	}
 
@@ -1059,13 +1028,6 @@ static void tx_complete (struct urb *urb)
 		if (!(dev->driver_info->flags & FLAG_MULTI_PACKET))
 			dev->net->stats.tx_packets++;
 		dev->net->stats.tx_bytes += entry->length;
-#ifdef FD_WAKELOCK
-		if (dev->udev->descriptor.idProduct == 0x9048 ||
-			dev->udev->descriptor.idProduct == 0x904c) {
-			pr_debug("tx fast dormancy wakelock\n");
-			wake_lock_timeout(&fd_wakelock, fdwakelock_time);
-		}
-#endif
 	} else {
 		dev->net->stats.tx_errors++;
 
@@ -1111,7 +1073,7 @@ void usbnet_tx_timeout (struct net_device *net)
 	struct usbnet		*dev = netdev_priv(net);
 
 	unlink_urbs (dev, &dev->txq);
-	queue_work(usbnet_wq, &dev->bh_w);
+	tasklet_schedule (&dev->bh);
 
 	// FIXME: device recovery -- reset?
 }
@@ -1196,7 +1158,6 @@ netdev_tx_t usbnet_start_xmit (struct sk_buff *skb,
 		usb_anchor_urb(urb, &dev->deferred);
 		/* no use to process more packets */
 		netif_stop_queue(net);
-		usb_put_urb(urb);
 		spin_unlock_irqrestore(&dev->txq.lock, flags);
 		netdev_dbg(dev->net, "Delaying transmission for resumption\n");
 		goto deferred;
@@ -1270,7 +1231,7 @@ static void usbnet_bh (unsigned long param)
 	// waiting for all pending urbs to complete?
 	if (dev->wait) {
 		if ((dev->txq.qlen + dev->rxq.qlen + dev->done.qlen) == 0) {
-			wake_up(&unlink_wakeup);
+			wake_up (dev->wait);
 		}
 
 	// or are we maybe short a few urbs?
@@ -1299,21 +1260,13 @@ static void usbnet_bh (unsigned long param)
 					  "rxqlen %d --> %d\n",
 					  temp, dev->rxq.qlen);
 			if (dev->rxq.qlen < qlen)
-				queue_work(usbnet_wq, &dev->bh_w);
+				tasklet_schedule (&dev->bh);
 		}
 		if (dev->txq.qlen < TX_QLEN (dev))
 			netif_wake_queue (dev->net);
 	}
 }
 
-static void usbnet_bh_w(struct work_struct *work)
-{
-	struct usbnet		*dev =
-		container_of(work, struct usbnet, bh_w);
-	unsigned long param = (unsigned long)dev;
-
-	usbnet_bh(param);
-}
 
 /*-------------------------------------------------------------------------
  *
@@ -1345,8 +1298,6 @@ void usbnet_disconnect (struct usb_interface *intf)
 	unregister_netdev (net);
 
 	cancel_work_sync(&dev->kevent);
-
-	usb_scuttle_anchored_urbs(&dev->deferred);
 
 	if (dev->driver_info->unbind)
 		dev->driver_info->unbind (dev, intf);
@@ -1434,7 +1385,8 @@ usbnet_probe (struct usb_interface *udev, const struct usb_device_id *prod)
 	skb_queue_head_init (&dev->txq);
 	skb_queue_head_init (&dev->done);
 	skb_queue_head_init(&dev->rxq_pause);
-	INIT_WORK(&dev->bh_w, usbnet_bh_w);
+	dev->bh.func = usbnet_bh;
+	dev->bh.data = (unsigned long) dev;
 	INIT_WORK (&dev->kevent, kevent);
 	init_usb_anchor(&dev->deferred);
 	dev->delay.function = usbnet_bh;
@@ -1560,7 +1512,6 @@ int usbnet_suspend (struct usb_interface *intf, pm_message_t message)
 		spin_lock_irq(&dev->txq.lock);
 		/* don't autosuspend while transmitting */
 		if (dev->txq.qlen && PMSG_IS_AUTO(message)) {
-			dev->suspend_count--;
 			spin_unlock_irq(&dev->txq.lock);
 			return -EBUSY;
 		} else {
@@ -1619,7 +1570,7 @@ int usbnet_resume (struct usb_interface *intf)
 		if (test_bit(EVENT_DEV_OPEN, &dev->flags)) {
 			if (!(dev->txq.qlen >= TX_QLEN(dev)))
 				netif_tx_wake_all_queues(dev->net);
-			queue_work(usbnet_wq, &dev->bh_w);
+			tasklet_schedule (&dev->bh);
 		}
 	}
 	return 0;
@@ -1628,40 +1579,6 @@ EXPORT_SYMBOL_GPL(usbnet_resume);
 
 
 /*-------------------------------------------------------------------------*/
-#ifdef FD_WAKELOCK
-	struct device *fdwakelock_dev;
-
-static ssize_t show_waketime(struct device *dev,
-	struct device_attribute *attr, char *buf)
-{
-	unsigned int msec;
-
-	if (!fdwakelock_dev)
-		return 0;
-
-	msec = jiffies_to_msecs(fdwakelock_time);
-
-	return snprintf(buf, sizeof(buf) + 1, "%u\n", msec);
-}
-
-static ssize_t store_waketime(struct device *dev,
-	struct device_attribute *attr, const char *buf, size_t count)
-{
-	int r;
-	unsigned long msec;
-	if (!fdwakelock_dev)
-		return count;
-
-	r = kstrtoul(buf, 10, &msec);
-
-	if (r)
-		return count;
-	fdwakelock_time = msecs_to_jiffies(msec);
-	return count;
-}
-
-static DEVICE_ATTR(waketime, 0660, show_waketime, store_waketime);
-#endif
 
 static int __init usbnet_init(void)
 {
@@ -1670,34 +1587,12 @@ static int __init usbnet_init(void)
 		FIELD_SIZEOF(struct sk_buff, cb) < sizeof(struct skb_data));
 
 	random_ether_addr(node_id);
-
-	usbnet_wq  = create_singlethread_workqueue("usbnet");
-	if (!usbnet_wq) {
-		pr_err("%s: Unable to create workqueue:usbnet\n", __func__);
-		return -ENOMEM;
-	}
-
-#ifdef FD_WAKELOCK
-	fdwakelock_dev = device_create(sec_class, NULL, 0, NULL, "mdm_hsic_pm");
-	if (IS_ERR(fdwakelock_dev))
-		pr_err("%s: Failed to create device(fdwakelock_dev)!\n",
-			__func__);
-
-	if (device_create_file(fdwakelock_dev, &dev_attr_waketime) < 0)
-		pr_err("%s: Failed to create device file(%s)!\n",
-			__func__, dev_attr_waketime.attr.name);
-
-	fdwakelock_time = 0;
-	wake_lock_init(&fd_wakelock, WAKE_LOCK_SUSPEND, "fast_dormancy");
-#endif
-
 	return 0;
 }
 module_init(usbnet_init);
 
 static void __exit usbnet_exit(void)
 {
-	destroy_workqueue(usbnet_wq);
 }
 module_exit(usbnet_exit);
 

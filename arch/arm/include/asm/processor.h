@@ -29,8 +29,6 @@
 #define STACK_TOP_MAX	TASK_SIZE
 #endif
 
-extern unsigned int boot_reason;
-
 struct debug_info {
 #ifdef CONFIG_HAVE_HW_BREAKPOINT
 	struct perf_event	*hbp[ARM_MAX_HBP_SLOTS];
@@ -125,6 +123,7 @@ static inline void prefetch(const void *ptr)
 #define spin_lock_prefetch(x) do { } while (0)
 
 #endif
+
 #define HAVE_ARCH_PICK_MMAP_LAYOUT
 
 #endif
