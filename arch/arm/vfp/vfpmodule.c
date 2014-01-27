@@ -20,9 +20,9 @@
 #include <linux/init.h>
 #include <linux/uaccess.h>
 #include <linux/user.h>
-#include <linux/export.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
+#include <linux/export.h>
 
 #include <asm/cp15.h>
 #include <asm/cputype.h>
@@ -751,6 +751,7 @@ static int __init vfp_init(void)
 {
 	unsigned int vfpsid;
 	unsigned int cpu_arch = cpu_architecture();
+
 	if (cpu_arch >= CPU_ARCH_ARMv6)
 		on_each_cpu(vfp_enable, NULL, 1);
 
@@ -824,10 +825,11 @@ static int __init vfp_init(void)
 #endif
 		}
 	}
+
 	return 0;
 }
 
-static int __init vfp_bounce_proc_entry(void)
+static int __init vfp_rootfs_init(void)
 {
 #ifdef CONFIG_PROC_FS
 	static struct proc_dir_entry *procfs_entry;
@@ -841,4 +843,4 @@ static int __init vfp_bounce_proc_entry(void)
 }
 
 core_initcall(vfp_init);
-rootfs_initcall(vfp_bounce_proc_entry);
+rootfs_initcall(vfp_rootfs_init);
