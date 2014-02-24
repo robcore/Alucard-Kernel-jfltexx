@@ -465,7 +465,8 @@ static ssize_t mtp_read(struct file *fp, char __user *buf,
 	struct mtp_dev *dev = fp->private_data;
 	struct usb_composite_dev *cdev = dev->cdev;
 	struct usb_request *req;
-	int r = count, xfer;
+	ssize_t r = count;
+	unsigned xfer;
 	int ret = 0;
 
 	DBG(cdev, "mtp_read(%zu)\n", count);
@@ -542,7 +543,7 @@ done:
 		dev->state = STATE_READY;
 	spin_unlock_irq(&dev->lock);
 
-	DBG(cdev, "mtp_read returning %d\n", r);
+	DBG(cdev, "mtp_read returning %zd\n", r);
 	return r;
 }
 
@@ -552,7 +553,8 @@ static ssize_t mtp_write(struct file *fp, const char __user *buf,
 	struct mtp_dev *dev = fp->private_data;
 	struct usb_composite_dev *cdev = dev->cdev;
 	struct usb_request *req = 0;
-	int r = count, xfer;
+	ssize_t r = count;
+	unsigned xfer;
 	int sendZLP = 0;
 	int ret;
 
@@ -633,7 +635,7 @@ static ssize_t mtp_write(struct file *fp, const char __user *buf,
 		dev->state = STATE_READY;
 	spin_unlock_irq(&dev->lock);
 
-	DBG(cdev, "mtp_write returning %d\n", r);
+	DBG(cdev, "mtp_write returning %zd\n", r);
 	return r;
 }
 
