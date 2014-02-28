@@ -34,6 +34,12 @@
 
 #include "power.h"
 
+#ifdef CONFIG_PM_SYNC_BEFORE_SUSPEND
+static int suspendsync = 1;
+#else
+static int suspendsync;
+#endif
+
 struct pm_sleep_state pm_states[PM_SUSPEND_MAX] = {
 #ifdef CONFIG_EARLYSUSPEND
 	[PM_SUSPEND_ON]	= { .label = "on", .state = PM_SUSPEND_FREEZE },
@@ -358,9 +364,16 @@ static int enter_state(suspend_state_t state)
 	if (state == PM_SUSPEND_FREEZE)
 		freeze_begin();
 
-	printk(KERN_INFO "PM: Syncing filesystems ... ");
-	sys_sync();
-	printk("done.\n");
+#ifdef CONFIG_HAS_EARLYSUSPEND
+	if (suspendsync)
+		suspend_sys_sync_queue();
+#else
+	if (suspendsync) {
+		printk(KERN_INFO "PM: Syncing filesystems ... ");
+		sys_sync();
+		printk("done.\n");
+	}
+#endif
 
 	pr_debug("PM: Preparing system for %s sleep\n", pm_states[state].label);
 	error = suspend_prepare(state);
@@ -428,6 +441,13 @@ int pm_suspend(suspend_state_t state)
 	return error;
 }
 EXPORT_SYMBOL(pm_suspend);
+
+static int __init suspendsync_setup(char *str)
+{
+	suspendsync = simple_strtoul(str, NULL, 0);
+	return 1;
+}
+__setup("suspendsync=", suspendsync_setup);
 
 #ifdef CONFIG_MACH_JF
 static int __init create_suspend_blocking_monitor(void)
