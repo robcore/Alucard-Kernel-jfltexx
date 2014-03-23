@@ -441,3 +441,4 @@ obj-$(CONFIG_FORCE_FAST_CHARGE) += fastchg.o
 obj-$(CONFIG_INTELLI_HOTPLUG) += intelli_plug.o
 obj-$(CONFIG_ALUCARD_HOTPLUG) += alucard_hotplug.o
 obj-$(CONFIG_CPUFREQ_LIMIT_MANAGER) += cpufreq_limit_manager.o
+obj-$(CONFIG_HAS_MACH_MEMUTILS) += memutils/
