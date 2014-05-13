@@ -594,6 +594,12 @@ static int __qseecom_process_incomplete_cmd(struct qseecom_dev_handle *data,
 			pr_err("Listener Svc %d does not exist\n", lstnr);
 			return -EINVAL;
 		}
+
+		if (!ptr_svc->ihandle) {
+			pr_err("Client handle is not initialized\n");
+			return -EINVAL;
+		}
+
 		if (ptr_svc->svc.listener_id != lstnr) {
 			pr_warning("Service requested for does on exist\n");
 			return -ERESTARTSYS;
@@ -1022,6 +1028,11 @@ static int __qseecom_send_cmd_legacy(struct qseecom_dev_handle *data,
 	resp.sb_in_rsp_addr = (u8 *)data->client.sb_phys + req->cmd_req_len;
 	resp.sb_in_rsp_len = req->resp_len;
 
+	if (!data || !data->client.ihandle) {
+		pr_err("Client or client handle is not initialized\n");
+		return -EINVAL;
+	}
+
 	ret = scm_call(SCM_SVC_TZSCHEDULER, 1, (const void *)&cmd,
 					sizeof(cmd), &resp, sizeof(resp));
 
@@ -1177,6 +1188,11 @@ static int __qseecom_send_cmd(struct qseecom_dev_handle *data,
 	if (!found_app) {
 		pr_err("app_id %d (%s) is not found\n", data->client.app_id,
 			(char *)data->client.app_name);
+		return -EINVAL;
+	}
+
+	if (!data || !data->client.ihandle) {
+		pr_err("Client or client handle is not initialized\n");
 		return -EINVAL;
 	}
 
