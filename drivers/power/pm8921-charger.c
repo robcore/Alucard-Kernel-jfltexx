@@ -34,6 +34,7 @@
 
 #ifdef CONFIG_FORCE_FAST_CHARGE
 #include <linux/fastchg.h>
+#define USB_FASTCHG_LOAD 1000 /* uA */
 #endif 
 
 #define CHG_BUCK_CLOCK_CTRL	0x14
@@ -1251,7 +1252,7 @@ static int pm_power_get_property_mains(struct power_supply *psy,
 
 		/* USB with max current greater than 500 mA connected */
 		if (force_fast_charge == 1)
-			USB_WALL_THRESHOLD_MA = usb_charge_level;
+			USB_WALL_THRESHOLD_MA = USB_FASTCHG_LOAD;
 		else
 			USB_WALL_THRESHOLD_MA = 500;
 
@@ -1315,7 +1316,7 @@ static int pm_power_set_property_usb(struct power_supply *psy,
 		return -EINVAL;
 
 	if (force_fast_charge == 1)
-		USB_WALL_THRESHOLD_MA = usb_charge_level;
+		USB_WALL_THRESHOLD_MA = USB_FASTCHG_LOAD;
 	else
 		USB_WALL_THRESHOLD_MA = 500;
 
@@ -1363,7 +1364,7 @@ static int pm_power_get_property_usb(struct power_supply *psy,
 		return -EINVAL;
 
 	if (force_fast_charge == 1)
-		USB_WALL_THRESHOLD_MA = usb_charge_level;
+		USB_WALL_THRESHOLD_MA = USB_FASTCHG_LOAD;
 	else
 		USB_WALL_THRESHOLD_MA = 500;
 
@@ -1760,8 +1761,8 @@ void pm8921_charger_vbus_draw(unsigned int mA)
 
 	if (force_fast_charge == 1)
 	{
-		USB_WALL_THRESHOLD_MA = usb_charge_level;
-		mA = USB_WALL_THRESHOLD_MA;
+		USB_WALL_THRESHOLD_MA = USB_FASTCHG_LOAD;
+		mA = USB_FASTCHG_LOAD;
 	}
 	else
 		USB_WALL_THRESHOLD_MA = 500;
@@ -2557,7 +2558,7 @@ static void vin_collapse_check_worker(struct work_struct *work)
 			struct pm8921_chg_chip, vin_collapse_check_work);
 
 	if (force_fast_charge == 1)
-		USB_WALL_THRESHOLD_MA = usb_charge_level;
+		USB_WALL_THRESHOLD_MA = USB_FASTCHG_LOAD;
 	else
 		USB_WALL_THRESHOLD_MA = 500;
 
@@ -2767,7 +2768,7 @@ static void unplug_check_worker(struct work_struct *work)
 	reg_loop = 0;
 
 	if (force_fast_charge == 1)
-		USB_WALL_THRESHOLD_MA = usb_charge_level;
+		USB_WALL_THRESHOLD_MA = USB_FASTCHG_LOAD;
 	else
 		USB_WALL_THRESHOLD_MA = 500;
 
