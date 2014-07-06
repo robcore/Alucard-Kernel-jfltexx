@@ -1,5 +1,8 @@
 ccflags-y := -Iinclude/drm -Idrivers/gpu/msm
 
+CFLAGS_adreno.o += -w
+CFLAGS_kgsl_iommu.o += -w
+
 msm_kgsl_core-y = \
 	kgsl.o \
 	kgsl_sharedmem.o \
