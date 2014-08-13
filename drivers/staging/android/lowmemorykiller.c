@@ -371,7 +371,7 @@ static int lowmem_shrink(struct shrinker *s, struct shrink_control *sc)
 
 static void low_mem_early_suspend(struct early_suspend *handler)
 {
-	if (lowmem_auto_oom) {
+	if (lowmem_auto_oom && lowmem_minfree != lowmem_minfree_screen_off) {
 		memcpy(lowmem_minfree_screen_on, lowmem_minfree, sizeof(lowmem_minfree));
 		memcpy(lowmem_minfree, lowmem_minfree_screen_off, sizeof(lowmem_minfree_screen_off));
 	}
@@ -379,7 +379,7 @@ static void low_mem_early_suspend(struct early_suspend *handler)
 
 static void low_mem_late_resume(struct early_suspend *handler)
 {
-	if (lowmem_auto_oom)
+	if (lowmem_auto_oom && lowmem_minfree != lowmem_minfree_screen_off)
 		memcpy(lowmem_minfree, lowmem_minfree_screen_on, sizeof(lowmem_minfree_screen_on));
 }
 
