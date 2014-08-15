@@ -36,7 +36,7 @@
 static int orig_up_threshold = 90;
 static int g_count = 0;
 
-#define DEF_SAMPLING_RATE			(30000)
+#define DEF_SAMPLING_RATE			(50000)
 #define DEF_FREQUENCY_DOWN_DIFFERENTIAL		(10)
 #define DEF_FREQUENCY_UP_THRESHOLD		(90)
 #define DEF_SAMPLING_DOWN_FACTOR		(1)
@@ -158,6 +158,8 @@ static struct dbs_tuners {
 	.optimal_freq = 0,
 	.io_is_busy = 1,
 	.two_phase_freq = 0,
+	.sampling_rate = DEF_SAMPLING_RATE,
+	.origin_sampling_rate = DEF_SAMPLING_RATE,
 	.ui_sampling_rate = UI_DYNAMIC_SAMPLING_RATE,
 	.input_event_timeout = INPUT_EVENT_TIMEOUT,
 	.gboost = 1,
@@ -382,8 +384,8 @@ static ssize_t store_sampling_rate(struct kobject *a, struct attribute *b,
 	if (input == dbs_tuners_ins.origin_sampling_rate)
 		return count;
 
-	dbs_tuners_ins.sampling_rate = max(input, min_sampling_rate);
-	dbs_tuners_ins.origin_sampling_rate = dbs_tuners_ins.sampling_rate;
+	dbs_tuners_ins.origin_sampling_rate = max(input, min_sampling_rate);
+	dbs_tuners_ins.sampling_rate = dbs_tuners_ins.origin_sampling_rate;
 	return count;
 }
 
@@ -1055,14 +1057,14 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 
 	if (dbs_tuners_ins.gboost) {
 
-		if (g_count < 100 && graphics_boost < 5) {
+		if (g_count < 100 && graphics_boost < 3) {
 			++g_count;
 		} else if (g_count > 1) {
 			--g_count;
 			--g_count;
 		}
 
-		if (graphics_boost < 4 && g_count > 80) {
+		if (graphics_boost < 2 && g_count > 80) {
 			dbs_tuners_ins.up_threshold = 60 + (graphics_boost * 10);
 		} else {
 			dbs_tuners_ins.up_threshold = orig_up_threshold;
@@ -1364,12 +1366,6 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 
 			min_sampling_rate = max(min_sampling_rate,
 					MIN_LATENCY_MULTIPLIER * latency);
-			dbs_tuners_ins.sampling_rate =
-				max(min_sampling_rate,
-				    latency * LATENCY_MULTIPLIER);
-			if (dbs_tuners_ins.sampling_rate < DEF_SAMPLING_RATE)
-				dbs_tuners_ins.sampling_rate = DEF_SAMPLING_RATE;
-			dbs_tuners_ins.origin_sampling_rate = dbs_tuners_ins.sampling_rate;
 
 			if (dbs_tuners_ins.optimal_freq == 0)
 				dbs_tuners_ins.optimal_freq = policy->min;
