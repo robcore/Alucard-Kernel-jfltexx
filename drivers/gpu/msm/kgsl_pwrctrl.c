@@ -39,7 +39,7 @@ struct device *stored_dev;
 #endif
 
 #ifdef CONFIG_CPU_FREQ_GOV_SLIM
-int graphics_boost = 6;
+int graphics_boost = 4;
 #endif
 
 struct clk_pair {
