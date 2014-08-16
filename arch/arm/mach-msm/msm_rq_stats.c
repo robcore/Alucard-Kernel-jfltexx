@@ -62,7 +62,7 @@ static unsigned int lock_hotplug_disabled;
 static DEFINE_PER_CPU(struct cpu_load_data, cpuload);
 
 #ifndef CONFIG_MSM_RUN_QUEUE_STATS_USE_CPU_UTIL
-static int io_is_busy = 0;
+static int hp_io_is_busy = 0;
 #endif
 
 static int update_average_load(unsigned int freq, unsigned int cpu)
@@ -84,7 +84,7 @@ static int update_average_load(unsigned int freq, unsigned int cpu)
 
 	cur_load = cpufreq_quick_get_util(cpu);
 #else
-	cur_idle_time = get_cpu_idle_time(cpu, &cur_wall_time, io_is_busy);
+	cur_idle_time = get_cpu_idle_time(cpu, &cur_wall_time, hp_io_is_busy);
 
 	wall_time = (unsigned int) (cur_wall_time - pcpu->prev_cpu_wall);
 	pcpu->prev_cpu_wall = cur_wall_time;
@@ -246,7 +246,7 @@ static ssize_t store_hotplug_disable(struct kobject *kobj,
 			struct cpu_load_data *pcpu = &per_cpu(cpuload, i);
 			mutex_lock(&pcpu->cpu_load_mutex);
 			pcpu->prev_cpu_idle = get_cpu_idle_time(i,
-				&pcpu->prev_cpu_wall, io_is_busy);
+				&pcpu->prev_cpu_wall, hp_io_is_busy);
 			mutex_unlock(&pcpu->cpu_load_mutex);
 		}
 	}
@@ -269,7 +269,7 @@ static struct kobj_attribute hotplug_disabled_attr =
 	       store_hotplug_disable);
 
 #ifndef CONFIG_MSM_RUN_QUEUE_STATS_USE_CPU_UTIL
-static ssize_t store_io_is_busy(struct kobject *kobj,
+static ssize_t store_hp_io_is_busy(struct kobject *kobj,
 				     struct kobj_attribute *attr,
 				     const char *buf, size_t count)
 {
@@ -281,32 +281,32 @@ static ssize_t store_io_is_busy(struct kobject *kobj,
 	if (ret != 1 || val < 0 || val > 1)
 		return -EINVAL;
 
-	if (val == io_is_busy)
+	if (val == hp_io_is_busy)
 		return count;
  
-	io_is_busy = !!val;
+	hp_io_is_busy = !!val;
 
 	if (!lock_hotplug_disabled) {
 		for_each_possible_cpu(i) {
 			struct cpu_load_data *pcpu = &per_cpu(cpuload, i);
 			mutex_lock(&pcpu->cpu_load_mutex);
 			pcpu->prev_cpu_idle = get_cpu_idle_time(i,
-				&pcpu->prev_cpu_wall, io_is_busy);
+				&pcpu->prev_cpu_wall, hp_io_is_busy);
 			mutex_unlock(&pcpu->cpu_load_mutex);
 		}
 	}
 
 	return count;
 }
-static ssize_t show_io_is_busy(struct kobject *kobj,
+static ssize_t show_hp_io_is_busy(struct kobject *kobj,
 				    struct kobj_attribute *attr, char *buf)
 {
-	return sprintf(buf, "%d\n", io_is_busy);
+	return sprintf(buf, "%d\n", hp_io_is_busy);
 }
 
-static struct kobj_attribute io_is_busy_attr =
-	__ATTR(io_is_busy, S_IWUSR | S_IRUSR, show_io_is_busy,
-	       store_io_is_busy);
+static struct kobj_attribute hp_io_is_busy_attr =
+	__ATTR(hp_io_is_busy, S_IWUSR | S_IRUSR, show_hp_io_is_busy,
+	       store_hp_io_is_busy);
 #endif
 
 static void def_work_fn(struct work_struct *work)
@@ -419,7 +419,7 @@ static struct attribute *rq_attrs[] = {
 	&run_queue_poll_ms_attr.attr,
 	&hotplug_disabled_attr.attr,
 #ifndef CONFIG_MSM_RUN_QUEUE_STATS_USE_CPU_UTIL
-	&io_is_busy_attr.attr,
+	&hp_io_is_busy_attr.attr,
 #endif
 	NULL,
 };

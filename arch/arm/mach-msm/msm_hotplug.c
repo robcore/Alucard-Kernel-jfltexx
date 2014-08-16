@@ -165,7 +165,7 @@ struct cpu_load_data {
 
 static DEFINE_PER_CPU(struct cpu_load_data, cpuload);
 
-static bool io_is_busy;
+static bool hp_io_is_busy;
 
 static int update_average_load(unsigned int cpu)
 {
@@ -180,7 +180,7 @@ static int update_average_load(unsigned int cpu)
 	if (ret)
 		return -EINVAL;
 
-	cur_idle_time = get_cpu_idle_time(cpu, &cur_wall_time, io_is_busy);
+	cur_idle_time = get_cpu_idle_time(cpu, &cur_wall_time, hp_io_is_busy);
 
 	wall_time = (unsigned int) (cur_wall_time - pcpu->prev_cpu_wall);
 	pcpu->prev_cpu_wall = cur_wall_time;
@@ -1276,14 +1276,14 @@ static ssize_t store_fast_lane_min_freq(struct device *dev,
 	return count;
 }
 
-static ssize_t show_io_is_busy(struct device *dev,
+static ssize_t show_hp_io_is_busy(struct device *dev,
 				   struct device_attribute *msm_hotplug_attrs,
 				   char *buf)
 {
-	return sprintf(buf, "%u\n", io_is_busy);
+	return sprintf(buf, "%u\n", hp_io_is_busy);
 }
 
-static ssize_t store_io_is_busy(struct device *dev,
+static ssize_t store_hp_io_is_busy(struct device *dev,
 				    struct device_attribute *msm_hotplug_attrs,
 				    const char *buf, size_t count)
 {
@@ -1294,7 +1294,7 @@ static ssize_t store_io_is_busy(struct device *dev,
 	if (ret != 1 || val < 0 || val > 1)
 		return -EINVAL;
 
-	io_is_busy = val ? true : false;
+	hp_io_is_busy = val ? true : false;
 
 	return count;
 }
@@ -1330,7 +1330,7 @@ static DEVICE_ATTR(fast_lane_load, 644, show_fast_lane_load,
 		   store_fast_lane_load);
 static DEVICE_ATTR(fast_lane_min_freq, 644, show_fast_lane_min_freq,
 		   store_fast_lane_min_freq);
-static DEVICE_ATTR(io_is_busy, 644, show_io_is_busy, store_io_is_busy);
+static DEVICE_ATTR(hp_io_is_busy, 644, show_hp_io_is_busy, store_hp_io_is_busy);
 static DEVICE_ATTR(current_load, 444, show_current_load, NULL);
 
 static struct attribute *msm_hotplug_attrs[] = {
@@ -1349,7 +1349,7 @@ static struct attribute *msm_hotplug_attrs[] = {
 #endif
 	&dev_attr_cpus_boosted.attr,
 	&dev_attr_offline_load.attr,
-	&dev_attr_io_is_busy.attr,
+	&dev_attr_hp_io_is_busy.attr,
 	&dev_attr_fast_lane_load.attr,
 	&dev_attr_fast_lane_min_freq.attr,
 	&dev_attr_current_load.attr,
