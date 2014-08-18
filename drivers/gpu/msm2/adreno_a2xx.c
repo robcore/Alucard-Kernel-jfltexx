@@ -2095,6 +2095,7 @@ static void a2xx_start(struct adreno_device *adreno_dev)
 	a2xx_gmeminit(adreno_dev);
 }
 
+#if 0
 static void a2xx_postmortem_dump(struct adreno_device *adreno_dev)
 {
 	unsigned int r1, r2, r3, rbbm_status;
@@ -2261,6 +2262,7 @@ static void a2xx_postmortem_dump(struct adreno_device *adreno_dev)
 	KGSL_LOG_DUMP(device,
 		"MH_INTERRUPT: MASK = %08X | STATUS   = %08X\n", r1, r2);
 }
+#endif
 
 /* Register offset defines for A2XX */
 static unsigned int a2xx_register_offsets[ADRENO_REG_REGISTER_MAX] = {

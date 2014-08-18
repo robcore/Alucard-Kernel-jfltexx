@@ -4143,6 +4143,7 @@ static void a3xx_soft_reset(struct adreno_device *adreno_dev)
 void *a3xx_snapshot(struct adreno_device *adreno_dev, void *snapshot,
 	int *remain, int hang);
 
+#if 0
 static void a3xx_postmortem_dump(struct adreno_device *adreno_dev)
 {
 	struct kgsl_device *device = &adreno_dev->dev;
@@ -4295,6 +4296,7 @@ static void a3xx_postmortem_dump(struct adreno_device *adreno_dev)
 		adreno_dump_fields(device, "INT_SGNL=", ints, ARRAY_SIZE(ints));
 	}
 }
+#endif
 
 /* Register offset defines for A3XX */
 static unsigned int a3xx_register_offsets[ADRENO_REG_REGISTER_MAX] = {
