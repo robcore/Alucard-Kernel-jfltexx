@@ -339,7 +339,7 @@ static void __ref alucard_hotplug_late_resume(
 {
 	if ((hotplug_tuners_ins.hotplug_enable > 0) &&
 			hotplug_tuners_ins.hotplug_suspend == 1) {
-		if (suspended = true) {
+		if (suspended == true) {
 			/* wake up everyone */
 			suspended = false;
 			force_cpu_up = true;
