@@ -310,7 +310,6 @@ static ktime_t tick_nohz_stop_sched_tick(struct tick_sched *ts,
 			delta_jiffies = rcu_delta_jiffies;
 		}
 	}
-
 	/*
 	 * Do not stop the tick, if we are only one off (or less)
 	 * or if the cpu is required for RCU:
