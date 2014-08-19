@@ -1272,7 +1272,7 @@ static void update_task_ravg(struct task_struct *p, struct rq *rq,
 	u64 mark_start = p->ravg.mark_start;
 	u64 window_start;
 
-	if (sched_use_pelt || !rq->window_start)
+	if (is_idle_task(p) || sched_use_pelt || !rq->window_start)
 		return;
 
 	lockdep_assert_held(&rq->lock);
@@ -1346,9 +1346,11 @@ static void update_task_ravg(struct task_struct *p, struct rq *rq,
 
 	if (event == PICK_NEXT_TASK && !p->ravg.sum)
 		rq->curr_runnable_sum += p->ravg.partial_demand;
+
 #ifdef TRACE_CRAP
 	trace_sched_update_task_ravg(p, rq, event, wallclock);
 #endif
+
 	p->ravg.mark_start = wallclock;
 }
 
@@ -1850,6 +1852,7 @@ void set_task_cpu(struct task_struct *p, unsigned int new_cpu)
 #ifdef TRACE_CRAP
 	trace_sched_migrate_task(p, new_cpu, pct_task_load(p));
 #endif
+
 	if (task_cpu(p) != new_cpu) {
 		struct task_migration_notifier tmn;
 
@@ -2354,12 +2357,12 @@ try_to_wake_up(struct task_struct *p, unsigned int state, int wake_flags)
 {
 	unsigned long flags;
 	int cpu, src_cpu, success = 0;
+	bool notify = false;
 #ifdef CONFIG_SMP
 	struct rq *rq;
 	int long_sleep = 0;
 	u64 wallclock;
 #endif
-	bool notify = false;
 
 	/*
 	 * If we are going to wake up a thread waiting for CONDITION we
@@ -8421,10 +8424,10 @@ void __init sched_init(void)
 		rq->online = 0;
 		rq->idle_stamp = 0;
 		rq->avg_idle = 2*sysctl_sched_migration_cost;
+		rq->max_idle_balance_cost = sysctl_sched_migration_cost;
 		rq->cstate = 0;
 		rq->wakeup_latency = 0;
 		rq->wakeup_energy = 0;
-		rq->max_idle_balance_cost = sysctl_sched_migration_cost;
 #if defined(CONFIG_SCHED_FREQ_INPUT) || defined(CONFIG_SCHED_HMP)
 		rq->cur_freq = 1;
 		rq->max_freq = 1;
