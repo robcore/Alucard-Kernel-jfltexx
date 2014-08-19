@@ -595,10 +595,10 @@ struct rq {
 	u64 age_stamp;
 	u64 idle_stamp;
 	u64 avg_idle;
-	int cstate, wakeup_latency, wakeup_energy;
 
 	/* Set to max idle balance cost for any one sched domain */
 	u64 max_idle_balance_cost;
+	int cstate, wakeup_latency, wakeup_energy;
 #endif
 
 #if defined(CONFIG_SCHED_FREQ_INPUT) || defined(CONFIG_SCHED_HMP)

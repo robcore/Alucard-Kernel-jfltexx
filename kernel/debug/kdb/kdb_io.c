@@ -239,6 +239,7 @@ poll_again:
 		tab = 0;
 	if (key != 10 && key != 13)
 		last_crlf = 0;
+
 	switch (key) {
 	case 8: /* backspace */
 		if (cp > buffer) {
