@@ -1201,7 +1201,7 @@ int __sock_create(struct net *net, int family, int type, int protocol,
 			 struct socket **res, int kern)
 {
 	int err;
-	struct socket *sock;
+	struct socket *sock = NULL;
 	const struct net_proto_family *pf;
 
 	/*
@@ -1326,7 +1326,7 @@ EXPORT_SYMBOL(sock_create_kern);
 SYSCALL_DEFINE3(socket, int, family, int, type, int, protocol)
 {
 	int retval;
-	struct socket *sock;
+	struct socket *sock = NULL;
 	int flags;
 
 	/* Check the SOCK_* constants for consistency.  */
@@ -1367,7 +1367,7 @@ out_release:
 SYSCALL_DEFINE4(socketpair, int, family, int, type, int, protocol,
 		int __user *, usockvec)
 {
-	struct socket *sock1, *sock2;
+	struct socket *sock1 = NULL, *sock2;
 	int fd1, fd2, err;
 	struct file *newfile1, *newfile2;
 	int flags;
