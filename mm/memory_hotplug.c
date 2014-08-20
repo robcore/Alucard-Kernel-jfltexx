@@ -537,7 +537,7 @@ int __ref online_pages(unsigned long pfn, unsigned long nr_pages)
 	if (onlined_pages) {
 		node_set_state(zone_to_nid(zone), N_HIGH_MEMORY);
 		if (need_zonelists_rebuild)
-			build_all_zonelists(zone);
+			build_all_zonelists(NULL, zone);
 		else
 			zone_pcp_update(zone);
 	}
@@ -1076,6 +1076,7 @@ int remove_memory(u64 start, u64 size)
 	end_pfn = start_pfn + PFN_DOWN(size);
 	return offline_pages(start_pfn, end_pfn, 120 * HZ);
 }
+
 #else
 int remove_memory(u64 start, u64 size)
 {
