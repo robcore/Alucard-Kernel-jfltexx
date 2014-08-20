@@ -105,6 +105,22 @@ struct mmc_ext_csd {
 
 	unsigned int            feature_support;
 #define MMC_DISCARD_FEATURE	BIT(0)                  /* CMD38 feature */
+	/*
+	 * smart_info : It's for eMMC 5.0 or later device
+	 * [63:56] : DEVICE_LIFE_TIME_EST_TYPE_B [269]
+	 * [55:48] : DEVICE_LIFE_TIME_EST_TYPE_A [268]
+	 * [47:40] : PRE_EOL_INFO [267]
+	 * [39:32] : OPTIMAL_TRIM_UNIT_SIZE [264]
+	 * [31:16] : DEVICE_VERSION [263-262]
+	 * [15:08] : HC_ERASE_GRP_SIZE [224]
+	 * [07:00] : HC_WP_GRP_SIZE [221]
+	 */
+	unsigned long long	smart_info;
+	/*
+	 * fwdate : It's for eMMC 5.0 or later device
+	 * [63:00] : FIRMWARE_VERSION [261-254]
+	 */
+	unsigned long long	fwdate;
 };
 
 struct sd_scr {
@@ -202,6 +218,14 @@ enum mmc_packed_stop_reasons {
 	MAX_REASONS,
 };
 
+struct mmc_wr_pack_stats {
+	u32 *packing_events;
+	u32 pack_stop_reason[MAX_REASONS];
+	spinlock_t lock;
+	bool enabled;
+	bool print_in_read;
+};
+
 enum mmc_blk_status {
 	MMC_BLK_SUCCESS = 0,
 	MMC_BLK_PARTIAL,
@@ -216,13 +240,6 @@ enum mmc_blk_status {
 	MMC_BLK_URGENT_DONE,
 };
 
-struct mmc_wr_pack_stats {
-	u32 *packing_events;
-	u32 pack_stop_reason[MAX_REASONS];
-	spinlock_t lock;
-	bool enabled;
-	bool print_in_read;
-};
 
 /* The number of MMC physical partitions.  These consist of:
  * boot partitions (2), general purpose partitions (4) in MMC v4.4.
@@ -253,6 +270,12 @@ struct mmc_part {
  * before getting into suspend
  * @delay_ms:	The time to start the BKOPS
  *        delayed work once MMC thread is idle
+ * @min_sectors_to_queue_delayed_work: the changed
+ *        number of sectors that should issue check for BKOPS
+ *        need
+ * @size_percentage_to_queue_delayed_work: the changed
+ *        percentage of sectors that should issue check for
+ *        BKOPS need
  * @cancel_delayed_work: A flag to indicate if the delayed work
  *        should be cancelled
  * @sectors_changed:  number of  sectors written or
@@ -263,11 +286,12 @@ struct mmc_bkops_info {
 	unsigned int		host_suspend_tout_ms;
 	unsigned int		delay_ms;
 	unsigned int		min_sectors_to_queue_delayed_work;
+	unsigned int		size_percentage_to_queue_delayed_work;
 /*
  * A default time for checking the need for non urgent BKOPS once mmcqd
  * is idle.
  */
-#define MMC_IDLE_BKOPS_TIME_MS 2000
+#define MMC_IDLE_BKOPS_TIME_MS 200
 	bool			cancel_delayed_work;
 	unsigned int		sectors_changed;
 /*
@@ -279,6 +303,7 @@ struct mmc_bkops_info {
  * 100MB is chosen based on benchmark tests.
  */
 #define BKOPS_MIN_SECTORS_TO_QUEUE_DELAYED_WORK 204800 /* 100MB */
+#define BKOPS_SIZE_PERCENTAGE_TO_QUEUE_DELAYED_WORK 1 /* 1% */
 };
 
 /*
@@ -318,6 +343,7 @@ struct mmc_card {
 #define MMC_QUIRK_BLK_NO_CMD23	(1<<7)		/* Avoid CMD23 for regular multiblock */
 #define MMC_QUIRK_BROKEN_BYTE_MODE_512 (1<<8)	/* Avoid sending 512 bytes in */
 #define MMC_QUIRK_LONG_READ_TIME (1<<9)		/* Data read time > CSD says */
+#define MMC_QUIRK_SEC_ERASE_TRIM_BROKEN (1<<10)	/* Skip secure for erase/trim */
 						/* byte mode */
 #define MMC_QUIRK_INAND_DATA_TIMEOUT  (1<<8)    /* For incorrect data timeout */
 
@@ -587,6 +613,7 @@ extern void mmc_fixup_device(struct mmc_card *card,
 			     const struct mmc_fixup *table);
 extern struct mmc_wr_pack_stats *mmc_blk_get_packed_statistics(
 			struct mmc_card *card);
+extern void mmc_blk_init_packed_statistics(struct mmc_card *card);
 
 extern struct mmc_wr_pack_stats *mmc_blk_get_packed_statistics(
 			struct mmc_card *card);
