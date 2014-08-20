@@ -1453,11 +1453,6 @@ static int cpufreq_add_dev(struct device *dev, struct subsys_interface *sif)
 		goto err_unlock_policy;
 	}
 
-#if 0
-	/* related cpus should atleast have policy->cpus */
-	cpumask_or(policy->related_cpus, policy->related_cpus, policy->cpus);
-#endif
-
 	/*
 	 * affected cpus must always be the one, which are online. We aren't
 	 * managing offline cpus here.
@@ -2234,8 +2229,7 @@ static int __cpufreq_set_policy(struct cpufreq_policy *data,
 			CPUFREQ_NOTIFY, policy);
 
 #ifdef CONFIG_UNI_CPU_POLICY_LIMIT
-	if (policy->cpu)
-	{
+	if (policy->cpu) {
 		cpu0_policy = __cpufreq_cpu_get(0, 0);
 		data->min = cpu0_policy->min;
 		data->max = cpu0_policy->max;
