@@ -297,7 +297,7 @@ static void do_darkness_timer(struct work_struct *work)
 #if 0
 	if (need_load_eval(darkness_cpuinfo, sampling_rate))
 #endif
-	darkness_check_cpu(darkness_cpuinfo);
+		darkness_check_cpu(darkness_cpuinfo);
 
 	queue_delayed_work_on(cpu, darkness_wq, &darkness_cpuinfo->work, delay);
 	mutex_unlock(&darkness_cpuinfo->timer_mutex);

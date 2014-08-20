@@ -555,7 +555,7 @@ static void do_nightmare_timer(struct work_struct *work)
 #if 0
 	if (need_load_eval(nightmare_cpuinfo, sampling_rate))
 #endif
-	nightmare_check_cpu(nightmare_cpuinfo);
+		nightmare_check_cpu(nightmare_cpuinfo);
 
 	queue_delayed_work_on(cpu, nightmare_wq, &nightmare_cpuinfo->work, delay);
 	mutex_unlock(&nightmare_cpuinfo->timer_mutex);
