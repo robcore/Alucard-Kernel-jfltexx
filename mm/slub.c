@@ -2324,7 +2324,6 @@ static __always_inline void *slab_alloc_node(struct kmem_cache *s,
 		return NULL;
 
 redo:
-
 	/*
 	 * Must read kmem_cache cpu data via this cpu ptr. Preemption is
 	 * enabled. We may switch back and forth between cpus while
@@ -4373,7 +4372,7 @@ static ssize_t show_slab_objects(struct kmem_cache *s,
 {
 	unsigned long total = 0;
 	int node;
-	int x;
+	int x = 0;
 	unsigned long *nodes;
 	unsigned long *per_cpu;
 

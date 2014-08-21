@@ -1818,7 +1818,7 @@ static int mem_cgroup_soft_reclaim(struct mem_cgroup *root_memcg,
 		if (!mem_cgroup_reclaimable(victim, false))
 			continue;
 #ifdef CONFIG_ZRAM_FOR_ANDROID
-		if(nr_swap_pages <= SOFT_RECLAIM_ONETIME)
+		if(get_nr_swap_pages() <= SOFT_RECLAIM_ONETIME)
 			break;
 #endif
 		total += mem_cgroup_shrink_node_zone(victim, gfp_mask, false,
