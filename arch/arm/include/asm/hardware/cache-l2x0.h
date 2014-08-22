@@ -69,6 +69,7 @@
 #define L2X0_CACHE_ID_REV_MASK		(0x3f)
 #define L2X0_CACHE_ID_PART_MASK		(0xf << 6)
 #define L2X0_CACHE_ID_PART_L210		(1 << 6)
+#define L2X0_CACHE_ID_PART_L220         (2 << 6)
 #define L2X0_CACHE_ID_PART_L310		(3 << 6)
 #define L2X0_CACHE_ID_RTL_MASK          0x3f
 #define L2X0_CACHE_ID_RTL_R0P0          0x0
