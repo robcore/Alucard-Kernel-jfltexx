@@ -173,6 +173,7 @@ out_unlock:
  * @directory_inode: inode of the new file's dentry's parent in ecryptfs
  * @ecryptfs_dentry: New file's dentry in ecryptfs
  * @mode: The mode of the new file
+ * @nd: nameidata of ecryptfs' parent's dentry & vfsmount
  *
  * Creates the underlying file and the eCryptfs inode which will link to
  * it. It will also update the eCryptfs directory inode to mimic the
@@ -182,7 +183,7 @@ out_unlock:
  */
 static struct inode *
 ecryptfs_do_create(struct inode *directory_inode,
-		   struct dentry *ecryptfs_dentry, umode_t mode)
+		struct dentry *ecryptfs_dentry, umode_t mode)
 {
 	int rc;
 	struct dentry *lower_dentry;
@@ -296,7 +297,7 @@ out:
  * Returns zero on success
  */
 int ecryptfs_initialize_file(struct dentry *ecryptfs_dentry,
-			     struct inode *ecryptfs_inode)
+				    struct inode *ecryptfs_inode)
 {
 	struct ecryptfs_crypt_stat *crypt_stat =
 		&ecryptfs_inode_to_private(ecryptfs_inode)->crypt_stat;
@@ -405,7 +406,7 @@ ecryptfs_create(struct inode *directory_inode, struct dentry *ecryptfs_dentry,
 				mode, nd);
 	else
 		ecryptfs_inode = ecryptfs_do_create(directory_inode, ecryptfs_dentry, mode);
-		
+
 	if (unlikely(IS_ERR(ecryptfs_inode))) {
 		ecryptfs_printk(KERN_WARNING, "Failed to create file in"
 				"lower filesystem\n");
