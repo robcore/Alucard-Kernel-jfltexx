@@ -1250,11 +1250,14 @@ static int pm_power_get_property_mains(struct power_supply *psy,
 		}
 
 		/* USB with max current greater than 500 mA connected */
+#ifdef CONFIG_FORCE_FAST_CHARGE
 		if (force_fast_charge == 1)
 			USB_WALL_THRESHOLD_MA = usb_charge_level;
 		else
 			USB_WALL_THRESHOLD_MA = 500;
-
+#else
+		USB_WALL_THRESHOLD_MA = 500;
+#endif
 		if (usb_target_ma > USB_WALL_THRESHOLD_MA)
 			val->intval = is_usb_chg_plugged_in(the_chip);
 			return 0;
@@ -1314,10 +1317,14 @@ static int pm_power_set_property_usb(struct power_supply *psy,
 	if (!chip)
 		return -EINVAL;
 
+#ifdef CONFIG_FORCE_FAST_CHARGE
 	if (force_fast_charge == 1)
 		USB_WALL_THRESHOLD_MA = usb_charge_level;
 	else
 		USB_WALL_THRESHOLD_MA = 500;
+#else
+	USB_WALL_THRESHOLD_MA = 500;
+#endif
 
 	switch (psp) {
 	case POWER_SUPPLY_PROP_CURRENT_MAX:
@@ -1362,10 +1369,14 @@ static int pm_power_get_property_usb(struct power_supply *psy,
 	if (!the_chip)
 		return -EINVAL;
 
+#ifdef CONFIG_FORCE_FAST_CHARGE
 	if (force_fast_charge == 1)
 		USB_WALL_THRESHOLD_MA = usb_charge_level;
 	else
 		USB_WALL_THRESHOLD_MA = 500;
+#else
+	USB_WALL_THRESHOLD_MA = 500;
+#endif
 
 	switch (psp) {
 	case POWER_SUPPLY_PROP_CURRENT_MAX:
@@ -1758,6 +1769,7 @@ void pm8921_charger_vbus_draw(unsigned int mA)
 		return;
 	}
 
+#ifdef CONFIG_FORCE_FAST_CHARGE
 	if (force_fast_charge == 1)
 	{
 		USB_WALL_THRESHOLD_MA = usb_charge_level;
@@ -1765,6 +1777,9 @@ void pm8921_charger_vbus_draw(unsigned int mA)
 	}
 	else
 		USB_WALL_THRESHOLD_MA = 500;
+#else
+	USB_WALL_THRESHOLD_MA = 500;
+#endif
 
 	/*
 	 * Reject VBUS requests if USB connection is the only available
@@ -2556,10 +2571,14 @@ static void vin_collapse_check_worker(struct work_struct *work)
 	struct pm8921_chg_chip *chip = container_of(dwork,
 			struct pm8921_chg_chip, vin_collapse_check_work);
 
+#ifdef CONFIG_FORCE_FAST_CHARGE
 	if (force_fast_charge == 1)
 		USB_WALL_THRESHOLD_MA = usb_charge_level;
 	else
 		USB_WALL_THRESHOLD_MA = 500;
+#else
+	USB_WALL_THRESHOLD_MA = 500;
+#endif
 
 	/* AICL only for wall-chargers */
 	if (is_usb_chg_plugged_in(chip) &&
@@ -2766,10 +2785,14 @@ static void unplug_check_worker(struct work_struct *work)
 
 	reg_loop = 0;
 
+#ifdef CONFIG_FORCE_FAST_CHARGE
 	if (force_fast_charge == 1)
 		USB_WALL_THRESHOLD_MA = usb_charge_level;
 	else
 		USB_WALL_THRESHOLD_MA = 500;
+#else
+	USB_WALL_THRESHOLD_MA = 500;
+#endif
 
 	rc = pm8xxx_readb(chip->dev->parent, PBL_ACCESS1, &active_path);
 	if (rc) {
