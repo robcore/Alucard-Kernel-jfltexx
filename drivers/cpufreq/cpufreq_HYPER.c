@@ -501,8 +501,13 @@ static ssize_t store_freq_responsiveness(struct kobject *a, struct attribute *b,
 	if (ret != 1)
 		return -EINVAL;
 
+#ifdef CONFIG_CPU_OVERCLOCK
+	if (input > 2214000)
+		input = 2214000;
+#else
 	if (input > 1890000)
 		input = 1890000;
+#endif
 
 	if (input < 378000)
 		input = 378000;

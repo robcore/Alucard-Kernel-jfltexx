@@ -30,7 +30,11 @@
 #ifdef CONFIG_SEC_DVFS_BOOSTER
 #include <linux/module.h>
 #define CPU_MIN_FREQ	486000
+#ifdef CONFIG_CPU_OVERCLOCK
+#define CPU_MAX_FREQ	2214000
+#else
 #define CPU_MAX_FREQ	1890000
+#endif
 static unsigned int dvfs_boost_mode = 2;
 module_param(dvfs_boost_mode, uint, 0644);
 static unsigned int min_touch_limit = 1134000;
