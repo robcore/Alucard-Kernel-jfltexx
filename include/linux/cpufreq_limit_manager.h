@@ -21,7 +21,11 @@
 #define CPU_MIN_FREQ	384000
 #endif
 
+#ifdef CONFIG_CPU_OVERCLOCK
+#define CPU_MAX_FREQ	2214000
+#else
 #define CPU_MAX_FREQ	1890000
+#endif
 #define CPU_MAX_ONCALL_FREQ	1134000
 
 int update_cpufreq_limit(unsigned int limit_type, bool limit_status);

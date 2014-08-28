@@ -1767,7 +1767,8 @@ config MSM_CPU_FREQ_SET_MIN_MAX
 config MSM_CPU_FREQ_MAX
 	int "Max CPU Frequency"
 	depends on MSM_CPU_FREQ_SET_MIN_MAX
-	default 1890000
+	default 1890000 if !CPU_OVERCLOCK
+	default 2214000 if CPU_OVERCLOCK
 
 config MSM_CPU_FREQ_MIN
 	int "Min CPU Frequency"

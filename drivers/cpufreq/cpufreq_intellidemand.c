@@ -925,7 +925,11 @@ static ssize_t store_step_up_early_hispeed(struct kobject *a,
 	int ret;
 	ret = sscanf(buf, "%u", &input);
 
+#ifdef CONFIG_CPU_OVERCLOCK
+	if (ret != 1 || input > 2214000 ||
+#else
 	if (ret != 1 || input > 1890000 ||
+#endif
 			input < 0) {
 		return -EINVAL;
 	}
