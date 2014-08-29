@@ -33,6 +33,9 @@
 static DEFINE_MUTEX(emergency_shutdown_mutex);
 
 static int mako_enabled;
+#ifdef CONFIG_MAKO_THERMAL_STATS
+static int mako_enabled_stats;
+#endif
 
 //Throttling indicator, 0=not throttled, 1=low, 2=mid, 3=max
 int bricked_thermal_throttled = 0;
@@ -248,8 +251,10 @@ static __ref void check_temp(struct work_struct *work)
             }
         }
 #ifdef CONFIG_MAKO_THERMAL_STATS
-        update_stats();
-        start_stats(bricked_thermal_throttled);
+		if (mako_enabled_stats) {
+		    update_stats();
+		    start_stats(bricked_thermal_throttled);
+		}
 #endif
         if (update_policy)
             update_cpu_max_freq(cpu_policy, cpu, max_freq);
@@ -270,7 +275,6 @@ static void disable_msm_thermal(void)
     int cpu = 0;
     struct cpufreq_policy *cpu_policy = NULL;
 
-     mako_enabled = 0;
     /* make sure check_temp is no longer running */
     cancel_delayed_work_sync(&check_temp_work);
  
@@ -290,7 +294,6 @@ static void disable_msm_thermal(void)
 
 static void enable_msm_thermal(void)
 {
-    mako_enabled = 1;
     /* make sure check_temp is running */
     queue_delayed_work(check_temp_workq, &check_temp_work,
                        msecs_to_jiffies(msm_thermal_info.poll_ms));
@@ -302,15 +305,18 @@ static int set_enabled(const char *val, const struct kernel_param *kp)
 {
     int ret = 0;
 
-    ret = param_set_bool(val, kp);
-    if (!mako_enabled)
+	if (*val == '0' || *val == 'n' || *val == 'N') {
+		mako_enabled = 0;
         disable_msm_thermal();
-    else if (mako_enabled == 1)
+    } else if (*val == '1' || *val == 'y' || *val == 'Y') {
+		mako_enabled = 1;
         enable_msm_thermal();
-    else
+    } else {
         pr_info("msm_thermal: no action for enabled = %d\n", mako_enabled);
-
+		return -EINVAL;
+	}
     pr_info("msm_thermal: enabled = %d\n", mako_enabled);
+	ret = param_set_bool(val, kp);
 
     return ret;
 }
@@ -322,6 +328,35 @@ static struct kernel_param_ops module_ops = {
 
 module_param_cb(mako_enabled, &module_ops, &mako_enabled, 0644);
 MODULE_PARM_DESC(mako_enabled, "enforce thermal limit on cpu");
+
+#ifdef CONFIG_MAKO_THERMAL_STATS
+static int set_enabled_stats(const char *val, const struct kernel_param *kp)
+{
+    int ret = 0;
+
+	if (*val == '0' || *val == 'n' || *val == 'N') {
+		mako_enabled_stats = 0;
+    } else if (*val == '1' || *val == 'y' || *val == 'Y') {
+		start_stats(bricked_thermal_throttled);
+		mako_enabled_stats = 1;
+    } else {
+        pr_info("msm_thermal: no action for enabled stats = %d\n", mako_enabled_stats);
+		return -EINVAL;
+	}
+    pr_info("msm_thermal: enabled statistics = %d\n", mako_enabled_stats);
+	ret = param_set_bool(val, kp);
+
+    return ret;
+}
+
+static struct kernel_param_ops module_stats_ops = {
+    .set = set_enabled_stats,
+    .get = param_get_bool,
+};
+
+module_param_cb(mako_enabled_stats, &module_stats_ops, &mako_enabled_stats, 0644);
+MODULE_PARM_DESC(mako_enabled_stats, "enforce thermal statistics");
+#endif
 
 /**************************** SYSFS START ****************************/
 struct kobject *msm_thermal_kobject;
@@ -593,7 +628,12 @@ int __init msm_thermal_init(struct msm_thermal_data *pdata)
     int ret = 0, rc = 0;
 
     mako_enabled = 1;
-    check_temp_workq=alloc_workqueue("msm_thermal", WQ_UNBOUND | WQ_RESCUER, 1);
+#ifdef CONFIG_MAKO_THERMAL_STATS
+	mako_enabled_stats = 1;
+#endif
+    check_temp_workq=alloc_workqueue("msm_thermal", 
+						WQ_UNBOUND | WQ_MEM_RECLAIM, 1);
+
     if (!check_temp_workq)
         BUG_ON(ENOMEM);
     INIT_DELAYED_WORK(&check_temp_work, check_temp);
