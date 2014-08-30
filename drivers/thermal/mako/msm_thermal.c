@@ -632,7 +632,7 @@ int __init msm_thermal_init(struct msm_thermal_data *pdata)
 	mako_enabled_stats = 1;
 #endif
     check_temp_workq=alloc_workqueue("msm_thermal", 
-						WQ_UNBOUND | WQ_MEM_RECLAIM, 1);
+						WQ_UNBOUND | WQ_RESCUER, 1);
 
     if (!check_temp_workq)
         BUG_ON(ENOMEM);
