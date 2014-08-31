@@ -1007,6 +1007,26 @@ static ssize_t store_vdd_levels(struct kobject *a, struct attribute *b, const ch
 
 #endif	/* CONFIG_CPU_VOLTAGE_TABLE */
 
+#ifdef CONFIG_GPU_VOLTAGE_TABLE
+
+extern ssize_t get_gpu_vdd_levels_str(char *buf);
+extern void set_gpu_vdd_levels(int uv_tbl[]);
+
+ssize_t show_gpu_vdd_levels(struct kobject *a, struct attribute *b, char *buf)
+{
+	return get_gpu_vdd_levels_str(buf);
+}
+
+ssize_t store_gpu_vdd_levels(struct kobject *a, struct attribute *b, const char *buf, size_t count)
+{
+	unsigned int ret = -EINVAL;
+	unsigned int u[3];
+	ret = sscanf(buf, "%d %d %d", &u[0], &u[1], &u[2]);
+	set_gpu_vdd_levels(u);
+	return count;
+}
+#endif	/* CONFIG_GPU_VOLTAGE_TABLE */
+
 cpufreq_freq_attr_ro_perm(cpuinfo_cur_freq, 0400);
 cpufreq_freq_attr_ro(cpuinfo_min_freq);
 cpufreq_freq_attr_ro(cpuinfo_max_freq);
@@ -1024,6 +1044,9 @@ cpufreq_freq_attr_rw(scaling_governor);
 cpufreq_freq_attr_rw(scaling_setspeed);
 #ifdef CONFIG_CPU_VOLTAGE_TABLE
 define_one_global_rw(vdd_levels);
+#endif
+#ifdef CONFIG_GPU_VOLTAGE_TABLE
+define_one_global_rw(gpu_vdd_levels);
 #endif
 #ifdef CONFIG_MULTI_CPU_POLICY_LIMIT
 define_one_global_rw(scaling_min_freq_all_cpus);
@@ -1070,6 +1093,18 @@ static struct attribute_group vddtbl_attr_group = {
 	.name = "vdd_table",
 };
 #endif	/* CONFIG_CPU_VOLTAGE_TABLE */
+
+#ifdef CONFIG_GPU_VOLTAGE_TABLE
+static struct attribute *gpuvddtbl_attrs[] = {
+	&gpu_vdd_levels.attr,
+	NULL
+};
+
+static struct attribute_group gpuvddtbl_attr_group = {
+	.attrs = gpuvddtbl_attrs,
+	.name = "gpu_vdd_table",
+};
+#endif	/* CONFIG_GPU_VOLTAGE_TABLE */
 
 #ifdef CONFIG_MULTI_CPU_POLICY_LIMIT
 static struct attribute *all_cpus_attrs[] = {
@@ -2517,9 +2552,9 @@ EXPORT_SYMBOL_GPL(cpufreq_unregister_driver);
 static int __init cpufreq_core_init(void)
 {
 	int cpu;
-#if defined(CONFIG_CPU_VOLTAGE_TABLE) || defined(CONFIG_MULTI_CPU_POLICY_LIMIT)
+#if defined(CONFIG_CPU_VOLTAGE_TABLE) || defined(CONFIG_GPU_VOLTAGE_TABLE) || defined(CONFIG_MULTI_CPU_POLICY_LIMIT)
 	int rc;
-#endif	/* CONFIG_CPU_VOLTAGE_TABLE */
+#endif
 
 	if (cpufreq_disabled())
 		return -ENODEV;
@@ -2534,6 +2569,10 @@ static int __init cpufreq_core_init(void)
 	register_syscore_ops(&cpufreq_syscore_ops);
 #ifdef CONFIG_CPU_VOLTAGE_TABLE
 	rc = sysfs_create_group(cpufreq_global_kobject, &vddtbl_attr_group);
+#endif	/* CONFIG_CPU_VOLTAGE_TABLE */
+
+#ifdef CONFIG_GPU_VOLTAGE_TABLE
+	rc = sysfs_create_group(cpufreq_global_kobject, &gpuvddtbl_attr_group);
 #endif	/* CONFIG_CPU_VOLTAGE_TABLE */
 
 #ifdef CONFIG_MULTI_CPU_POLICY_LIMIT
