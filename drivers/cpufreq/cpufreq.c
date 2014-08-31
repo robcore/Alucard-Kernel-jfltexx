@@ -2573,7 +2573,7 @@ static int __init cpufreq_core_init(void)
 
 #ifdef CONFIG_GPU_VOLTAGE_TABLE
 	rc = sysfs_create_group(cpufreq_global_kobject, &gpuvddtbl_attr_group);
-#endif	/* CONFIG_CPU_VOLTAGE_TABLE */
+#endif	/* CONFIG_GPU_VOLTAGE_TABLE */
 
 #ifdef CONFIG_MULTI_CPU_POLICY_LIMIT
 	rc = sysfs_create_group(cpufreq_global_kobject, &all_cpus_attr_group);
