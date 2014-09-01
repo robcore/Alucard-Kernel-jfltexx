@@ -137,8 +137,12 @@ static int update_cpu_max_freq(int cpu, uint32_t max_freq)
 		struct cpufreq_policy *policy = cpufreq_cpu_get(cpu);
 		if (!policy)
 			return ret;
-		ret = cpufreq_driver_target(policy, policy->cur,
-				CPUFREQ_RELATION_H);
+
+		/* we don't need to set the frequency limit when cpu current frequency is lower or equal.*/
+		if (max_freq < policy->cur)
+			ret = cpufreq_driver_target(policy, max_freq,
+					CPUFREQ_RELATION_H);
+			
 		cpufreq_cpu_put(policy);
 	}
 
