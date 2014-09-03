@@ -6496,15 +6496,6 @@ static void migrate_tasks(unsigned int dead_cpu)
 	 * value of rq->clock[_task]
 	 */
 	update_rq_clock(rq);
-	/* if there is one or more rt threads on the rq and if throttled,
-	 * we will deadlock in below loop. rt sched hrtimer have to run to
-	 * unthrottle the rt rq but irq is disabled in this context. Thus,
-	 * pick_next_task will not pick the rt task even if it is on the
-	 * runqueue. rq->nr_running never gets down to 1 and we will
-	 * loop forever here.
-	 * So we forcefully unthrottle the rt rq.
-	 */
-	unthrottle_rt_rq(rq);
 
 	for ( ; ; ) {
 		/*
@@ -7225,37 +7216,6 @@ static void update_top_cache_domain(int cpu)
 
 	sd = highest_flag_domain(cpu, SD_SHARE_PKG_RESOURCES);
 	if (sd) {
-	    struct sched_domain *tmp = sd;
-	    struct sched_group *sg, *prev;
-	    bool right;
-
-	    /*
-	     * Traverse to first CPU in group, and count hops
-	     * to cpu from there, switching direction on each
-	     * hop, never ever pointing the last CPU rightward.
-	     */
-	    do {
-	      id = cpumask_first(sched_domain_span(tmp));
-	      prev = sg = tmp->groups;
-	      right = 1;
-
-	      while (cpumask_first(sched_group_cpus(sg)) != id)
-		sg = sg->next;
-
-	      while (!cpumask_test_cpu(cpu, sched_group_cpus(sg))) {
-		prev = sg;
-		sg = sg->next;
-		right = !right;
-	      }
-
-	      /* A CPU went down, never point back to domain start. */
-	      if (right && cpumask_first(sched_group_cpus(sg->next)) == id)
-		right = false;
-
-	      sg = right ? sg->next : prev;
-	      tmp->idle_buddy = cpumask_first(sched_group_cpus(sg));
-	    } while ((tmp = tmp->child)); 
-
 		id = cpumask_first(sched_domain_span(sd));
 		size = cpumask_weight(sched_domain_span(sd));
 		rcu_assign_pointer(per_cpu(sd_busy, cpu), sd->parent);
