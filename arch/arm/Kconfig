@@ -26,7 +26,7 @@ config ARM
 	select HAVE_KERNEL_LZMA
 	select HAVE_KERNEL_XZ
 	select HAVE_IRQ_WORK
-	select HAVE_PERF_EVENTS
+	# select HAVE_PERF_EVENTS
 	select PERF_USE_VMALLOC
 	select HAVE_REGS_AND_STACK_ACCESS_API
 	select HAVE_HW_BREAKPOINT if (PERF_EVENTS && (CPU_V6 || CPU_V6K || CPU_V7))
@@ -1866,7 +1866,7 @@ config AEABI
 config OABI_COMPAT
 	bool "Allow old ABI binaries to run with this kernel (EXPERIMENTAL)"
 	depends on AEABI && EXPERIMENTAL && !THUMB2_KERNEL
-	default n
+	default y if !SMP
 	help
 	  This option preserves the old syscall interface along with the
 	  new (ARM EABI) one. It also provides a compatibility layer to
@@ -1955,7 +1955,7 @@ config DONT_MAP_HOLE_AFTER_MEMBANK0
 	  into the virtual space. This results in more lowmem.
 	  If multiple holes are present, only the largest hole
 	  in the first 256MB of memory is not mapped.
-	
+
 config ENABLE_VMALLOC_SAVING
 	bool "Reclaim memory for each subsystem"
 	help
@@ -2132,6 +2132,8 @@ config CP_ACCESS
 source "arch/arm/mvp/Kconfig"
 
 endmenu
+
+source "arch/arm/mvp/Kconfig"
 
 menu "Boot options"
 
