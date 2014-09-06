@@ -941,10 +941,10 @@ static int msm_xfer_msg(struct slim_controller *ctrl, struct slim_msg_txn *txn)
 				txn->mc, txn->mt);
 		dev->wr_comp = NULL;
 	}
-	//if (mc == SLIM_USR_MC_GENERIC_ACK) {
-	//	u32 mgrstat = readl_relaxed(dev->base + MGR_STATUS);
-	//	pr_info("-slimdebug-generic ack:0x %x, mgrstat:0x%x", pbuf[0], mgrstat);
-	//} /* slimbus debug patch */
+	if (mc == SLIM_USR_MC_GENERIC_ACK) {
+		u32 mgrstat = readl_relaxed(dev->base + MGR_STATUS);
+		pr_info("-slimdebug-generic ack:0x %x, mgrstat:0x%x", pbuf[0], mgrstat);
+	} /* slimbus debug patch */
 	mutex_unlock(&dev->tx_lock);
 	if (msgv >= 0)
 		msm_slim_put_ctrl(dev);
