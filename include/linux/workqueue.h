@@ -109,9 +109,6 @@ struct work_struct {
 struct delayed_work {
 	struct work_struct work;
 	struct timer_list timer;
-
-	/* target workqueue and CPU ->timer uses to queue ->work */
-	struct workqueue_struct *wq;
 	int cpu;
 };
 
