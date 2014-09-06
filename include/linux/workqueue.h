@@ -57,7 +57,8 @@ enum {
 
 	/* special cpu IDs */
 	WORK_CPU_UNBOUND	= NR_CPUS,
-	WORK_CPU_END		= NR_CPUS + 1,
+	WORK_CPU_NONE		= NR_CPUS + 1,
+	WORK_CPU_LAST		= WORK_CPU_NONE,
 
 	/*
 	 * Reserve 7 bits off of cwq pointer w/ debugobjects turned
