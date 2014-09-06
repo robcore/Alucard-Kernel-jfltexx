@@ -220,14 +220,13 @@ static ssize_t movinand_checksum_done_show
 (struct device *dev, struct device_attribute *attr, char *buf)
 {
 	int ret = 0;
-	const size_t bufsz = sizeof(buf);
 
 	sec_get_param(param_index_movinand_checksum_done, &ret);
 	if (ret == 1 || ret == 0) {
 		pr_err("checksum is not in valuable range.\n");
 		ret = 1;
 	}
-	return snprintf(buf, bufsz, "%u\n", ret);
+	return snprintf(buf, sizeof(*buf), "%u\n", ret);
 }
 static DEVICE_ATTR(movinand_checksum_done,
 				0664, movinand_checksum_done_show, NULL);
@@ -236,14 +235,13 @@ static ssize_t movinand_checksum_pass_show
 (struct device *dev, struct device_attribute *attr, char *buf)
 {
 	int ret = 0;
-	const size_t bufsz = sizeof(buf);
 
 	sec_get_param(param_index_movinand_checksum_pass, &ret);
 	if (ret == 1 || ret == 0) {
 		pr_err("checksum is not in valuable range.\n");
 		ret = 1;
 	}
-	return snprintf(buf, bufsz, "%u\n", ret);
+	return snprintf(buf, sizeof(*buf), "%u\n", ret);
 }
 static DEVICE_ATTR(movinand_checksum_pass,
 				0664, movinand_checksum_pass_show, NULL);
