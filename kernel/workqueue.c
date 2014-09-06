@@ -1323,8 +1323,9 @@ void delayed_work_timer_fn(unsigned long __data)
 	struct delayed_work *dwork = (struct delayed_work *)__data;
 
 	local_irq_disable();
-	/* should have been called from irqsafe timer with irq already off */
-	__queue_work(dwork->cpu, dwork->wq, &dwork->work);
+	if (cwq != NULL)
+		/* should have been called from irqsafe timer with irq already off */
+		__queue_work(dwork->cpu, dwork->wq, &dwork->work);
 	local_irq_enable();
 }
 EXPORT_SYMBOL(delayed_work_timer_fn);
