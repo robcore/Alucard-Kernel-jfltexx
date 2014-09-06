@@ -3420,7 +3420,7 @@ void workqueue_set_max_active(struct workqueue_struct *wq, int max_active)
 
 		if (!(wq->flags & WQ_FREEZABLE) ||
 		    !(gcwq->flags & GCWQ_FREEZING))
-			cwq_set_max_active(get_cwq(gcwq->cpu, wq), max_active);
+			get_cwq(gcwq->cpu, wq)->max_active = max_active;
 
 		spin_unlock_irq(&gcwq->lock);
 	}
