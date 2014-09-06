@@ -264,7 +264,7 @@ static __ref void check_temp(struct work_struct *work)
 
 reschedule:
     if (mako_enabled)
-        mod_delayed_work(check_temp_workq, &check_temp_work,
+        queue_delayed_work(check_temp_workq, &check_temp_work,
                            msecs_to_jiffies(msm_thermal_info.poll_ms));
 
     return;
@@ -295,7 +295,7 @@ static void disable_msm_thermal(void)
 static void enable_msm_thermal(void)
 {
     /* make sure check_temp is running */
-    mod_delayed_work(check_temp_workq, &check_temp_work,
+    queue_delayed_work(check_temp_workq, &check_temp_work,
                        msecs_to_jiffies(msm_thermal_info.poll_ms));
 
     pr_info("msm_thermal: Thermal guard enabled.");
@@ -637,7 +637,7 @@ int __init msm_thermal_init(struct msm_thermal_data *pdata)
     if (!check_temp_workq)
         BUG_ON(ENOMEM);
     INIT_DELAYED_WORK(&check_temp_work, check_temp);
-    mod_delayed_work(check_temp_workq, &check_temp_work, 1000);
+    queue_delayed_work(check_temp_workq, &check_temp_work, 1000);
 
     msm_thermal_kobject = kobject_create_and_add("msm_thermal", kernel_kobj);
     if (msm_thermal_kobject) {
