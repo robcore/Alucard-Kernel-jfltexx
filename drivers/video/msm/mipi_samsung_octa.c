@@ -753,7 +753,6 @@ static ssize_t mipi_samsung_disp_get_power(struct device *dev,
 {
 	struct msm_fb_data_type *mfd;
 	int rc;
-	const ssize_t bufsz = sizeof(buf);
 
 	mfd = platform_get_drvdata(msd.msm_pdev);
 	if (unlikely(!mfd))
@@ -761,7 +760,7 @@ static ssize_t mipi_samsung_disp_get_power(struct device *dev,
 	if (unlikely(mfd->key != MFD_KEY))
 		return -EINVAL;
 
-	rc = snprintf((char *)buf, bufsz, "%d\n", mfd->panel_power_on);
+	rc = snprintf((char *)buf, (int)sizeof(buf), "%d\n", mfd->panel_power_on);
 	pr_info("mipi_samsung_disp_get_power(%d)\n", mfd->panel_power_on);
 
 	return rc;
@@ -853,9 +852,8 @@ static ssize_t mipi_samsung_auto_brightness_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	int rc;
-	const ssize_t bufsz = sizeof(buf);
 
-	rc = snprintf((char *)buf, bufsz, "%d\n",
+	rc = snprintf((char *)buf, (int)sizeof(buf), "%d\n",
 			msd.dstat.auto_brightness);
 	pr_info("auot_brightness: %d\n", *buf);
 
@@ -946,9 +944,8 @@ static ssize_t mipi_samsung_disp_acl_show(struct device *dev,
 			struct device_attribute *attr, char *buf)
 {
 	int rc;
-	const ssize_t bufsz = sizeof(buf);
 
-	rc = snprintf((char *)buf, bufsz, "%d\n", msd.mpd->acl_status);
+	rc = snprintf((char *)buf, (int)sizeof(buf), "%d\n", msd.mpd->acl_status);
 	pr_info("acl status: %d\n", *buf);
 
 	return rc;
@@ -987,9 +984,8 @@ static ssize_t mipi_samsung_disp_siop_show(struct device *dev,
 			struct device_attribute *attr, char *buf)
 {
 	int rc;
-	const ssize_t bufsz = sizeof(buf);
 
-	rc = snprintf((char *)buf, bufsz, "%d\n", msd.mpd->siop_status);
+	rc = snprintf((char *)buf, (int)sizeof(buf), "%d\n", msd.mpd->siop_status);
 	pr_info("siop status: %d\n", *buf);
 
 	return rc;
@@ -1106,10 +1102,9 @@ static ssize_t mipi_samsung_disp_backlight_show(struct device *dev,
 {
 	int rc;
 	struct msm_fb_data_type *mfd;
-	const ssize_t bufsz = sizeof(buf);
 	mfd = platform_get_drvdata(msd.msm_pdev);
 
-	rc = snprintf((char *)buf, bufsz, "%d\n", mfd->bl_level);
+	rc = snprintf((char *)buf, (int)sizeof(buf), "%d\n", mfd->bl_level);
 
 	return rc;
 }
