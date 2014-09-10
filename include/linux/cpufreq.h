@@ -204,6 +204,8 @@ extern int __cpufreq_driver_target(struct cpufreq_policy *policy,
 				   unsigned int target_freq,
 				   unsigned int relation);
 
+extern int msm_cpufreq_get_index(struct cpufreq_policy *policy,
+				 unsigned int freq);
 
 extern int __cpufreq_driver_getavg(struct cpufreq_policy *policy,
 				   unsigned int cpu);
