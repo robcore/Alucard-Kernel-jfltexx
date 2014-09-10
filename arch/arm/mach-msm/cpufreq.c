@@ -394,22 +394,6 @@ int msm_cpufreq_set_freq_limits(uint32_t cpu, uint32_t min, uint32_t max)
 }
 EXPORT_SYMBOL(msm_cpufreq_set_freq_limits);
 
-int msm_cpufreq_get_index(struct cpufreq_policy *policy, unsigned int freq)
-{
-	int index;
-	struct cpufreq_frequency_table *table;
-
-	table = cpufreq_frequency_get_table(policy->cpu);
-	if (unlikely(!table))
-		return -ENODEV;
-
-	for (index = 0; table[index].frequency != CPUFREQ_TABLE_END; index++)
-		if (table[index].frequency == freq)
-			return index;
-
-	return -EINVAL;
-}
-
 #ifdef CONFIG_LOW_CPUCLOCKS
 #define LOW_CPUCLOCKS_FREQ_MIN	378000
 #endif
