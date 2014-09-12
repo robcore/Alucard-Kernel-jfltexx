@@ -235,36 +235,36 @@ struct iw_mgmt_info_element {
 
 struct iw_mgmt_essid_pset {
 	struct iw_mgmt_info_element el;
-	u8 			    essid[IW_ESSID_MAX_SIZE];
+	u8			    essid[IW_ESSID_MAX_SIZE];
 } __packed;
 
 /*
  * According to 802.11 Wireless Netowors, the definitive guide - O'Reilly
  * Pg 75
- */ 
+ */
 #define IW_DATA_RATE_MAX_LABELS 8
 
 struct iw_mgmt_data_rset {
 	struct iw_mgmt_info_element el;
-	u8 			    data_rate_labels[IW_DATA_RATE_MAX_LABELS];
+	u8			    data_rate_labels[IW_DATA_RATE_MAX_LABELS];
 } __packed;
 
 struct iw_mgmt_ds_pset {
 	struct iw_mgmt_info_element el;
-	u8 			    chan;
+	u8			    chan;
 } __packed;
 
 struct iw_mgmt_cf_pset {
 	struct iw_mgmt_info_element el;
-	u8 			    cfp_count;
-	u8 			    cfp_period;
-	u16 			    cfp_max_duration;
-	u16 			    cfp_dur_remaining;
+	u8			    cfp_count;
+	u8			    cfp_period;
+	u16			    cfp_max_duration;
+	u16			    cfp_dur_remaining;
 } __packed;
 
 struct iw_mgmt_ibss_pset {
 	struct iw_mgmt_info_element el;
-	u16 			    atim_window;
+	u16			    atim_window;
 } __packed;
 
 struct wl3501_tx_hdr {
@@ -561,10 +561,10 @@ struct wl3501_80211_tx_hdr {
 			| 12 | 13 | 14 | 15 |   |
 			| 16 | 17 | 18 | 19 |  /
    TxBufferBegin -->	*----*----*----*----* /
-   (TxBufferHead)	| 		    |
-   (TxBufferTail)	| 		    |
+   (TxBufferHead)	|		    |
+   (TxBufferTail)	|		    |
 			|    Send Buffer    |
-			| 		    |
+			|		    |
 			|		    |
 			*-------------------*
    TxBufferEnd    -------------------------/
@@ -589,8 +589,8 @@ struct wl3501_card {
 	u16				esbq_confirm_start;
 	u16				esbq_confirm_end;
 	u16				esbq_confirm;
-	struct iw_mgmt_essid_pset  	essid;
-	struct iw_mgmt_essid_pset  	keep_essid;
+	struct iw_mgmt_essid_pset	essid;
+	struct iw_mgmt_essid_pset	keep_essid;
 	u8				bssid[ETH_ALEN];
 	int				net_type;
 	char				nick[32];

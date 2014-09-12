@@ -149,8 +149,8 @@ struct adm8211_csr {
 #define ADM8211_NAR_SR		(1 << 1)
 #define ADM8211_NAR_CTX		(1 << 0)
 
-#define ADM8211_IDLE() 							   \
-do { 									   \
+#define ADM8211_IDLE()							   \
+do {									   \
 	if (priv->nar & (ADM8211_NAR_SR | ADM8211_NAR_ST)) {		   \
 		ADM8211_CSR_WRITE(NAR, priv->nar &			   \
 				       ~(ADM8211_NAR_SR | ADM8211_NAR_ST));\
@@ -159,7 +159,7 @@ do { 									   \
 	}								   \
 } while (0)
 
-#define ADM8211_IDLE_RX() 						\
+#define ADM8211_IDLE_RX()						\
 do {									\
 	if (priv->nar & ADM8211_NAR_SR) {				\
 		ADM8211_CSR_WRITE(NAR, priv->nar & ~ADM8211_NAR_SR);	\
@@ -296,8 +296,8 @@ do {								\
 #define ADM8211_SYNRF_CAL_EN	(1 << 19)
 #define ADM8211_SYNRF_PHYRST	(1 << 18)
 
-#define ADM8211_SYNRF_IF_SELECT_0 	(1 << 31)
-#define ADM8211_SYNRF_IF_SELECT_1 	((1 << 31) | (1 << 28))
+#define ADM8211_SYNRF_IF_SELECT_0	(1 << 31)
+#define ADM8211_SYNRF_IF_SELECT_1	((1 << 31) | (1 << 28))
 #define ADM8211_SYNRF_WRITE_SYNDATA_0	(1 << 31)
 #define ADM8211_SYNRF_WRITE_SYNDATA_1	((1 << 31) | (1 << 26))
 #define ADM8211_SYNRF_WRITE_CLOCK_0	(1 << 31)

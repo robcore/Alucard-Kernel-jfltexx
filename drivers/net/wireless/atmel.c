@@ -1511,12 +1511,12 @@ static int atmel_read_proc(char *page, char **start, off_t off,
 }
 
 static const struct net_device_ops atmel_netdev_ops = {
-	.ndo_open 		= atmel_open,
+	.ndo_open		= atmel_open,
 	.ndo_stop		= atmel_close,
-	.ndo_change_mtu 	= atmel_change_mtu,
-	.ndo_set_mac_address 	= atmel_set_mac_address,
-	.ndo_start_xmit 	= start_tx,
-	.ndo_do_ioctl 		= atmel_ioctl,
+	.ndo_change_mtu		= atmel_change_mtu,
+	.ndo_set_mac_address	= atmel_set_mac_address,
+	.ndo_start_xmit		= start_tx,
+	.ndo_do_ioctl		= atmel_ioctl,
 	.ndo_validate_addr	= eth_validate_addr,
 };
 

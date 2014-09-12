@@ -34,7 +34,7 @@ struct zd1201 {
 	struct urb		*rx_urb;
 	struct urb		*tx_urb;
 
-	unsigned char 		rxdata[ZD1201_RXSIZE];
+	unsigned char		rxdata[ZD1201_RXSIZE];
 	int			rxlen;
 	wait_queue_head_t	rxdataq;
 	int			rxdatas;
