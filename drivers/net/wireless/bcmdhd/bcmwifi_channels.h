@@ -10,7 +10,7 @@
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -18,7 +18,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -41,7 +41,7 @@ typedef uint16 chanspec_t;
 #define CH_40MHZ_APART			8
 #define CH_20MHZ_APART			4
 #define CH_10MHZ_APART			2
-#define CH_5MHZ_APART			1	
+#define CH_5MHZ_APART			1
 #define CH_MAX_2G_CHANNEL		14
 #define	MAXCHANNEL		224
 #define CHSPEC_CTLOVLP(sp1, sp2, sep)	(ABS(wf_chspec_ctlchan(sp1) - wf_chspec_ctlchan(sp2)) < \
@@ -86,7 +86,7 @@ typedef uint16 chanspec_t;
 				((channel) + CH_10MHZ_APART) : 0)
 
 #define LL_20_SB(channel) (((channel) > 3 * CH_10MHZ_APART) ? ((channel) - 3 * CH_10MHZ_APART) : 0)
-#define UU_20_SB(channel) 	(((channel) < (MAXCHANNEL - 3 * CH_10MHZ_APART)) ? \
+#define UU_20_SB(channel)	(((channel) < (MAXCHANNEL - 3 * CH_10MHZ_APART)) ? \
 				((channel) + 3 * CH_10MHZ_APART) : 0)
 #define LU_20_SB(channel) LOWER_20_SB(channel)
 #define UL_20_SB(channel) UPPER_20_SB(channel)
@@ -116,7 +116,7 @@ typedef uint16 chanspec_t;
 #define CHSPEC_IS40(chspec)	0
 #endif
 
-#else 
+#else
 
 #define CHSPEC_IS10(chspec)	(((chspec) & WL_CHANSPEC_BW_MASK) == WL_CHANSPEC_BW_10)
 #define CHSPEC_IS20(chspec)	(((chspec) & WL_CHANSPEC_BW_MASK) == WL_CHANSPEC_BW_20)
@@ -124,7 +124,7 @@ typedef uint16 chanspec_t;
 #define CHSPEC_IS40(chspec)	(((chspec) & WL_CHANSPEC_BW_MASK) == WL_CHANSPEC_BW_40)
 #endif
 
-#endif 
+#endif
 
 #define CHSPEC_IS5G(chspec)	(((chspec) & WL_CHANSPEC_BAND_MASK) == WL_CHANSPEC_BAND_5G)
 #define CHSPEC_IS2G(chspec)	(((chspec) & WL_CHANSPEC_BAND_MASK) == WL_CHANSPEC_BAND_2G)
@@ -138,7 +138,7 @@ typedef uint16 chanspec_t;
 
 #define CHANSPEC_STR_LEN    8
 
-#else 
+#else
 
 #define WL_CHANSPEC_CHAN_MASK		0x00ff
 #define WL_CHANSPEC_CHAN_SHIFT		0
@@ -163,7 +163,7 @@ typedef uint16 chanspec_t;
 #define WL_CHANSPEC_CTL_SB_UU		WL_CHANSPEC_CTL_SB_LUU
 #define WL_CHANSPEC_CTL_SB_L		WL_CHANSPEC_CTL_SB_LLL
 #define WL_CHANSPEC_CTL_SB_U		WL_CHANSPEC_CTL_SB_LLU
-#define WL_CHANSPEC_CTL_SB_LOWER 	WL_CHANSPEC_CTL_SB_LLL
+#define WL_CHANSPEC_CTL_SB_LOWER	WL_CHANSPEC_CTL_SB_LLL
 #define WL_CHANSPEC_CTL_SB_UPPER	WL_CHANSPEC_CTL_SB_LLU
 
 #define WL_CHANSPEC_BW_MASK		0x3800
@@ -191,7 +191,7 @@ typedef uint16 chanspec_t;
 					((channel) + CH_10MHZ_APART) : 0)
 
 #define LL_20_SB(channel) (((channel) > 3 * CH_10MHZ_APART) ? ((channel) - 3 * CH_10MHZ_APART) : 0)
-#define UU_20_SB(channel) 	(((channel) < (MAXCHANNEL - 3 * CH_10MHZ_APART)) ? \
+#define UU_20_SB(channel)	(((channel) < (MAXCHANNEL - 3 * CH_10MHZ_APART)) ? \
 				((channel) + 3 * CH_10MHZ_APART) : 0)
 #define LU_20_SB(channel) LOWER_20_SB(channel)
 #define UL_20_SB(channel) UPPER_20_SB(channel)
@@ -240,7 +240,7 @@ typedef uint16 chanspec_t;
 #define CHSPEC_IS8080(chspec)	0
 #endif
 
-#else 
+#else
 
 #define CHSPEC_IS10(chspec)	(((chspec) & WL_CHANSPEC_BW_MASK) == WL_CHANSPEC_BW_10)
 #define CHSPEC_IS20(chspec)	(((chspec) & WL_CHANSPEC_BW_MASK) == WL_CHANSPEC_BW_20)
@@ -257,7 +257,7 @@ typedef uint16 chanspec_t;
 #define CHSPEC_IS8080(chspec)	(((chspec) & WL_CHANSPEC_BW_MASK) == WL_CHANSPEC_BW_8080)
 #endif
 
-#endif 
+#endif
 
 #define CHSPEC_IS5G(chspec)	(((chspec) & WL_CHANSPEC_BAND_MASK) == WL_CHANSPEC_BAND_5G)
 #define CHSPEC_IS2G(chspec)	(((chspec) & WL_CHANSPEC_BAND_MASK) == WL_CHANSPEC_BAND_2G)
@@ -316,10 +316,10 @@ typedef uint16 chanspec_t;
 
 
 
-#define WF_CHAN_FACTOR_2_4_G		4814	
+#define WF_CHAN_FACTOR_2_4_G		4814
 
 
-#define WF_CHAN_FACTOR_5_G		10000	
+#define WF_CHAN_FACTOR_5_G		10000
 
 
 #define WF_CHAN_FACTOR_4_G		8000

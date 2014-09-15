@@ -8,7 +8,7 @@
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -16,7 +16,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -94,7 +94,7 @@ static const struct net_device_ops dhd_mon_if_ops = {
 #else
 	.ndo_set_multicast_list = dhd_mon_if_set_multicast_list,
 #endif
-	.ndo_set_mac_address 	= dhd_mon_if_change_mac,
+	.ndo_set_mac_address	= dhd_mon_if_change_mac,
 };
 
 /**

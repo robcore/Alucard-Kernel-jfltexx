@@ -8,7 +8,7 @@
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -16,7 +16,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -54,8 +54,8 @@ struct wl_ibss;
 #define WL_DBG_NONE	0
 #define WL_DBG_P2P_ACTION (1 << 5)
 #define WL_DBG_TRACE	(1 << 4)
-#define WL_DBG_SCAN 	(1 << 3)
-#define WL_DBG_DBG 	(1 << 2)
+#define WL_DBG_SCAN	(1 << 3)
+#define WL_DBG_DBG	(1 << 2)
 #define WL_DBG_INFO	(1 << 1)
 #define WL_DBG_ERR	(1 << 0)
 
@@ -125,7 +125,7 @@ do {										\
 	if (wl_dbg_level & WL_DBG_ERR) {				\
 			printk(KERN_INFO "CFG80211-TRACE) %s : ", __func__);	\
 			printk args;						\
-		} 								\
+		}								\
 } while (0)
 #else
 #define	WL_TRACE_HW4			WL_TRACE
@@ -147,8 +147,8 @@ do {									\
 
 #define WL_SCAN_RETRY_MAX	3
 #define WL_NUM_PMKIDS_MAX	MAXPMKID
-#define WL_SCAN_BUF_MAX 	(1024 * 8)
-#define WL_TLV_INFO_MAX 	1500
+#define WL_SCAN_BUF_MAX		(1024 * 8)
+#define WL_TLV_INFO_MAX		1500
 #define WL_SCAN_IE_LEN_MAX      2048
 #define WL_BSS_INFO_MAX		2048
 #define WL_ASSOC_INFO_MAX	512
@@ -156,26 +156,26 @@ do {									\
 #define WL_EXTRA_BUF_MAX	2048
 #define WL_ISCAN_BUF_MAX	2048
 #define WL_ISCAN_TIMER_INTERVAL_MS	3000
-#define WL_SCAN_ERSULTS_LAST 	(WL_SCAN_RESULTS_NO_MEM+1)
+#define WL_SCAN_ERSULTS_LAST	(WL_SCAN_RESULTS_NO_MEM+1)
 #define WL_AP_MAX		256
 #define WL_FILE_NAME_MAX	256
-#define WL_DWELL_TIME 		200
+#define WL_DWELL_TIME		200
 #define WL_MED_DWELL_TIME       400
 #define WL_MIN_DWELL_TIME	100
-#define WL_LONG_DWELL_TIME 	1000
-#define IFACE_MAX_CNT 		2
-#define WL_SCAN_CONNECT_DWELL_TIME_MS 		200
-#define WL_SCAN_JOIN_PROBE_INTERVAL_MS 		20
-#define WL_SCAN_JOIN_ACTIVE_DWELL_TIME_MS 	320
-#define WL_SCAN_JOIN_PASSIVE_DWELL_TIME_MS 	400
-#define WL_AF_TX_MAX_RETRY 	5
+#define WL_LONG_DWELL_TIME	1000
+#define IFACE_MAX_CNT		2
+#define WL_SCAN_CONNECT_DWELL_TIME_MS		200
+#define WL_SCAN_JOIN_PROBE_INTERVAL_MS		20
+#define WL_SCAN_JOIN_ACTIVE_DWELL_TIME_MS	320
+#define WL_SCAN_JOIN_PASSIVE_DWELL_TIME_MS	400
+#define WL_AF_TX_MAX_RETRY	5
 
 #define WL_AF_SEARCH_TIME_MAX           450
 #define WL_AF_TX_EXTRA_TIME_MAX         200
 
 #define WL_SCAN_TIMER_INTERVAL_MS	10000 /* Scan timeout */
-#define WL_CHANNEL_SYNC_RETRY 	5
-#define WL_INVALID 		-1
+#define WL_CHANNEL_SYNC_RETRY	5
+#define WL_INVALID		-1
 
 /* Bring down SCB Timeout to 20secs from 60secs default */
 #ifndef WL_SCB_TIMEOUT
@@ -507,7 +507,7 @@ struct parsed_ies {
 
 #ifdef WL11U
 /* Max length of Interworking element */
-#define IW_IES_MAX_BUF_LEN 		9
+#define IW_IES_MAX_BUF_LEN		9
 #endif
 #ifdef WLFBT
 #define FBT_KEYLEN		32
@@ -563,7 +563,7 @@ struct wl_priv {
 	struct dentry		*debugfs;
 #endif /* DEBUGFS_CFG80211 */
 	struct wl_pmk_list *pmk_list;	/* wpa2 pmk list */
-	tsk_ctl_t event_tsk;  		/* task of main event handler thread */
+	tsk_ctl_t event_tsk;		/* task of main event handler thread */
 	void *pub;
 	u32 iface_cnt;
 	u32 channel;		/* current channel */

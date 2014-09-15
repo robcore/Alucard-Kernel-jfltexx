@@ -9,7 +9,7 @@
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -17,7 +17,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -114,7 +114,7 @@ enum dbus_file {
 typedef enum _DEVICE_SPEED {
 	INVALID_SPEED = -1,
 	LOW_SPEED     =  1,	/* USB 1.1: 1.5 Mbps */
-	FULL_SPEED,     	/* USB 1.1: 12  Mbps */
+	FULL_SPEED,		/* USB 1.1: 12  Mbps */
 	HIGH_SPEED,		/* USB 2.0: 480 Mbps */
 	SUPER_SPEED,		/* USB 3.0: 4.8 Gbps */
 } DEVICE_SPEED;
@@ -445,7 +445,7 @@ extern void dbus_release_fw_nvfile(void *firmware);
  * NOTE that is does not need to (and does not) match its kernel counterpart
  */
 #define EHCI_QTD_NBUFFERS       5
-#define EHCI_QTD_ALIGN  	32
+#define EHCI_QTD_ALIGN		32
 #define EHCI_BULK_PACKET_SIZE	512
 #define EHCI_QTD_XACTERR_MAX	32
 
@@ -466,8 +466,8 @@ struct ehci_qtd {
 #define EHCI_QTD_BABBLE         0x10
 #define EHCI_QTD_XACTERR        0x08
 #define EHCI_QTD_MISSEDMICRO    0x04
-	volatile uint32_t 	qtd_buffer[EHCI_QTD_NBUFFERS];
-	volatile uint32_t 	qtd_buffer_hi[EHCI_QTD_NBUFFERS];
+	volatile uint32_t	qtd_buffer[EHCI_QTD_NBUFFERS];
+	volatile uint32_t	qtd_buffer_hi[EHCI_QTD_NBUFFERS];
 
 	/* Implementation extension */
 	dma_addr_t		qtd_self;		/* own hardware address */
@@ -488,10 +488,10 @@ struct ehci_qtd {
  */
 struct ehci_qh {
 	/* Hardware map */
-	volatile uint32_t 	qh_link;
-	volatile uint32_t 	qh_endp;
-	volatile uint32_t 	qh_endphub;
-	volatile uint32_t 	qh_curqtd;
+	volatile uint32_t	qh_link;
+	volatile uint32_t	qh_endp;
+	volatile uint32_t	qh_endphub;
+	volatile uint32_t	qh_curqtd;
 
 	/* QTD overlay */
 	volatile uint32_t	ow_next;
@@ -502,7 +502,7 @@ struct ehci_qh {
 
 	/* Extension (should match the kernel layout) */
 	dma_addr_t		unused0;
-	void 			*unused1;
+	void			*unused1;
 	struct list_head	unused2;
 	struct ehci_qtd		*dummy;
 	struct ehci_qh		*unused3;

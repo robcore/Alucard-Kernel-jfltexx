@@ -81,7 +81,7 @@ int mii_ethtool_gset(struct mii_if_info *mii, struct ethtool_cmd *ecmd)
 	bmcr = mii->mdio_read(dev, mii->phy_id, MII_BMCR);
 	bmsr = mii->mdio_read(dev, mii->phy_id, MII_BMSR);
 	if (mii->supports_gmii) {
- 		ctrl1000 = mii->mdio_read(dev, mii->phy_id, MII_CTRL1000);
+		ctrl1000 = mii->mdio_read(dev, mii->phy_id, MII_CTRL1000);
 		stat1000 = mii->mdio_read(dev, mii->phy_id, MII_STAT1000);
 	}
 	if (bmcr & BMCR_ANENABLE) {
@@ -469,4 +469,3 @@ EXPORT_SYMBOL(mii_check_link);
 EXPORT_SYMBOL(mii_check_media);
 EXPORT_SYMBOL(mii_check_gmii_support);
 EXPORT_SYMBOL(generic_mii_ioctl);
-

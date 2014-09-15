@@ -56,8 +56,8 @@
 	} while (0)
 
 #define BLOCK_SIZE_F1		64
-#define BLOCK_SIZE_F2 		2048
-#define BLOCK_SIZE_F3 		2048
+#define BLOCK_SIZE_F2		2048
+#define BLOCK_SIZE_F3		2048
 
 /* internal return code */
 #define SUCCESS	0
@@ -94,28 +94,28 @@ struct sdioh_info {
 	uint		irq;			/* Client irq */
 	uint32		intrcount;		/* Client interrupts */
 	uint32		local_intrcount;	/* Controller interrupts */
-	bool 		host_init_done;		/* Controller initted */
-	bool 		card_init_done;		/* Client SDIO interface initted */
-	bool 		polled_mode;		/* polling for command completion */
+	bool		host_init_done;		/* Controller initted */
+	bool		card_init_done;		/* Client SDIO interface initted */
+	bool		polled_mode;		/* polling for command completion */
 
 	bool		sd_use_dma;		/* DMA on CMD53 */
-	bool 		sd_blockmode;		/* sd_blockmode == FALSE => 64 Byte Cmd 53s. */
+	bool		sd_blockmode;		/* sd_blockmode == FALSE => 64 Byte Cmd 53s. */
 						/*  Must be on for sd_multiblock to be effective */
-	bool 		use_client_ints;	/* If this is false, make sure to restore */
+	bool		use_client_ints;	/* If this is false, make sure to restore */
 						/*  polling hack in wl_linux.c:wl_timer() */
-	int 		adapter_slot;		/* Maybe dealing with multiple slots/controllers */
-	int 		sd_mode;		/* SD1/SD4/SPI */
-	int 		client_block_size[SPI_MAX_IOFUNCS];		/* Blocksize */
-	uint32 		data_xfer_count;	/* Current transfer */
-	uint16 		card_rca;		/* Current Address */
-	uint8 		num_funcs;		/* Supported funcs on client */
-	uint32 		card_dstatus;		/* 32bit device status */
-	uint32 		com_cis_ptr;
-	uint32 		func_cis_ptr[SPI_MAX_IOFUNCS];
+	int		adapter_slot;		/* Maybe dealing with multiple slots/controllers */
+	int		sd_mode;		/* SD1/SD4/SPI */
+	int		client_block_size[SPI_MAX_IOFUNCS];		/* Blocksize */
+	uint32		data_xfer_count;	/* Current transfer */
+	uint16		card_rca;		/* Current Address */
+	uint8		num_funcs;		/* Supported funcs on client */
+	uint32		card_dstatus;		/* 32bit device status */
+	uint32		com_cis_ptr;
+	uint32		func_cis_ptr[SPI_MAX_IOFUNCS];
 	void		*dma_buf;
 	ulong		dma_phys;
-	int 		r_cnt;			/* rx count */
-	int 		t_cnt;			/* tx_count */
+	int		r_cnt;			/* rx count */
+	int		t_cnt;			/* tx_count */
 	uint32		wordlen;			/* host processor 16/32bits */
 	uint32		prev_fun;
 	uint32		chip;

@@ -8,7 +8,7 @@
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -16,7 +16,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -150,7 +150,7 @@ enum {
 };
 
 const bcm_iovar_t dhd_iovars[] = {
-	{"version", 	IOV_VERSION,	0,	IOVT_BUFFER,	sizeof(dhd_version) },
+	{"version",	IOV_VERSION,	0,	IOVT_BUFFER,	sizeof(dhd_version) },
 #ifdef DHD_DEBUG
 	{"msglevel",	IOV_MSGLEVEL,	0,	IOVT_UINT32,	0 },
 #endif /* DHD_DEBUG */
@@ -178,7 +178,7 @@ const bcm_iovar_t dhd_iovars[] = {
 	2 - Use explicit credit
 	*/
 	{"ptxmode",	IOV_PROPTXSTATUS_MODE,	0,	IOVT_UINT32,	0 },
-	{"proptx_opt", IOV_PROPTXSTATUS_OPT, 	0,	IOVT_UINT32,	0 },
+	{"proptx_opt", IOV_PROPTXSTATUS_OPT,	0,	IOVT_UINT32,	0 },
 #endif /* PROP_TXSTATUS */
 	{"bustype", IOV_BUS_TYPE, 0, IOVT_UINT32, 0},
 #ifdef WLMEDIA_HTSF
@@ -1415,7 +1415,7 @@ dhd_pktfilter_offload_enable(dhd_pub_t * dhd, char *arg, int enable, int master_
 {
 	char				*argv[8];
 	int					i = 0;
-	const char 			*str;
+	const char			*str;
 	int					buf_len;
 	int					str_len;
 	char				*arg_save = 0, *arg_org = 0;
@@ -1487,12 +1487,12 @@ fail:
 void
 dhd_pktfilter_offload_set(dhd_pub_t * dhd, char *arg)
 {
-	const char 			*str;
+	const char			*str;
 	wl_pkt_filter_t		pkt_filter;
 	wl_pkt_filter_t		*pkt_filterp;
 	int					buf_len;
 	int					str_len;
-	int 				rc;
+	int				rc;
 	uint32				mask_size;
 	uint32				pattern_size;
 	char				*argv[8], * buf = 0;
@@ -2183,13 +2183,13 @@ bool dhd_support_sta_mode(dhd_pub_t *dhd)
 #if defined(KEEP_ALIVE)
 int dhd_keep_alive_onoff(dhd_pub_t *dhd)
 {
-	char 				buf[256];
-	const char 			*str;
+	char				buf[256];
+	const char			*str;
 	wl_mkeep_alive_pkt_t	mkeep_alive_pkt = {0};
 	wl_mkeep_alive_pkt_t	*mkeep_alive_pktp;
 	int					buf_len;
 	int					str_len;
-	int res 				= -1;
+	int res					= -1;
 
 	if (!dhd_support_sta_mode(dhd))
 		return res;

@@ -8,7 +8,7 @@
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -16,7 +16,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -422,17 +422,17 @@ const bcm_iovar_t sdioh_iovars[] = {
 	{"sd_blockmode", IOV_BLOCKMODE, 0,	IOVT_BOOL,	0 },
 	{"sd_blocksize", IOV_BLOCKSIZE, 0,	IOVT_UINT32,	0 }, /* ((fn << 16) | size) */
 	{"sd_dma",	IOV_DMA,	0,	IOVT_BOOL,	0 },
-	{"sd_ints", 	IOV_USEINTS,	0,	IOVT_BOOL,	0 },
+	{"sd_ints",	IOV_USEINTS,	0,	IOVT_BOOL,	0 },
 	{"sd_numints",	IOV_NUMINTS,	0,	IOVT_UINT32,	0 },
 	{"sd_numlocalints", IOV_NUMLOCALINTS, 0, IOVT_UINT32,	0 },
 	{"sd_hostreg",	IOV_HOSTREG,	0,	IOVT_BUFFER,	sizeof(sdreg_t) },
-	{"sd_devreg",	IOV_DEVREG, 	0,	IOVT_BUFFER,	sizeof(sdreg_t) },
+	{"sd_devreg",	IOV_DEVREG,	0,	IOVT_BUFFER,	sizeof(sdreg_t) },
 	{"sd_divisor",	IOV_DIVISOR,	0,	IOVT_UINT32,	0 },
 	{"sd_power",	IOV_POWER,	0,	IOVT_UINT32,	0 },
 	{"sd_clock",	IOV_CLOCK,	0,	IOVT_UINT32,	0 },
-	{"sd_mode", 	IOV_SDMODE, 	0,	IOVT_UINT32,	100},
+	{"sd_mode",	IOV_SDMODE,	0,	IOVT_UINT32,	100},
 	{"sd_highspeed", IOV_HISPEED,	0,	IOVT_UINT32,	0 },
-	{"sd_rxchain",  IOV_RXCHAIN,    0, 	IOVT_BOOL,	0 },
+	{"sd_rxchain",  IOV_RXCHAIN,    0,	IOVT_BOOL,	0 },
 	{NULL, 0, 0, 0, 0 }
 };
 

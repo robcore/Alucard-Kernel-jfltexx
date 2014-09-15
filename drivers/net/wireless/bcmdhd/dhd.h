@@ -11,7 +11,7 @@
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -19,7 +19,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -109,7 +109,7 @@ enum dhd_op_flags {
 	DHD_FLAG_IBSS_MODE				= (1 << (8))
 };
 
-#define MANUFACTRING_FW 	"WLTEST"
+#define MANUFACTRING_FW		"WLTEST"
 
 /* Max sequential TX/RX Control timeouts to set HANG event */
 #ifndef MAX_CNTL_TX_TIMEOUT
@@ -299,8 +299,8 @@ typedef struct dhd_pub {
 /* #define WL_ENABLE_P2P_IF		1 */
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)) && 1
-	struct mutex 	wl_start_stop_lock; /* lock/unlock for Android start/stop */
-	struct mutex 	wl_softap_lock;		 /* lock/unlock for any SoftAP/STA settings */
+	struct mutex	wl_start_stop_lock; /* lock/unlock for Android start/stop */
+	struct mutex	wl_softap_lock;		 /* lock/unlock for any SoftAP/STA settings */
 #endif
 
 #ifdef WLBTAMP
@@ -377,9 +377,9 @@ typedef struct dhd_cmn {
 				SMP_RD_BARRIER_DEPENDS(); \
 				wait_event_interruptible_timeout(a, !dhd_mmc_suspend, 1); \
 			} \
-		} 	while (0)
-	#define DHD_PM_RESUME_WAIT(a) 		_DHD_PM_RESUME_WAIT(a, 200)
-	#define DHD_PM_RESUME_WAIT_FOREVER(a) 	_DHD_PM_RESUME_WAIT(a, ~0)
+		}	while (0)
+	#define DHD_PM_RESUME_WAIT(a)		_DHD_PM_RESUME_WAIT(a, 200)
+	#define DHD_PM_RESUME_WAIT_FOREVER(a)	_DHD_PM_RESUME_WAIT(a, ~0)
 #ifdef CUSTOMER_HW4
 	#define DHD_PM_RESUME_RETURN_ERROR(a)   do { \
 			if (dhd_mmc_suspend) { \
@@ -546,7 +546,7 @@ typedef enum dhd_attach_states
 } dhd_attach_states_t;
 
 /* Value -1 means we are unsuccessful in creating the kthread. */
-#define DHD_PID_KT_INVALID 	-1
+#define DHD_PID_KT_INVALID	-1
 /* Value -2 means we are unsuccessful in both creating the kthread and tasklet */
 #define DHD_PID_KT_TL_INVALID	-2
 
@@ -639,7 +639,7 @@ extern int dhd_keep_alive_onoff(dhd_pub_t *dhd);
 #define DHD_MULTICAST6_FILTER_NUM	3
 #define DHD_MDNS_FILTER_NUM		4
 #define DHD_ARP_FILTER_NUM		5
-extern int 	dhd_os_enable_packet_filter(dhd_pub_t *dhdp, int val);
+extern int	dhd_os_enable_packet_filter(dhd_pub_t *dhdp, int val);
 extern void dhd_enable_packet_filter(int value, dhd_pub_t *dhd);
 extern int net_os_enable_packet_filter(struct net_device *dev, int val);
 extern int net_os_rxfilter_add_remove(struct net_device *dev, int val, int num);
@@ -781,48 +781,48 @@ extern uint dhd_sdiod_drive_strength;
 /* Override to force tx queueing all the time */
 extern uint dhd_force_tx_queueing;
 /* Default KEEP_ALIVE Period is 55 sec to prevent AP from sending Keep Alive probe frame */
-#define DEFAULT_KEEP_ALIVE_VALUE 	55000 /* msec */
+#define DEFAULT_KEEP_ALIVE_VALUE	55000 /* msec */
 #ifndef CUSTOM_KEEP_ALIVE_SETTING
-#define CUSTOM_KEEP_ALIVE_SETTING 	DEFAULT_KEEP_ALIVE_VALUE
+#define CUSTOM_KEEP_ALIVE_SETTING	DEFAULT_KEEP_ALIVE_VALUE
 #endif /* DEFAULT_KEEP_ALIVE_VALUE */
 
 #define NULL_PKT_STR	"null_pkt"
 
 /* hooks for custom glom setting option via Makefile */
-#define DEFAULT_GLOM_VALUE 	-1
+#define DEFAULT_GLOM_VALUE	-1
 #ifndef CUSTOM_GLOM_SETTING
-#define CUSTOM_GLOM_SETTING 	DEFAULT_GLOM_VALUE
+#define CUSTOM_GLOM_SETTING	DEFAULT_GLOM_VALUE
 #endif
 #define WL_AUTO_ROAM_TRIGGER -75
 /* hooks for custom Roaming Trigger  setting via Makefile */
 #define DEFAULT_ROAM_TRIGGER_VALUE -75 /* dBm default roam trigger all band */
-#define DEFAULT_ROAM_TRIGGER_SETTING 	-1
+#define DEFAULT_ROAM_TRIGGER_SETTING	-1
 #ifndef CUSTOM_ROAM_TRIGGER_SETTING
-#define CUSTOM_ROAM_TRIGGER_SETTING 	DEFAULT_ROAM_TRIGGER_VALUE
+#define CUSTOM_ROAM_TRIGGER_SETTING	DEFAULT_ROAM_TRIGGER_VALUE
 #endif
 
 /* hooks for custom Roaming Romaing  setting via Makefile */
 #define DEFAULT_ROAM_DELTA_VALUE  10 /* dBm default roam delta all band */
-#define DEFAULT_ROAM_DELTA_SETTING 	-1
+#define DEFAULT_ROAM_DELTA_SETTING	-1
 #ifndef CUSTOM_ROAM_DELTA_SETTING
-#define CUSTOM_ROAM_DELTA_SETTING 	DEFAULT_ROAM_DELTA_VALUE
+#define CUSTOM_ROAM_DELTA_SETTING	DEFAULT_ROAM_DELTA_VALUE
 #endif
 
 /* hooks for custom PNO Event wake lock to guarantee enough time
 	for the Platform to detect Event before system suspended
 */
-#define DEFAULT_PNO_EVENT_LOCK_xTIME 	2 	/* multiplay of DHD_PACKET_TIMEOUT_MS */
+#define DEFAULT_PNO_EVENT_LOCK_xTIME	2	/* multiplay of DHD_PACKET_TIMEOUT_MS */
 #ifndef CUSTOM_PNO_EVENT_LOCK_xTIME
 #define CUSTOM_PNO_EVENT_LOCK_xTIME	 DEFAULT_PNO_EVENT_LOCK_xTIME
 #endif
 /* hooks for custom dhd_dpc_prio setting option via Makefile */
 #define DEFAULT_DHP_DPC_PRIO  1
 #ifndef CUSTOM_DPC_PRIO_SETTING
-#define CUSTOM_DPC_PRIO_SETTING 	DEFAULT_DHP_DPC_PRIO
+#define CUSTOM_DPC_PRIO_SETTING		DEFAULT_DHP_DPC_PRIO
 #endif
 
 #ifndef CUSTOM_LISTEN_INTERVAL
-#define CUSTOM_LISTEN_INTERVAL 		LISTEN_INTERVAL
+#define CUSTOM_LISTEN_INTERVAL		LISTEN_INTERVAL
 #endif /* CUSTOM_LISTEN_INTERVAL */
 
 #define DEFAULT_SUSPEND_BCN_LI_DTIM		3

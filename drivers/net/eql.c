@@ -44,21 +44,21 @@
  * Moved header file.
  *
  * Revision 3.11  1995/01/19  23:14:31  guru
- * 		      slave_load = (ULONG_MAX - (ULONG_MAX / 2)) -
- * 			(priority_Bps) + bytes_queued * 8;
+ *		      slave_load = (ULONG_MAX - (ULONG_MAX / 2)) -
+ *			(priority_Bps) + bytes_queued * 8;
  *
  * Revision 3.10  1995/01/19  23:07:53  guru
  * back to
- * 		      slave_load = (ULONG_MAX - (ULONG_MAX / 2)) -
- * 			(priority_Bps) + bytes_queued;
+ *		      slave_load = (ULONG_MAX - (ULONG_MAX / 2)) -
+ *			(priority_Bps) + bytes_queued;
  *
  * Revision 3.9  1995/01/19  22:38:20  guru
- * 		      slave_load = (ULONG_MAX - (ULONG_MAX / 2)) -
- * 			(priority_Bps) + bytes_queued * 4;
+ *		      slave_load = (ULONG_MAX - (ULONG_MAX / 2)) -
+ *			(priority_Bps) + bytes_queued * 4;
  *
  * Revision 3.8  1995/01/19  22:30:55  guru
  *       slave_load = (ULONG_MAX - (ULONG_MAX / 2)) -
- * 			(priority_Bps) + bytes_queued * 2;
+ *			(priority_Bps) + bytes_queued * 2;
  *
  * Revision 3.7  1995/01/19  21:52:35  guru
  * printk's trimmed out.
@@ -93,20 +93,20 @@
  * Revision 1.13  1995/01/15  02:36:31  guru
  * big changes
  *
- * 	scheduler was torn out and replaced with something smarter
+ *	scheduler was torn out and replaced with something smarter
  *
- * 	global names not prefixed with eql_ were renamed to protect
- * 	against namespace collisions
+ *	global names not prefixed with eql_ were renamed to protect
+ *	against namespace collisions
  *
- * 	a few more abstract interfaces were added to facilitate any
- * 	potential change of datastructure.  the driver is still using
- * 	a linked list of slaves.  going to a heap would be a bit of
- * 	an overkill.
+ *	a few more abstract interfaces were added to facilitate any
+ *	potential change of datastructure.  the driver is still using
+ *	a linked list of slaves.  going to a heap would be a bit of
+ *	an overkill.
  *
- * 	this compiles fine with no warnings.
+ *	this compiles fine with no warnings.
  *
- * 	the locking mechanism and timer stuff must be written however,
- * 	this version will not work otherwise
+ *	the locking mechanism and timer stuff must be written however,
+ *	this version will not work otherwise
  *
  * Sorry, I had to rewrite most of this for 2.5.x -DaveM
  */
@@ -179,9 +179,9 @@ static void __init eql_setup(struct net_device *dev)
 	equalizer_t *eql = netdev_priv(dev);
 
 	init_timer(&eql->timer);
-	eql->timer.data     	= (unsigned long) eql;
-	eql->timer.expires  	= jiffies + EQL_DEFAULT_RESCHED_IVAL;
-	eql->timer.function 	= eql_timer;
+	eql->timer.data		= (unsigned long) eql;
+	eql->timer.expires	= jiffies + EQL_DEFAULT_RESCHED_IVAL;
+	eql->timer.function	= eql_timer;
 
 	spin_lock_init(&eql->queue.lock);
 	INIT_LIST_HEAD(&eql->queue.all_slaves);
@@ -191,14 +191,14 @@ static void __init eql_setup(struct net_device *dev)
 
 	/*
 	 *	Now we undo some of the things that eth_setup does
-	 * 	that we don't like
+	 *	that we don't like
 	 */
 
-	dev->mtu        	= EQL_DEFAULT_MTU;	/* set to 576 in if_eql.h */
-	dev->flags      	= IFF_MASTER;
+	dev->mtu		= EQL_DEFAULT_MTU;	/* set to 576 in if_eql.h */
+	dev->flags		= IFF_MASTER;
 
-	dev->type       	= ARPHRD_SLIP;
-	dev->tx_queue_len 	= 5;		/* Hands them off fast */
+	dev->type		= ARPHRD_SLIP;
+	dev->tx_queue_len	= 5;		/* Hands them off fast */
 	dev->priv_flags	       &= ~IFF_XMIT_DST_RELEASE;
 }
 
@@ -274,7 +274,7 @@ static int eql_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 {
 	if (cmd != EQL_GETMASTRCFG && cmd != EQL_GETSLAVECFG &&
 	    !capable(CAP_NET_ADMIN))
-	  	return -EPERM;
+		return -EPERM;
 
 	switch (cmd) {
 		case EQL_ENSLAVE:

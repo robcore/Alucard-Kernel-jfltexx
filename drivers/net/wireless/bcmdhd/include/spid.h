@@ -131,17 +131,17 @@ typedef volatile struct {
 #define STATUS_F3_PKT_LEN_SHIFT		21
 
 /* Bit mask for 16 bits SPID_F1_INFO_REG device register */
-#define F1_ENABLED 			0x0001
+#define F1_ENABLED			0x0001
 #define F1_RDY_FOR_DATA_TRANSFER	0x0002
 #define F1_MAX_PKT_SIZE			0x01FC
 
 /* Bit mask for 16 bits SPID_F2_INFO_REG device register */
-#define F2_ENABLED 			0x0001
+#define F2_ENABLED			0x0001
 #define F2_RDY_FOR_DATA_TRANSFER	0x0002
 #define F2_MAX_PKT_SIZE			0x3FFC
 
 /* Bit mask for 16 bits SPID_F3_INFO_REG device register */
-#define F3_ENABLED 			0x0001
+#define F3_ENABLED			0x0001
 #define F3_RDY_FOR_DATA_TRANSFER	0x0002
 #define F3_MAX_PKT_SIZE			0x3FFC
 

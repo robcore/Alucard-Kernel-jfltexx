@@ -8,7 +8,7 @@
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -16,7 +16,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -29,7 +29,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
 
 #define WL_RATESET_SZ_DSSS		4
@@ -39,7 +39,7 @@ extern "C" {
 
 #define WL_TX_CHAINS_MAX	3
 
-#define WL_RATE_DISABLED		(-128) 
+#define WL_RATE_DISABLED		(-128)
 
 
 typedef enum wl_tx_bw {
@@ -79,9 +79,9 @@ typedef enum wl_tx_nss {
 
 
 typedef enum clm_rates {
-	
 
-	
+
+
 	WL_RATE_1X1_DSSS_1         = 0,
 	WL_RATE_1X1_DSSS_2         = 1,
 	WL_RATE_1X1_DSSS_5_5       = 2,
@@ -117,9 +117,9 @@ typedef enum clm_rates {
 	WL_RATE_1X1_VHT9SS1        = 21,
 
 
-	
 
-	
+
+
 	WL_RATE_1X2_DSSS_1         = 22,
 	WL_RATE_1X2_DSSS_2         = 23,
 	WL_RATE_1X2_DSSS_5_5       = 24,
@@ -154,7 +154,7 @@ typedef enum clm_rates {
 	WL_RATE_1X2_VHT8SS1        = 42,
 	WL_RATE_1X2_VHT9SS1        = 43,
 
-	
+
 	WL_RATE_2X2_STBC_MCS0      = 44,
 	WL_RATE_2X2_STBC_MCS1      = 45,
 	WL_RATE_2X2_STBC_MCS2      = 46,
@@ -232,7 +232,7 @@ typedef enum clm_rates {
 	WL_RATE_1X3_VHT8SS1        = 84,
 	WL_RATE_1X3_VHT9SS1        = 85,
 
-	
+
 	WL_RATE_2X3_STBC_MCS0      = 86,
 	WL_RATE_2X3_STBC_MCS1      = 87,
 	WL_RATE_2X3_STBC_MCS2      = 88,
@@ -273,7 +273,7 @@ typedef enum clm_rates {
 	WL_RATE_2X3_VHT8SS2        = 104,
 	WL_RATE_2X3_VHT9SS2        = 105,
 
-	
+
 	WL_RATE_3X3_SDM_MCS16      = 106,
 	WL_RATE_3X3_SDM_MCS17      = 107,
 	WL_RATE_3X3_SDM_MCS18      = 108,
@@ -432,4 +432,4 @@ typedef enum clm_rates {
 }
 #endif
 
-#endif 
+#endif

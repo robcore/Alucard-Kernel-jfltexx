@@ -8,7 +8,7 @@
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -16,7 +16,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -60,11 +60,11 @@
 #define	ETHER_MAX_DATA		1500
 
 
-#define ETHER_TYPE_MIN		0x0600		
-#define	ETHER_TYPE_IP		0x0800		
-#define ETHER_TYPE_ARP		0x0806		
-#define ETHER_TYPE_8021Q	0x8100		
-#define	ETHER_TYPE_IPV6		0x86dd		
+#define ETHER_TYPE_MIN		0x0600
+#define	ETHER_TYPE_IP		0x0800
+#define ETHER_TYPE_ARP		0x0806
+#define ETHER_TYPE_8021Q	0x8100
+#define	ETHER_TYPE_IPV6		0x86dd
 #define	ETHER_TYPE_BRCM		0x886c
 #define	ETHER_TYPE_802_1X	0x888e
 #ifdef PLC
@@ -82,9 +82,9 @@
 #define	ETHER_BRCM_SUBTYPE_LEN	4
 
 
-#define ETHER_DEST_OFFSET	(0 * ETHER_ADDR_LEN)	
-#define ETHER_SRC_OFFSET	(1 * ETHER_ADDR_LEN)	
-#define ETHER_TYPE_OFFSET	(2 * ETHER_ADDR_LEN)	
+#define ETHER_DEST_OFFSET	(0 * ETHER_ADDR_LEN)
+#define ETHER_SRC_OFFSET	(1 * ETHER_ADDR_LEN)
+#define ETHER_TYPE_OFFSET	(2 * ETHER_ADDR_LEN)
 
 
 #define	ETHER_IS_VALID_LEN(foo)	\
@@ -111,11 +111,11 @@ BWL_PRE_PACKED_STRUCT struct ether_header {
 BWL_PRE_PACKED_STRUCT struct	ether_addr {
 	uint8 octet[ETHER_ADDR_LEN];
 } BWL_POST_PACKED_STRUCT;
-#endif	
+#endif
 
 
 #define ETHER_SET_LOCALADDR(ea)	(((uint8 *)(ea))[0] = (((uint8 *)(ea))[0] | 2))
-#define ETHER_IS_LOCALADDR(ea) 	(((uint8 *)(ea))[0] & 2)
+#define ETHER_IS_LOCALADDR(ea)	(((uint8 *)(ea))[0] & 2)
 #define ETHER_CLR_LOCALADDR(ea)	(((uint8 *)(ea))[0] = (((uint8 *)(ea))[0] & 0xfd))
 #define ETHER_TOGGLE_LOCALADDR(ea)	(((uint8 *)(ea))[0] = (((uint8 *)(ea))[0] ^ 2))
 

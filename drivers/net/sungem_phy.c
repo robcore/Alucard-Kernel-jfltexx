@@ -550,7 +550,7 @@ static int bcm54xx_read_link(struct mii_phy *phy)
 	u16 val;
 
 	if (phy->autoneg) {
-	    	val = phy_read(phy, MII_BCM5400_AUXSTATUS);
+		val = phy_read(phy, MII_BCM5400_AUXSTATUS);
 		link_mode = ((val & MII_BCM5400_AUXSTATUS_LINKMODE_MASK) >>
 			     MII_BCM5400_AUXSTATUS_LINKMODE_SHIFT);
 		phy->duplex = phy_BCM5400_link_table[link_mode][0] ?

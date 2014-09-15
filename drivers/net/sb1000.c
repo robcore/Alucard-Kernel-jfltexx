@@ -142,7 +142,7 @@ static const struct net_device_ops sb1000_netdev_ops = {
 	.ndo_do_ioctl		= sb1000_dev_ioctl,
 	.ndo_stop		= sb1000_close,
 	.ndo_change_mtu		= eth_change_mtu,
-	.ndo_set_mac_address 	= eth_mac_addr,
+	.ndo_set_mac_address	= eth_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
 };
 
@@ -541,7 +541,7 @@ sb1000_activate(const int ioaddr[], const char* name)
 	if ((status = card_send_command(ioaddr, name, Command1, st)))
 		return status;
 	if (st[3] != 0xf1) {
-    	if ((status = sb1000_start_get_set_command(ioaddr, name)))
+	if ((status = sb1000_start_get_set_command(ioaddr, name)))
 			return status;
 		return -EIO;
 	}

@@ -39,7 +39,7 @@ struct macvlan_port {
 	struct hlist_head	vlan_hash[MACVLAN_HASH_SIZE];
 	struct list_head	vlans;
 	struct rcu_head		rcu;
-	bool 			passthru;
+	bool			passthru;
 	int			count;
 };
 
@@ -296,7 +296,7 @@ static int macvlan_hard_header(struct sk_buff *skb, struct net_device *dev,
 }
 
 static const struct header_ops macvlan_hard_header_ops = {
-	.create  	= macvlan_hard_header,
+	.create		= macvlan_hard_header,
 	.rebuild	= eth_rebuild_header,
 	.parse		= eth_header_parse,
 	.cache		= eth_header_cache,
@@ -453,7 +453,7 @@ static int macvlan_init(struct net_device *dev)
 
 	dev->state		= (dev->state & ~MACVLAN_STATE_MASK) |
 				  (lowerdev->state & MACVLAN_STATE_MASK);
-	dev->features 		= lowerdev->features & MACVLAN_FEATURES;
+	dev->features		= lowerdev->features & MACVLAN_FEATURES;
 	dev->features		|= NETIF_F_LLTX;
 	dev->vlan_features	= lowerdev->vlan_features & MACVLAN_FEATURES;
 	dev->gso_max_size	= lowerdev->gso_max_size;

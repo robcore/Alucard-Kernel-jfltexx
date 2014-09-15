@@ -8,7 +8,7 @@
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -16,7 +16,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -42,10 +42,10 @@
 #define	SI_SDRAM_SWAPPED	0x10000000	/* Byteswapped Physical SDRAM */
 #define SI_SDRAM_R2		0x80000000	/* Region 2 for sdram (512 MB) */
 
-#define SI_ENUM_BASE    	0x18000000	/* Enumeration space base */
+#define SI_ENUM_BASE		0x18000000	/* Enumeration space base */
 
-#define SI_WRAP_BASE    	0x18100000	/* Wrapper space base */
-#define SI_CORE_SIZE    	0x1000		/* each core gets 4Kbytes for registers */
+#define SI_WRAP_BASE		0x18100000	/* Wrapper space base */
+#define SI_CORE_SIZE		0x1000		/* each core gets 4Kbytes for registers */
 
 #define	SI_MAXCORES		32		/* NorthStar has more cores */
 

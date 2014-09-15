@@ -8,7 +8,7 @@
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -16,7 +16,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -1132,7 +1132,7 @@ prpkt(const char *msg, osl_t *osh, void *p0)
 	for (p = p0; p; p = PKTNEXT(osh, p))
 		prhex(NULL, PKTDATA(osh, p), PKTLEN(osh, p));
 }
-#endif	
+#endif
 
 /* Takes an Ethernet frame and sets out-of-bound PKTPRIO.
  * Also updates the inplace vlan tag if requested.
@@ -1548,8 +1548,8 @@ hndcrc32(uint8 *pdata, uint nbytes, uint32 crc)
 }
 
 #ifdef notdef
-#define CLEN 	1499 	/*  CRC Length */
-#define CBUFSIZ 	(CLEN+4)
+#define CLEN	1499	/*  CRC Length */
+#define CBUFSIZ		(CLEN+4)
 #define CNBUFS		5 /* # of bufs */
 
 void
@@ -1771,7 +1771,7 @@ bcm_format_hex(char *str, const void *bytes, int len)
 	}
 	return (int)(p - str);
 }
-#endif 
+#endif
 
 /* pretty hex print a contiguous buffer */
 void
@@ -1959,7 +1959,7 @@ bcm_mkiovar(char *name, char *data, uint datalen, char *buf, uint buflen)
 #define QDBM_TABLE_HIGH_BOUND 64938 /* High bound */
 
 static const uint16 nqdBm_to_mW_map[QDBM_TABLE_LEN] = {
-/* qdBm: 	+0 	+1 	+2 	+3 	+4 	+5 	+6 	+7 */
+/* qdBm:	+0	+1	+2	+3	+4	+5	+6	+7 */
 /* 153: */      6683,	7079,	7499,	7943,	8414,	8913,	9441,	10000,
 /* 161: */      10593,	11220,	11885,	12589,	13335,	14125,	14962,	15849,
 /* 169: */      16788,	17783,	18836,	19953,	21135,	22387,	23714,	25119,
@@ -2196,7 +2196,7 @@ bcm_format_ssid(char* buf, const uchar ssid[], uint ssid_len)
 
 	return (int)(p - buf);
 }
-#endif 
+#endif
 
 #endif /* BCMDRIVER */
 

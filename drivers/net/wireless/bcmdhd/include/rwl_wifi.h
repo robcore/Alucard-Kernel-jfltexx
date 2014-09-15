@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2012, Broadcom Corporation
  * All Rights Reserved.
- * 
+ *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Broadcom Corporation;
  * the contents of this file may not be disclosed to third parties, copied
  * or duplicated in any form, in whole or in part, without the prior
@@ -52,18 +52,18 @@
 
 #ifdef WIFI_REFLECTOR
 #include <bcmcdc.h>
-#define REMOTE_FINDSERVER_CMD 	16
+#define REMOTE_FINDSERVER_CMD	16
 #define RWL_WIFI_ACTION_CMD		"wifiaction"
 #define RWL_WIFI_ACTION_CMD_LEN		11	/* With the NULL terminator */
-#define REMOTE_SET_CMD 		1
-#define REMOTE_GET_CMD 		2
-#define REMOTE_REPLY 			4
+#define REMOTE_SET_CMD		1
+#define REMOTE_GET_CMD		2
+#define REMOTE_REPLY			4
 #define RWL_WIFI_DEFAULT_TYPE           0x00
 #define RWL_WIFI_DEFAULT_SUBTYPE        0x00
 #define RWL_ACTION_FRAME_DATA_SIZE      1024	/* fixed size for the wifi frame data */
 #define RWL_WIFI_CDC_HEADER_OFFSET      0
 #define RWL_WIFI_FRAG_DATA_SIZE         960	/* max size of the frag data */
-#define RWL_DEFAULT_WIFI_FRAG_COUNT 	127 	/* maximum fragment count */
+#define RWL_DEFAULT_WIFI_FRAG_COUNT	127	/* maximum fragment count */
 #define RWL_WIFI_RETRY			5       /* CMD retry count for wifi */
 #define RWL_WIFI_SEND			5	/* WIFI frame sent count */
 #define RWL_WIFI_SEND_DELAY		100	/* delay between two frames */

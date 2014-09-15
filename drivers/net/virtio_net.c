@@ -940,7 +940,7 @@ static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
 
 static const struct net_device_ops virtnet_netdev = {
 	.ndo_open            = virtnet_open,
-	.ndo_stop   	     = virtnet_close,
+	.ndo_stop	     = virtnet_close,
 	.ndo_start_xmit      = start_xmit,
 	.ndo_validate_addr   = eth_validate_addr,
 	.ndo_set_mac_address = virtnet_set_mac_address,

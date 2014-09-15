@@ -8,7 +8,7 @@
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -16,7 +16,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -87,8 +87,8 @@
 #endif /* WL_ENABLE_P2P_IF */
 #define CMD_P2P_SD_OFFLOAD		"P2P_SD_"
 #define CMD_P2P_SET_PS		"P2P_SET_PS"
-#define CMD_SET_AP_WPS_P2P_IE 		"SET_AP_WPS_P2P_IE"
-#define CMD_SETROAMMODE 	"SETROAMMODE"
+#define CMD_SET_AP_WPS_P2P_IE		"SET_AP_WPS_P2P_IE"
+#define CMD_SETROAMMODE		"SETROAMMODE"
 #define CMD_SETIBSSBEACONOUIDATA	"SETIBSSBEACONOUIDATA"
 #define CMD_MIRACAST		"MIRACAST"
 
@@ -220,7 +220,7 @@ typedef struct android_wifi_af_params {
 #define CMD_AMPDU_MPDU		"AMPDU_MPDU"
 #endif /* SUPPORT_AMPDU_MPDU_CMD */
 
-#define CMD_CHANGE_RL 	"CHANGE_RL"
+#define CMD_CHANGE_RL	"CHANGE_RL"
 #define CMD_RESTORE_RL  "RESTORE_RL"
 
 #ifdef BCMCCX_S69
@@ -3034,7 +3034,7 @@ exit:
 #ifdef ENABLE_4335BT_WAR
 void check_bcm4335_rev(void)
 {
-	int ret = -1; 
+	int ret = -1;
 	struct file *fp = NULL;
 	char *filepath = "/data/.rev";
 	char chip_rev[10]={0,};
@@ -3044,7 +3044,7 @@ void check_bcm4335_rev(void)
 	if (IS_ERR(fp)) {
 		printk("/data/.rev file open error\n");
 		is4335_revb0 = true;
-		
+
 	} else {
 		printk("/data/.rev file Found\n");
 		ret = kernel_read(fp, 0, (char *)chip_rev, 9);
@@ -3453,7 +3453,7 @@ int wifi_set_power(int on, unsigned long msec)
 
 #ifdef ENABLE_4335BT_WAR
 		ret = wifi_control_data->set_power(on,is4335_revb0);
-#else 
+#else
 		ret = wifi_control_data->set_power(on);
 #endif
 	}

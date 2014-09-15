@@ -8,7 +8,7 @@
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -16,7 +16,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -455,8 +455,8 @@
 #define SROM11_TS_SLP_OPT_CORRX		89
 #define SROM11_XTAL_FREQ		90
 #define SROM11_5GB0_4080_W0_A1          91
-#define SROM11_PHYCAL_TEMPDELTA  	92
-#define SROM11_MPWR_1_AND_2 		93
+#define SROM11_PHYCAL_TEMPDELTA		92
+#define SROM11_MPWR_1_AND_2		93
 #define SROM11_5GB0_4080_W1_A1          94
 
 /* Masks and offsets for Terrmal parameters */
@@ -478,7 +478,7 @@
 #define SROM11_PDOFF_2G_40M_VALID_MASK  0x8000
 #define SROM11_PDOFF_2G_40M_VALID_SHIFT 15
 
-#define SROM11_PDOFF_2G_40M     	100
+#define SROM11_PDOFF_2G_40M		100
 #define SROM11_PDOFF_40M_A0		101
 #define SROM11_PDOFF_40M_A1		102
 #define SROM11_PDOFF_40M_A2		103
@@ -488,7 +488,7 @@
 #define SROM11_PDOFF_80M_A2		106
 #define SROM11_5GB1_4080_W0_A1          106
 
-#define SROM11_SUBBAND5GVER 		107
+#define SROM11_SUBBAND5GVER		107
 
 /* Per-path fields and offset */
 #define	MAX_PATH_SROM_11		3
@@ -546,27 +546,27 @@
 #define SROM11_DOT11AGOFDMHRBW202GPO	174
 #define SROM11_OFDMLRBW202GPO		175
 
-#define SROM11_MCSBW205GLPO 		176
+#define SROM11_MCSBW205GLPO		176
 #define SROM11_MCSBW205GLPO_1		177
-#define SROM11_MCSBW405GLPO 		178
+#define SROM11_MCSBW405GLPO		178
 #define SROM11_MCSBW405GLPO_1		179
-#define SROM11_MCSBW805GLPO 		180
+#define SROM11_MCSBW805GLPO		180
 #define SROM11_MCSBW805GLPO_1		181
 #define SROM11_RPCAL_2G			182
 #define SROM11_RPCAL_5GL		183
-#define SROM11_MCSBW205GMPO 		184
+#define SROM11_MCSBW205GMPO		184
 #define SROM11_MCSBW205GMPO_1		185
-#define SROM11_MCSBW405GMPO 		186
+#define SROM11_MCSBW405GMPO		186
 #define SROM11_MCSBW405GMPO_1		187
-#define SROM11_MCSBW805GMPO 		188
+#define SROM11_MCSBW805GMPO		188
 #define SROM11_MCSBW805GMPO_1		189
 #define SROM11_RPCAL_5GM		190
 #define SROM11_RPCAL_5GH		191
-#define SROM11_MCSBW205GHPO 		192
+#define SROM11_MCSBW205GHPO		192
 #define SROM11_MCSBW205GHPO_1		193
-#define SROM11_MCSBW405GHPO 		194
+#define SROM11_MCSBW405GHPO		194
 #define SROM11_MCSBW405GHPO_1		195
-#define SROM11_MCSBW805GHPO 		196
+#define SROM11_MCSBW805GHPO		196
 #define SROM11_MCSBW805GHPO_1		197
 #define SROM11_RPCAL_5GU		198
 #define SROM11_MCSLR5GLPO		200
@@ -574,13 +574,13 @@
 #define SROM11_MCSLR5GHPO		202
 
 #define SROM11_SB20IN40HRPO		203
-#define SROM11_SB20IN80AND160HR5GLPO 	204
+#define SROM11_SB20IN80AND160HR5GLPO	204
 #define SROM11_SB40AND80HR5GLPO		205
-#define SROM11_SB20IN80AND160HR5GMPO 	206
+#define SROM11_SB20IN80AND160HR5GMPO	206
 #define SROM11_SB40AND80HR5GMPO		207
-#define SROM11_SB20IN80AND160HR5GHPO 	208
+#define SROM11_SB20IN80AND160HR5GHPO	208
 #define SROM11_SB40AND80HR5GHPO		209
-#define SROM11_SB20IN40LRPO 		210
+#define SROM11_SB20IN40LRPO		210
 #define SROM11_SB20IN80AND160LR5GLPO	211
 #define SROM11_SB40AND80LR5GLPO		212
 #define SROM11_TXIDXCAP2G               212
@@ -590,7 +590,7 @@
 #define SROM11_SB20IN80AND160LR5GHPO	215
 #define SROM11_SB40AND80LR5GHPO		216
 
-#define SROM11_DOT11AGDUPHRPO 		217
+#define SROM11_DOT11AGDUPHRPO		217
 #define SROM11_DOT11AGDUPLRPO		218
 
 /* MISC */
@@ -598,10 +598,10 @@
 #define SROM11_SAR			221
 
 #define SROM11_NOISELVL_2G		222
-#define SROM11_NOISELVL_5GL 		223
-#define SROM11_NOISELVL_5GM 		224
-#define SROM11_NOISELVL_5GH 		225
-#define SROM11_NOISELVL_5GU 		226
+#define SROM11_NOISELVL_5GL		223
+#define SROM11_NOISELVL_5GM		224
+#define SROM11_NOISELVL_5GH		225
+#define SROM11_NOISELVL_5GU		226
 
 #define SROM11_RXGAINERR_2G		227
 #define SROM11_RXGAINERR_5GL		228
@@ -609,8 +609,8 @@
 #define SROM11_RXGAINERR_5GH		230
 #define SROM11_RXGAINERR_5GU		231
 
-#define SROM11_SIGN 			64
-#define SROM11_CRCREV 			233
+#define SROM11_SIGN			64
+#define SROM11_CRCREV			233
 
 #define	SROM11_WORDS			234
 #define	SROM11_SIGNATURE		0x0634

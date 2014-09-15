@@ -117,7 +117,7 @@ struct tun_sock;
 
 struct tun_struct {
 	struct tun_file		*tfile;
-	unsigned int 		flags;
+	unsigned int		flags;
 	uid_t			owner;
 	gid_t			group;
 

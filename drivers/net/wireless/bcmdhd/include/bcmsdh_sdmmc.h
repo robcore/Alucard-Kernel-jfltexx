@@ -8,7 +8,7 @@
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -16,7 +16,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -90,11 +90,11 @@ struct sdioh_info {
 	bool		sd_use_dma;		/* DMA on CMD53 */
 	bool		sd_blockmode;		/* sd_blockmode == FALSE => 64 Byte Cmd 53s. */
 						/*  Must be on for sd_multiblock to be effective */
-	bool 		use_client_ints;	/* If this is false, make sure to restore */
-	int 		sd_mode;		/* SD1/SD4/SPI */
-	int 		client_block_size[SDIOD_MAX_IOFUNCS];		/* Blocksize */
-	uint8 		num_funcs;		/* Supported funcs on client */
-	uint32 		com_cis_ptr;
+	bool		use_client_ints;	/* If this is false, make sure to restore */
+	int		sd_mode;		/* SD1/SD4/SPI */
+	int		client_block_size[SDIOD_MAX_IOFUNCS];		/* Blocksize */
+	uint8		num_funcs;		/* Supported funcs on client */
+	uint32		com_cis_ptr;
 	uint32		func_cis_ptr[SDIOD_MAX_IOFUNCS];
 
 #define SDIOH_SDMMC_MAX_SG_ENTRIES	32

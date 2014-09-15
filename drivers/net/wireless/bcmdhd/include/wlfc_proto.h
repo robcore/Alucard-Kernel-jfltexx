@@ -6,7 +6,7 @@
 * under the terms of the GNU General Public License version 2 (the "GPL"),
 * available at http://www.broadcom.com/licenses/GPLv2.php, with the
 * following added to such license:
-* 
+*
 *      As a special exception, the copyright holders of this software give you
 * permission to link this software with independent modules, and to copy and
 * distribute the resulting executable under terms of your choice, provided that
@@ -14,7 +14,7 @@
 * the license of that module.  An independent module is a module which is not
 * derived from this software.  The special exception does not apply to any
 * modifications of the software.
-* 
+*
 *      Notwithstanding the above, under no circumstances may you combine this
 * software in any way with any other Broadcom software provided under a license
 * other than the GPL, without Broadcom's express prior written consent.
@@ -198,7 +198,7 @@
 	{printf("WLFC: %s():%d:caller:%p\n", \
 	__FUNCTION__, __LINE__, __builtin_return_address(0));}} while (0)
 #define WLFC_PRINTMAC(banner, ea) do {printf("%s MAC: [%02x:%02x:%02x:%02x:%02x:%02x]\n", \
-	banner, ea[0], 	ea[1], 	ea[2], 	ea[3], 	ea[4], 	ea[5]); } while (0)
+	banner, ea[0],	ea[1],	ea[2],	ea[3],	ea[4],	ea[5]); } while (0)
 #define WLFC_WHEREIS(s) printf("WLFC: at %s():%d, %s\n", __FUNCTION__, __LINE__, (s))
 #else
 #define WLFC_DBGMESG(x)

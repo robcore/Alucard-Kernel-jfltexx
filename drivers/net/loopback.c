@@ -13,7 +13,7 @@
  *
  *		Alan Cox	:	Fixed oddments for NET3.014
  *		Alan Cox	:	Rejig for NET3.029 snap #3
- *		Alan Cox	: 	Fixed NET3.029 bugs and sped up
+ *		Alan Cox	:	Fixed NET3.029 bugs and sped up
  *		Larry McVoy	:	Tiny tweak to double performance
  *		Alan Cox	:	Backed out LMV's tweak - the linux mm
  *					can't take it...
@@ -170,7 +170,7 @@ static void loopback_setup(struct net_device *dev)
 	dev->flags		= IFF_LOOPBACK;
 	dev->priv_flags	       &= ~IFF_XMIT_DST_RELEASE;
 	dev->hw_features	= NETIF_F_ALL_TSO | NETIF_F_UFO;
-	dev->features 		= NETIF_F_SG | NETIF_F_FRAGLIST
+	dev->features		= NETIF_F_SG | NETIF_F_FRAGLIST
 		| NETIF_F_ALL_TSO
 		| NETIF_F_UFO
 		| NETIF_F_HW_CSUM

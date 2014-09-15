@@ -9,7 +9,7 @@
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -17,7 +17,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -618,7 +618,7 @@ void update_roam_cache(struct wl_priv *wl, int ioctl_ver);
 
 #define RETURN_EIO_IF_NOT_UP(wlpriv)						\
 do {									\
-	struct net_device *checkSysUpNDev = wl_to_prmry_ndev(wlpriv);       	\
+	struct net_device *checkSysUpNDev = wl_to_prmry_ndev(wlpriv);		\
 	if (unlikely(!wl_get_drv_status(wlpriv, READY, checkSysUpNDev))) {	\
 		WL_INFO(("device is not ready\n"));			\
 		return -EIO;						\
@@ -637,8 +637,8 @@ static s32 wl_rssi_offset(s32 rssi)
 #define wl_rssi_offset(x)	x
 #endif
 
-#define IS_WPA_AKM(akm) ((akm) == RSN_AKM_NONE || 			\
-				 (akm) == RSN_AKM_UNSPECIFIED || 	\
+#define IS_WPA_AKM(akm) ((akm) == RSN_AKM_NONE ||			\
+				 (akm) == RSN_AKM_UNSPECIFIED ||	\
 				 (akm) == RSN_AKM_PSK)
 
 

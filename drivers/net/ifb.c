@@ -15,14 +15,14 @@
 	by Patrick McHardy and then maintained by Andre Correa.
 
 	You need the tc action  mirror or redirect to feed this device
-       	packets.
+	packets.
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
 	as published by the Free Software Foundation; either version
 	2 of the License, or (at your option) any later version.
 
-  	Authors:	Jamal Hadi Salim (2005)
+	Authors:	Jamal Hadi Salim (2005)
 
 */
 

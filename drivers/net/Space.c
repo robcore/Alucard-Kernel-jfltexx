@@ -164,7 +164,7 @@ static struct devprobe2 isa_probes[] __initdata = {
 #ifdef CONFIG_WD80x3
 	{wd_probe, 0},
 #endif
-#ifdef CONFIG_EL2 		/* 3c503 */
+#ifdef CONFIG_EL2		/* 3c503 */
 	{el2_probe, 0},
 #endif
 #ifdef CONFIG_HPLAN
@@ -191,7 +191,7 @@ static struct devprobe2 isa_probes[] __initdata = {
 #endif
 #ifdef CONFIG_CS89x0
 #ifndef CONFIG_CS89x0_PLATFORM
- 	{cs89x0_probe, 0},
+	{cs89x0_probe, 0},
 #endif
 #endif
 #ifdef CONFIG_AT1700
@@ -207,7 +207,7 @@ static struct devprobe2 isa_probes[] __initdata = {
 	{eepro_probe, 0},
 #endif
 #ifdef CONFIG_EWRK3             /* DEC EtherWORKS 3 */
-    	{ewrk3_probe, 0},
+	{ewrk3_probe, 0},
 #endif
 #if defined(CONFIG_APRICOT) || defined(CONFIG_MVME16x_NET) || defined(CONFIG_BVME6000_NET)	/* Intel I82596 */
 	{i82596_probe, 0},
@@ -260,7 +260,7 @@ static struct devprobe2 m68k_probes[] __initdata = {
 	{mac8390_probe, 0},
 #endif
 #ifdef CONFIG_MAC89x0
- 	{mac89x0_probe, 0},
+	{mac89x0_probe, 0},
 #endif
 	{NULL, 0},
 };

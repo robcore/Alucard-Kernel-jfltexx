@@ -8,7 +8,7 @@
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -16,7 +16,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -57,11 +57,11 @@ extern void osl_assert(const char *exp, const char *file, int line);
 		#if GCC_VERSION > 30100
 			#define ASSERT(exp)	do {} while (0)
 		#else
-			
+
 			#define ASSERT(exp)
-		#endif 
-	#endif 
-#endif 
+		#endif
+	#endif
+#endif
 
 
 #define	OSL_DELAY(usec)		osl_delay(usec)
@@ -135,8 +135,8 @@ extern void *osl_dma_alloc_consistent(osl_t *osh, uint size, uint16 align, uint 
 extern void osl_dma_free_consistent(osl_t *osh, void *va, uint size, ulong pa);
 
 
-#define	DMA_TX	1	
-#define	DMA_RX	2	
+#define	DMA_TX	1
+#define	DMA_RX	2
 
 
 #define	DMA_UNMAP(osh, pa, size, direction, p, dmah) \
@@ -162,10 +162,10 @@ extern void osl_dma_unmap(osl_t *osh, uint pa, uint size, int direction);
 extern int osl_error(int bcmerror);
 
 
-#define	PKTBUFSZ	2048   
+#define	PKTBUFSZ	2048
 
 
-#include <linuxver.h>           
+#include <linuxver.h>
 #include <linux/kernel.h>
 #include <linux/string.h>
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 4, 29)
@@ -235,7 +235,7 @@ extern int osl_error(int bcmerror);
 #define	OSL_GETCYCLES(x)	rdtscl((x))
 #else
 #define OSL_GETCYCLES(x)	((x) = 0)
-#endif 
+#endif
 
 
 #define	BUSPROBE(val, addr)	({ (val) = R_REG(NULL, (addr)); 0; })
@@ -245,7 +245,7 @@ extern int osl_error(int bcmerror);
 #define	REG_MAP(pa, size)	ioremap_nocache((unsigned long)(pa), (unsigned long)(size))
 #else
 #define REG_MAP(pa, size)       (void *)(0)
-#endif 
+#endif
 #define	REG_UNMAP(va)		iounmap((va))
 
 
@@ -254,7 +254,7 @@ extern int osl_error(int bcmerror);
 #define	BZERO_SM(r, len)	memset((r), '\0', (len))
 
 
-#include <linuxver.h>		
+#include <linuxver.h>
 
 
 #define	PKTGET(osh, len, send)		osl_pktget((osh), (len))
@@ -295,8 +295,8 @@ typedef struct ctfpool {
 	uint		obj_size;
 	uint		refills;
 	uint		fast_allocs;
-	uint 		fast_frees;
-	uint 		slow_allocs;
+	uint		fast_frees;
+	uint		slow_allocs;
 } ctfpool_t;
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 36)
@@ -500,6 +500,6 @@ do { \
 extern void bcopy(const void *src, void *dst, size_t len);
 extern int bcmp(const void *b1, const void *b2, size_t len);
 extern void bzero(void *b, size_t len);
-#endif 
+#endif
 
-#endif	
+#endif

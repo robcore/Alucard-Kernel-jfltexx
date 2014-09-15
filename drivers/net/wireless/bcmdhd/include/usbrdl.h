@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2012, Broadcom Corporation
  * All Rights Reserved.
- * 
+ *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Broadcom Corporation;
  * the contents of this file may not be disclosed to third parties, copied
  * or duplicated in any form, in whole or in part, without the prior
@@ -40,7 +40,7 @@
 #define	DL_RDHW16		0x11	/* Read 16 bits */
 #define	DL_RDHW8		0x12	/* Read an 8 bit byte */
 #define	DL_WRHW			0x14	/* Write a hardware address (Ctl-out) */
-#define DL_WRHW_BLK 	0x13	/* Block write to hardware access */
+#define DL_WRHW_BLK	0x13	/* Block write to hardware access */
 
 #define DL_CMD_RDHW		1	/* read data from a backplane address */
 #define DL_CMD_WRHW		2	/* write data to a backplane address */

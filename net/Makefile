@@ -9,7 +9,7 @@ obj-y	:= nonet.o
 
 obj-$(CONFIG_NET)		:= socket.o core/
 
-tmp-$(CONFIG_COMPAT) 		:= compat.o
+tmp-$(CONFIG_COMPAT)		:= compat.o
 obj-$(CONFIG_NET)		+= $(tmp-y)
 
 # LLC has to be linked before the files in net/802/
