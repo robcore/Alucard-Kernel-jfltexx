@@ -61,15 +61,9 @@ static void __cpuinit msm_secondary_init(unsigned int cpu)
 	WARN_ON(msm_platform_secondary_init(cpu));
 
 	/*
-	 * if any interrupts are already enabled for the primary
-	 * core (e.g. timer irq), then they will not have been enabled
-	 * for us: do so
+	 * let the primary processor know we're out of the
+	 * pen, then head off into the C entry point
 	 */
-	gic_secondary_init(0);
-
-	/* let the primary processor know we're out of the
-         * pen, then head off into the C entry point
-         */
 	write_pen_release(-1);
 
 	/*
