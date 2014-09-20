@@ -1953,7 +1953,7 @@ static int selinux_ptrace_access_check(struct task_struct *child,
 	rc = cap_ptrace_access_check(child, mode);
 	if (rc)
 		return rc;
-    
+
 /* TmmSecure start */
 #ifdef SECSUBLSM_ENABLE
 #ifndef CONFIG_ARCH_GOLDFISH
@@ -1963,7 +1963,7 @@ static int selinux_ptrace_access_check(struct task_struct *child,
 #endif
 #endif
 /* TmmSecure end */
-    
+
 	if (mode & PTRACE_MODE_READ) {
 		u32 sid = current_sid();
 		u32 csid = task_sid(child);
@@ -2682,7 +2682,7 @@ static int selinux_mount(char *dev_name,
    		return rc;
 #endif
 /* TmmSecure end */
-    
+
 	if (flags & MS_REMOUNT)
 		return superblock_has_perm(cred, path->dentry->d_sb,
 					   FILESYSTEM__REMOUNT, NULL);
@@ -3432,7 +3432,7 @@ static int selinux_dentry_open(struct file *file, const struct cred *cred)
    		return rc;
 #endif
 /* TmmSecure end */
-    
+
 	inode = file->f_path.dentry->d_inode;
 	fsec = file->f_security;
 	isec = inode->i_security;
