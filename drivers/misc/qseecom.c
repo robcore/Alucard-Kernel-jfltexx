@@ -1478,7 +1478,6 @@ int qseecom_start_app(struct qseecom_handle **handle,
 		if (ret < 0) {
 			kfree(data);
 			kfree(*handle);
-			kfree(data);
 			*handle = NULL;
 			return ret;
 		}
