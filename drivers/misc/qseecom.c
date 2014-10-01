@@ -1636,8 +1636,8 @@ int qseecom_start_app(struct qseecom_handle **handle,
 		mutex_unlock(&app_access_lock);
 
 		if (ret < 0) {
-			kfree(data);
 			kfree(*handle);
+			kfree(data);
 			*handle = NULL;
 			return ret;
 		}
@@ -1675,9 +1675,6 @@ int qseecom_start_app(struct qseecom_handle **handle,
 	kclient_entry = kzalloc(sizeof(*kclient_entry), GFP_KERNEL);
 	if (!kclient_entry) {
 		pr_err("kmalloc failed\n");
-		kfree(data);
-		kfree(*handle);
-		*handle = NULL;
 		return -ENOMEM;
 	}
 	kclient_entry->handle = *handle;
@@ -1762,7 +1759,6 @@ int qseecom_send_command(struct qseecom_handle *handle, void *send_buf,
 	ret = __qseecom_send_cmd(data, &req);
 
 	atomic_dec(&data->ioctl_count);
-	wake_up_all(&data->abort_wq);
 	mutex_unlock(&app_access_lock);
 
 	if (ret)
@@ -2419,6 +2415,8 @@ static int __qseecom_init_clk()
 	/* Get CE3 src core clk. */
 	ce_core_src_clk = clk_get(pdev, "core_clk_src");
 	if (!IS_ERR(ce_core_src_clk)) {
+		ce_core_src_clk = ce_core_src_clk;
+
 		/* Set the core src clk @100Mhz */
 		rc = clk_set_rate(ce_core_src_clk, 100000000);
 		if (rc) {
