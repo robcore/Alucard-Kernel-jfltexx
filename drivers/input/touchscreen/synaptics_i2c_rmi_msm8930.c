@@ -24,8 +24,8 @@
 #include <linux/gpio.h>
 #include <linux/leds.h>
 #include <linux/regulator/consumer.h>
-#ifdef CONFIG_POWERSUSPEND
-#include <linux/powersuspend.h>
+#ifdef CONFIG_HAS_EARLYSUSPEND
+#include <linux/earlysuspend.h>
 #endif
 #ifdef CONFIG_MACH_JF
 #include "synaptics_i2c_rmi.h"
@@ -161,16 +161,16 @@ static int synaptics_rmi4_i2c_write(struct synaptics_rmi4_data *rmi4_data,
 
 static int synaptics_rmi4_reinit_device(struct synaptics_rmi4_data *rmi4_data);
 
-#ifdef CONFIG_POWERSUSPEND
+#ifdef CONFIG_HAS_EARLYSUSPEND
 static ssize_t synaptics_rmi4_full_pm_cycle_show(struct device *dev,
 		struct device_attribute *attr, char *buf);
 
 static ssize_t synaptics_rmi4_full_pm_cycle_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count);
 
-static void synaptics_rmi4_early_suspend(struct power_suspend *h);
+static void synaptics_rmi4_early_suspend(struct early_suspend *h);
 
-static void synaptics_rmi4_late_resume(struct power_suspend *h);
+static void synaptics_rmi4_late_resume(struct early_suspend *h);
 #else
 
 static int synaptics_rmi4_suspend(struct device *dev);
@@ -613,7 +613,7 @@ struct synaptics_rmi4_exp_fn {
 };
 
 static struct device_attribute attrs[] = {
-#ifdef CONFIG_POWERSUSPEND
+#ifdef CONFIG_HAS_EARLYSUSPEND
 	__ATTR(full_pm_cycle, (S_IRUGO | S_IWUSR | S_IWGRP),
 			synaptics_rmi4_full_pm_cycle_show,
 			synaptics_rmi4_full_pm_cycle_store),
@@ -654,7 +654,7 @@ static struct list_head exp_fn_list;
 static struct synaptics_rmi4_f51_handle *f51;
 #endif
 
-#ifdef CONFIG_POWERSUSPEND
+#ifdef CONFIG_HAS_EARLYSUSPEND
 static ssize_t synaptics_rmi4_full_pm_cycle_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
@@ -4021,11 +4021,11 @@ static int __devinit synaptics_rmi4_probe(struct i2c_client *client,
 		}
 #endif
 
-#ifdef CONFIG_POWERSUSPEND
-	/*mi4_data->early_suspend.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN - 1;*/
+#ifdef CONFIG_HAS_EARLYSUSPEND
+	rmi4_data->early_suspend.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN - 1;
 	rmi4_data->early_suspend.suspend = synaptics_rmi4_early_suspend;
 	rmi4_data->early_suspend.resume = synaptics_rmi4_late_resume;
-	register_power_suspend(&rmi4_data->early_suspend);
+	register_early_suspend(&rmi4_data->early_suspend);
 #endif
 
     /* initialize hallsensor status */
@@ -4038,7 +4038,7 @@ static int __devinit synaptics_rmi4_probe(struct i2c_client *client,
 	if (rmi4_data->register_cb)
 		rmi4_data->register_cb(&rmi4_data->callbacks);
 
-#ifdef CONFIG_POWERSUSPEND
+#ifdef CONFIG_HAS_EARLYSUSPEND
 	/* turn off TSP power. after LCD module on, TSP power will turn on */
 	synaptics_rmi4_early_suspend(&rmi4_data->early_suspend);
 
@@ -4113,8 +4113,8 @@ static int __devexit synaptics_rmi4_remove(struct i2c_client *client)
 	led_classdev_unregister(&rmi4_data->leds);
 #endif
 	rmi = &(rmi4_data->rmi4_mod_info);
-#ifdef CONFIG_POWERSUSPEND
-	unregister_power_suspend(&rmi4_data->early_suspend);
+#ifdef CONFIG_HAS_EARLYSUSPEND
+	unregister_early_suspend(&rmi4_data->early_suspend);
 #endif
 
 	synaptics_rmi4_irq_enable(rmi4_data, false);
@@ -4304,7 +4304,7 @@ static void synaptics_rmi4_input_close(struct input_dev *dev)
 }
 #endif
 
-#ifdef CONFIG_POWERSUSPEND
+#ifdef CONFIG_HAS_EARLYSUSPEND
 #define synaptics_rmi4_suspend NULL
 #define synaptics_rmi4_resume NULL
 
@@ -4317,7 +4317,7 @@ static void synaptics_rmi4_input_close(struct input_dev *dev)
  * This function calls synaptics_rmi4_sensor_sleep() to stop finger
  * data acquisition and put the sensor to sleep.
  */
-static void synaptics_rmi4_early_suspend(struct power_suspend *h)
+static void synaptics_rmi4_early_suspend(struct early_suspend *h)
 {
 	struct synaptics_rmi4_data *rmi4_data =
 			container_of(h, struct synaptics_rmi4_data,
@@ -4362,7 +4362,7 @@ static void synaptics_rmi4_early_suspend(struct power_suspend *h)
  * This function goes through the sensor wake process if the system wakes
  * up from early suspend (without going into suspend).
  */
-static void synaptics_rmi4_late_resume(struct power_suspend *h)
+static void synaptics_rmi4_late_resume(struct early_suspend *h)
 {
 	struct synaptics_rmi4_data *rmi4_data =
 			container_of(h, struct synaptics_rmi4_data,

@@ -117,10 +117,10 @@ static ssize_t synaptics_rmi4_full_pm_cycle_store(struct device *dev,
 #if defined(CONFIG_FB)
 static int fb_notifier_callback(struct notifier_block *self,
 				unsigned long event, void *data);
-#elif defined(CONFIG_POWERSUSPEND)
-static void synaptics_rmi4_early_suspend(struct power_suspend *h);
+#elif defined(CONFIG_HAS_EARLYSUSPEND)
+static void synaptics_rmi4_early_suspend(struct early_suspend *h);
 
-static void synaptics_rmi4_late_resume(struct power_suspend *h);
+static void synaptics_rmi4_late_resume(struct early_suspend *h);
 #endif
 #endif
 
@@ -301,13 +301,13 @@ static void configure_sleep(struct synaptics_rmi4_data *rmi4_data)
 			"Unable to register fb_notifier: %d\n", retval);
 	return;
 }
-#elif defined CONFIG_POWERSUSPEND
+#elif defined CONFIG_HAS_EARLYSUSPEND
 static void configure_sleep(struct synaptics_rmi4_data *rmi4_data)
 {
-	/*rmi4_data->early_suspend.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN + 1;*/
+	rmi4_data->early_suspend.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN + 1;
 	rmi4_data->early_suspend.suspend = synaptics_rmi4_early_suspend;
 	rmi4_data->early_suspend.resume = synaptics_rmi4_late_resume;
-	register_power_suspend(&rmi4_data->early_suspend);
+	register_early_suspend(&rmi4_data->early_suspend);
 
 	return;
 }
@@ -2518,7 +2518,7 @@ static int fb_notifier_callback(struct notifier_block *self,
 
 	return 0;
 }
-#elif defined(CONFIG_POWERSUSPEND)
+#elif defined(CONFIG_HAS_EARLYSUSPEND)
  /**
  * synaptics_rmi4_early_suspend()
  *
@@ -2528,7 +2528,7 @@ static int fb_notifier_callback(struct notifier_block *self,
  * This function calls synaptics_rmi4_sensor_sleep() to stop finger
  * data acquisition and put the sensor to sleep.
  */
-static void synaptics_rmi4_early_suspend(struct power_suspend *h)
+static void synaptics_rmi4_early_suspend(struct early_suspend *h)
 {
 	struct synaptics_rmi4_data *rmi4_data =
 			container_of(h, struct synaptics_rmi4_data,
@@ -2554,7 +2554,7 @@ static void synaptics_rmi4_early_suspend(struct power_suspend *h)
  * This function goes through the sensor wake process if the system wakes
  * up from early suspend (without going into suspend).
  */
-static void synaptics_rmi4_late_resume(struct power_suspend *h)
+static void synaptics_rmi4_late_resume(struct early_suspend *h)
 {
 	struct synaptics_rmi4_data *rmi4_data =
 			container_of(h, struct synaptics_rmi4_data,
@@ -2701,7 +2701,7 @@ static int synaptics_rmi4_resume(struct device *dev)
 	return 0;
 }
 
-#if (!defined(CONFIG_FB) && !defined(CONFIG_POWERSUSPEND))
+#if (!defined(CONFIG_FB) && !defined(CONFIG_HAS_EARLYSUSPEND))
 static const struct dev_pm_ops synaptics_rmi4_dev_pm_ops = {
 	.suspend = synaptics_rmi4_suspend,
 	.resume  = synaptics_rmi4_resume,

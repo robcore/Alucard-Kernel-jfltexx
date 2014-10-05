@@ -26,8 +26,8 @@
 #include <asm/unaligned.h>
 #include <linux/firmware.h>
 #include <linux/string.h>
-#ifdef CONFIG_POWERSUSPEND
-#include <linux/powersuspend.h>
+#ifdef CONFIG_HAS_EARLYSUSPEND
+#include <linux/earlysuspend.h>
 #endif
 #ifdef CONFIG_SEC_DVFS_BOOSTER
 #include <linux/module.h>
@@ -1953,11 +1953,11 @@ out:
 	return ret;
 }
 
-#ifdef CONFIG_POWERSUSPEND
+#ifdef CONFIG_HAS_EARLYSUSPEND
 #define mxt_suspend	NULL
 #define mxt_resume	NULL
 
-static void mxt_early_suspend(struct power_suspend *h)
+static void mxt_early_suspend(struct early_suspend *h)
 {
 	struct mxt_data *data = container_of(h, struct mxt_data,
 								early_suspend);
@@ -1972,7 +1972,7 @@ static void mxt_early_suspend(struct power_suspend *h)
 	mutex_unlock(&data->input_dev->mutex);
 }
 
-static void mxt_late_resume(struct power_suspend *h)
+static void mxt_late_resume(struct early_suspend *h)
 {
 	struct mxt_data *data = container_of(h, struct mxt_data,
 								early_suspend);
@@ -2124,11 +2124,11 @@ static int __devinit mxt_probe(struct i2c_client *client,
 		goto err_touch_init;
 	}
 
-#ifdef CONFIG_POWERSUSPEND
-	/*data->early_suspend.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN + 1;*/
+#ifdef CONFIG_HAS_EARLYSUSPEND
+	data->early_suspend.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN + 1;
 	data->early_suspend.suspend = mxt_early_suspend;
 	data->early_suspend.resume = mxt_late_resume;
-	register_power_suspend(&data->early_suspend);
+	register_early_suspend(&data->early_suspend);
 #endif
 
 	return 0;
@@ -2155,8 +2155,8 @@ static int __devexit mxt_remove(struct i2c_client *client)
 {
 	struct mxt_data *data = i2c_get_clientdata(client);
 
-#ifdef CONFIG_POWERSUSPEND
-	unregister_power_suspend(&data->early_suspend);
+#ifdef CONFIG_HAS_EARLYSUSPEND
+	unregister_early_suspend(&data->early_suspend);
 #endif
 	free_irq(client->irq, data);
 	kfree(data->objects);
