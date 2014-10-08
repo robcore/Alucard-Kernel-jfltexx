@@ -2,13 +2,13 @@
  *  'Standard' SDIO HOST CONTROLLER driver
  *
  * Copyright (C) 1999-2010, Broadcom Corporation
- * 
+ *
  *      Unless you and Broadcom execute a separate written software license
  * agreement governing use of this software, this software is licensed to you
  * under the terms of the GNU General Public License version 2 (the "GPL"),
  * available at http://www.broadcom.com/licenses/GPLv2.php, with the
  * following added to such license:
- * 
+ *
  *      As a special exception, the copyright holders of this software give you
  * permission to link this software with independent modules, and to copy and
  * distribute the resulting executable under terms of your choice, provided that
@@ -16,7 +16,7 @@
  * the license of that module.  An independent module is a module which is not
  * derived from this software.  The special exception does not apply to any
  * modifications of the software.
- * 
+ *
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
@@ -39,7 +39,7 @@
 
 
 #define SD_PAGE_BITS	12
-#define SD_PAGE 	(1 << SD_PAGE_BITS)
+#define SD_PAGE		(1 << SD_PAGE_BITS)
 
 #include <bcmsdstd.h>
 
@@ -355,7 +355,7 @@ enum {
 };
 
 const bcm_iovar_t sdioh_iovars[] = {
-	{"sd_msglevel",	IOV_MSGLEVEL, 	0,	IOVT_UINT32,	0 },
+	{"sd_msglevel",	IOV_MSGLEVEL,	0,	IOVT_UINT32,	0 },
 	{"sd_blockmode", IOV_BLOCKMODE,	0,	IOVT_BOOL,	0 },
 	{"sd_blocksize", IOV_BLOCKSIZE, 0,	IOVT_UINT32,	0 }, /* ((fn << 16) | size) */
 	{"sd_dma",	IOV_DMA,	0,	IOVT_UINT32,	0 },
@@ -1293,7 +1293,7 @@ sdstd_intrs_off(sdioh_info_t *sd, uint16 norm, uint16 err)
 static int
 sdstd_host_init(sdioh_info_t *sd)
 {
-	int 		num_slots, full_slot;
+	int		num_slots, full_slot;
 	uint8		reg8;
 
 	uint32		card_ins;
@@ -1336,7 +1336,7 @@ sdstd_host_init(sdioh_info_t *sd)
 	first_bar = OSL_PCI_READ_CONFIG(sd->osh, SD_SlotInfo, 4) & 0x7;
 	num_slots = (OSL_PCI_READ_CONFIG(sd->osh, SD_SlotInfo, 4) & 0xff) >> 4;
 	num_slots &= 7;
-	num_slots++;   	/* map bits to num slots according to spec */
+	num_slots++;	/* map bits to num slots according to spec */
 
 	if (OSL_PCI_READ_CONFIG(sd->osh, PCI_CFG_VID, 4) ==
 	    ((SDIOH_FPGA_ID << 16) | VENDOR_BROADCOM)) {

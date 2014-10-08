@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2010, Broadcom Corporation
  * All Rights Reserved.
- * 
+ *
  * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Broadcom Corporation;
  * the contents of this file may not be disclosed to third parties, copied
  * or duplicated in any form, in whole or in part, without the prior
@@ -281,7 +281,7 @@ enum {
 };
 
 const bcm_iovar_t sdioh_iovars[] = {
-	{"sd_msglevel",	IOV_MSGLEVEL, 	0,	IOVT_UINT32,	0 },
+	{"sd_msglevel",	IOV_MSGLEVEL,	0,	IOVT_UINT32,	0 },
 	{"sd_blocksize", IOV_BLOCKSIZE, 0,	IOVT_UINT32,	0 }, /* ((fn << 16) | size) */
 	{"sd_dma",	IOV_DMA,	0,	IOVT_BOOL,	0 },
 	{"sd_ints",	IOV_USEINTS,	0,	IOVT_BOOL,	0 },
