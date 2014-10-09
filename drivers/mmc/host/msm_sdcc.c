@@ -5292,11 +5292,7 @@ static void msmsdcc_dump_sdcc_state(struct msmsdcc_host *host)
 	/* Now dump SDCC registers. Don't print FIFO registers */
 	if (atomic_read(&host->clks_on)) {
 		msmsdcc_print_regs("SDCC-CORE", host->base,
-				host->core_memres->start, 28);
-		msmsdcc_print_regs("SDCC-DML", host->dml_base,
-				host->dml_memres->start, 20);
-		msmsdcc_print_regs("SDCC-BAM", host->bam_base,
-				host->bam_memres->start, 20);
+				   host->core_memres->start, 28);
 		pr_err("%s: MCI_TEST_INPUT = 0x%.8x\n",
 			mmc_hostname(host->mmc),
 			readl_relaxed(host->base + MCI_TEST_INPUT));
