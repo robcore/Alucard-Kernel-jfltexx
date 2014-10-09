@@ -3774,15 +3774,11 @@ static void synaptics_init_power_on(struct work_struct *work)
 					"%s: until lcd does not turn on.\n", __func__);
 			schedule_delayed_work(&rmi4_data->work_init_power_on,
 					msecs_to_jiffies(1000));
-#ifdef CONFIG_POWERSUSPEND
 	} else {
 		synaptics_rmi4_late_resume(&rmi4_data->early_suspend);
-#endif
 	}
 #else
-#ifdef CONFIG_POWERSUSPEND
 	synaptics_rmi4_late_resume(&rmi4_data->early_suspend);
-#endif
 #endif
 }
 #endif
