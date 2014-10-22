@@ -896,6 +896,7 @@ static int __init alarmtimer_init(void)
 		error = PTR_ERR(pdev);
 		goto out_drv;
 	}
+
 	return 0;
 
 out_drv:
