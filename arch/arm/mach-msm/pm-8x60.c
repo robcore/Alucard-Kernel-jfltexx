@@ -100,6 +100,8 @@ enum {
 	MSM_PM_DEBUG_HOTPLUG = BIT(8),
 };
 
+static atomic_t cpu_online_num = ATOMIC_INIT(0);
+
 /******************************************************************************
  * Sleep Modes and Parameters
  *****************************************************************************/
@@ -815,7 +817,8 @@ static int msm_pm_idle_prepare(struct cpuidle_device *dev,
 
 		switch (mode) {
 		case MSM_PM_SLEEP_MODE_POWER_COLLAPSE:
-			if (num_online_cpus() > 1 || cpu_maps_is_updating())
+			if (num_online_cpus() > 1 || cpu_maps_is_updating() ||
+			    atomic_read(&cpu_online_num) > 1)
 				allow = false;
 			break;
 		case MSM_PM_SLEEP_MODE_RETENTION:
@@ -827,7 +830,9 @@ static int msm_pm_idle_prepare(struct cpuidle_device *dev,
 			if (!msm_pm_ldo_retention_enabled)
 				allow = false;
 
-			if (msm_pm_retention_calls_tz && num_online_cpus() > 1)
+			if (msm_pm_retention_calls_tz &&
+				(num_online_cpus() > 1 ||
+				 atomic_read(&cpu_online_num) > 1))
 				allow = false;
 			break;
 		case MSM_PM_SLEEP_MODE_POWER_COLLAPSE_STANDALONE:
@@ -1289,6 +1294,35 @@ static struct platform_driver msm_cpu_status_driver = {
 	},
 };
 
+static int msm_pm_cpu_callback(struct notifier_block *nfb,
+				unsigned long action, void *hcpu)
+{
+	switch (action) {
+	case CPU_UP_PREPARE:
+	case CPU_UP_PREPARE_FROZEN:
+		atomic_inc(&cpu_online_num);
+		break;
+	case CPU_ONLINE:
+	case CPU_ONLINE_FROZEN:
+		break;
+#ifdef CONFIG_HOTPLUG_CPU
+	case CPU_UP_CANCELED:
+	case CPU_UP_CANCELED_FROZEN:
+		atomic_dec(&cpu_online_num);
+		break;
+	case CPU_DEAD:
+	case CPU_DEAD_FROZEN:
+		atomic_dec(&cpu_online_num);
+		break;
+	}
+#endif
+	return NOTIFY_OK;
+}
+
+static struct notifier_block msm_pm_cpu_notifier = {
+	.notifier_call = msm_pm_cpu_callback,
+};
+
 static int __init msm_pm_setup_saved_state(void)
 {
 	pgd_t *pc_pgd;
@@ -1402,6 +1436,11 @@ static int __init msm_pm_init(void)
 		on_each_cpu(setup_broadcast_timer, NULL, 1);
 		register_cpu_notifier(&setup_broadcast_notifier);
 	}
+
+	get_online_cpus();
+	atomic_set(&cpu_online_num, num_online_cpus());
+	register_hotcpu_notifier(&msm_pm_cpu_notifier);
+	put_online_cpus();
 
 	return 0;
 }
