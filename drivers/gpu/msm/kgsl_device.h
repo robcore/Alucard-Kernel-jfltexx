@@ -15,6 +15,11 @@
 
 #include <linux/idr.h>
 #include <linux/pm_qos.h>
+
+#ifdef CONFIG_POWERSUSPEND
+#include <linux/powersuspend.h>
+#endif
+
 #ifdef CONFIG_HAS_EARLYSUSPEND
 #include <linux/earlysuspend.h>
 #endif
@@ -191,6 +196,9 @@ struct kgsl_device {
 	struct idr context_idr;
 #ifdef CONFIG_HAS_EARLYSUSPEND
 	struct early_suspend display_off;
+#endif
+#ifdef CONFIG_POWERSUSPEND
+	struct power_suspend display_off;
 #endif
 	rwlock_t context_lock;
 
