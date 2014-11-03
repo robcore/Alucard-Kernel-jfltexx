@@ -18,9 +18,10 @@ ui_print("-----------------------------------------");
 
 ui_print("Mounting system");
 ui_print("");
-#run_program("/sbin/busybox", "mount", "/system");
-mount("ext4", "EMMC", "/dev/block/platform/msm_sdcc.1/by-name/system", "/system");
-mount("ext4", "EMMC", "/dev/block/platform/msm_sdcc.1/by-name/userdata", "/data");
+run_program("/sbin/busybox", "mount", "/system");
+run_program("/sbin/busybox", "mount", "/data");
+#mount("ext4", "EMMC", "/dev/block/platform/msm_sdcc.1/by-name/system", "/system");
+#mount("ext4", "EMMC", "/dev/block/platform/msm_sdcc.1/by-name/userdata", "/data");
 
 show_progress(0.100000, 60);
 
