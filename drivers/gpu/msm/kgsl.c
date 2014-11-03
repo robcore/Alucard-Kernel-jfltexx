@@ -829,27 +829,6 @@ void kgsl_early_suspend_driver(struct early_suspend *h)
 EXPORT_SYMBOL(kgsl_early_suspend_driver);
 #endif
 
-#ifdef CONFIG_POWERSUSPEND
-void kgsl_power_suspend_driver(struct power_suspend *h)
-{
-	struct kgsl_device *device = container_of(h,
-					struct kgsl_device, display_off);
-	KGSL_PWR_WARN(device, "power suspend start\n");
-	mutex_lock(&device->mutex);
-
-	/* Only go to slumber if active_cnt is 0 */
-	if (device->active_cnt == 0) {
-		device->pwrctrl.restore_slumber = true;
-		kgsl_pwrctrl_request_state(device, KGSL_STATE_SLUMBER);
-		kgsl_pwrctrl_sleep(device);
-	}
-
-	mutex_unlock(&device->mutex);
-	KGSL_PWR_WARN(device, "power suspend end\n");
-}
-EXPORT_SYMBOL(kgsl_power_suspend_driver);
-#endif
-
 int kgsl_suspend_driver(struct platform_device *pdev,
 					pm_message_t state)
 {
@@ -899,42 +878,6 @@ void kgsl_late_resume_driver(struct early_suspend *h)
 	KGSL_PWR_WARN(device, "late resume end\n");
 }
 EXPORT_SYMBOL(kgsl_late_resume_driver);
-#endif
-
-#ifdef CONFIG_POWERSUSPEND
-void kgsl_power_resume_driver(struct power_suspend *h)
-{
-	struct kgsl_device *device = container_of(h,
-					struct kgsl_device, display_off);
-	KGSL_PWR_WARN(device, "power resume start\n");
-	mutex_lock(&device->mutex);
-	device->pwrctrl.restore_slumber = false;
-	if (device->pwrscale.policy == NULL)
-		kgsl_pwrctrl_pwrlevel_change(device, KGSL_PWRLEVEL_TURBO);
-
-	if (kgsl_pwrctrl_wake(device) != 0) {
-		mutex_unlock(&device->mutex);
-		return;
-	}
-	/*
-	 * We don't have a way to go directly from
-	 * a deeper sleep state to NAP, which is
-	 * the desired state here.
-	 *
-	 * Except if active_cnt is non zero which means that
-	 * we probably went to power_suspend with it non zero
-	 * and thus the system is still in an active state.
-	 */
-
-	if (device->active_cnt == 0) {
-		kgsl_pwrctrl_request_state(device, KGSL_STATE_NAP);
-		kgsl_pwrctrl_sleep(device);
-	}
-
-	mutex_unlock(&device->mutex);
-	KGSL_PWR_WARN(device, "power resume end\n");
-}
-EXPORT_SYMBOL(kgsl_power_resume_driver);
 #endif
 
 /*

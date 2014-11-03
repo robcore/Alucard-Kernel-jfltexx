@@ -115,12 +115,6 @@ static struct adreno_device device_3d0 = {
 			.resume = kgsl_late_resume_driver,
 		},
 #endif
-#ifdef CONFIG_POWERSUSPEND
-		.display_off = {
-			.suspend = kgsl_power_suspend_driver,
-			.resume = kgsl_power_resume_driver,
-		},
-#endif
 		.cmd_log = KGSL_LOG_LEVEL_DEFAULT,
 		.ctxt_log = KGSL_LOG_LEVEL_DEFAULT,
 		.drv_log = KGSL_LOG_LEVEL_DEFAULT,

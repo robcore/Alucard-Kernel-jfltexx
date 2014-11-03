@@ -1137,9 +1137,6 @@ int kgsl_pwrctrl_init(struct kgsl_device *device)
 #ifdef CONFIG_HAS_EARLYSUSPEND
 	register_early_suspend(&device->display_off);
 #endif
-#ifdef CONFIG_POWERSUSPEND
-	register_power_suspend(&device->display_off);
-#endif
 	return result;
 
 clk_err:
@@ -1161,9 +1158,6 @@ void kgsl_pwrctrl_close(struct kgsl_device *device)
 	pm_runtime_disable(device->parentdev);
 #ifdef CONFIG_HAS_EARLYSUSPEND
 	unregister_early_suspend(&device->display_off);
-#endif
-#ifdef CONFIG_POWERSUSPEND
-	unregister_power_suspend(&device->display_off);
 #endif
 
 	clk_put(pwr->ebi1_clk);
