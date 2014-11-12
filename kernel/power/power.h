@@ -193,13 +193,8 @@ static inline int suspend_devices_and_enter(suspend_state_t state)
 extern void suspend_test_start(void);
 extern void suspend_test_finish(const char *label);
 #else /* !CONFIG_PM_TEST_SUSPEND */
-#if defined(CONFIG_HAS_EARLYSUSPEND) && defined(CONFIG_MACH_JF)
-extern void suspend_test_start(void);
-extern void suspend_test_finish(const char *label);
-#else
 static inline void suspend_test_start(void) {}
 static inline void suspend_test_finish(const char *label) {}
-#endif
 #endif /* !CONFIG_PM_TEST_SUSPEND */
 
 #ifdef CONFIG_PM_SLEEP

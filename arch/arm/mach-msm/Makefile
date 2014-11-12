@@ -335,9 +335,6 @@ obj-$(CONFIG_MACH_JACTIVE_EUR) += board-8064-common-all.o
 obj-$(CONFIG_MACH_JACTIVE_ATT) += board-8064-common-all.o
 obj-$(CONFIG_MACH_JF_CRI) += board-8064-common-all.o
 
-obj-$(CONFIG_HAS_EARLYSUSPEND) += jf_suspend_autotest.o
-obj-$(CONFIG_MACH_JF) += jf_blocking_monitor.o
-
 CFLAGS_msm_vibrator.o += -Idrivers/staging/android
 CFLAGS_board-9615.o += -Idrivers/usb/gadget
 
