@@ -34,8 +34,6 @@
 
 #define SMP_TIMEOUT 30000 /* 30 seconds */
 
-#define AUTH_REQ_MASK   0x07
-
 #define SMP_MIN_CONN_INTERVAL	40	/* 50ms (40 * 1.25ms) */
 #define SMP_MAX_CONN_INTERVAL	56	/* 70ms (56 * 1.25ms) */
 #define SMP_MAX_CONN_LATENCY	0	/* 0ms (0 * 1.25ms) */
