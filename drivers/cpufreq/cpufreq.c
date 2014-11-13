@@ -540,7 +540,7 @@ static ssize_t show_##file_name						\
 		return -EINVAL;						\
 									\
 	if (lock_policy_rwsem_read(cpu_policy->cpu) < 0) {		\
-		__cpufreq_cpu_put(cpu_policy, 1);			\
+		__cpufreq_cpu_put(cpu_policy, true);			\
 		return -EINVAL;						\
 	}								\
 									\
@@ -548,7 +548,7 @@ static ssize_t show_##file_name						\
 									\
 	unlock_policy_rwsem_read(cpu_policy->cpu);			\
 									\
-	__cpufreq_cpu_put(cpu_policy, 1);				\
+	__cpufreq_cpu_put(cpu_policy, true);				\
 									\
 	return sprintf(buf, "%u\n", freq);				\
 }
@@ -573,7 +573,7 @@ static ssize_t show_##file_name##num_core				\
 		}							\
 									\
 		if (lock_policy_rwsem_read(num_core) < 0) {		\
-			__cpufreq_cpu_put(cpu_policy, 1);		\
+			__cpufreq_cpu_put(cpu_policy, true);		\
 			put_online_cpus();				\
 			return -EINVAL;					\
 		}							\
@@ -582,7 +582,7 @@ static ssize_t show_##file_name##num_core				\
 									\
 		unlock_policy_rwsem_read(num_core);			\
 									\
-		__cpufreq_cpu_put(cpu_policy, 1);			\
+		__cpufreq_cpu_put(cpu_policy, true);			\
 	}								\
 	put_online_cpus();						\
 									\
@@ -622,7 +622,7 @@ static ssize_t store_##file_name						\
 			continue;						\
 										\
 		if (lock_policy_rwsem_write(cpu) < 0) {				\
-			__cpufreq_cpu_put(cpu_policy, 1);			\
+			__cpufreq_cpu_put(cpu_policy, true);			\
 			continue;						\
 		}								\
 										\
@@ -630,7 +630,7 @@ static ssize_t store_##file_name						\
 										\
 		unlock_policy_rwsem_write(cpu);					\
 										\
-		__cpufreq_cpu_put(cpu_policy, 1);				\
+		__cpufreq_cpu_put(cpu_policy, true);				\
 	}									\
 	put_online_cpus();							\
 										\
@@ -662,7 +662,7 @@ static ssize_t store_##file_name##num_core					\
 		}								\
 										\
 		if (lock_policy_rwsem_write(num_core) < 0) {			\
-			__cpufreq_cpu_put(cpu_policy, 1);			\
+			__cpufreq_cpu_put(cpu_policy, true);			\
 			put_online_cpus();					\
 			return -EINVAL;						\
 		}								\
@@ -671,7 +671,7 @@ static ssize_t store_##file_name##num_core					\
 										\
 		unlock_policy_rwsem_write(num_core);				\
 										\
-		__cpufreq_cpu_put(cpu_policy, 1);				\
+		__cpufreq_cpu_put(cpu_policy, true);				\
 	}									\
 	put_online_cpus();							\
 	return count;								\
@@ -766,7 +766,7 @@ static ssize_t show_scaling_governor_all_cpus(struct kobject *a, struct attribut
 		return -EINVAL;
 
 	if (lock_policy_rwsem_read(cpu_policy->cpu) < 0) {
-		__cpufreq_cpu_put(cpu_policy, 1);
+		__cpufreq_cpu_put(cpu_policy, true);
 		return -EINVAL;
 	}
 
@@ -780,7 +780,7 @@ static ssize_t show_scaling_governor_all_cpus(struct kobject *a, struct attribut
 
 	unlock_policy_rwsem_read(cpu_policy->cpu);
 
-	__cpufreq_cpu_put(cpu_policy, 1);
+	__cpufreq_cpu_put(cpu_policy, true);
 
 	return scnprintf(buf, CPUFREQ_NAME_PLEN, "%s\n",
 				str_governor);
@@ -805,7 +805,7 @@ static ssize_t show_scaling_governor_cpu##num_core					\
 		}									\
 											\
 		if (lock_policy_rwsem_read(num_core) < 0) {				\
-			__cpufreq_cpu_put(cpu_policy, 1);				\
+			__cpufreq_cpu_put(cpu_policy, true);				\
 			put_online_cpus();						\
 			return -EINVAL;							\
 		}									\
@@ -820,7 +820,7 @@ static ssize_t show_scaling_governor_cpu##num_core					\
 											\
 		unlock_policy_rwsem_read(num_core);					\
 											\
-		__cpufreq_cpu_put(cpu_policy, 1);					\
+		__cpufreq_cpu_put(cpu_policy, true);					\
 	}										\
 	put_online_cpus();								\
 											\
@@ -861,7 +861,7 @@ static ssize_t store_scaling_governor_all_cpus(struct kobject *a, struct attribu
 			continue;
 
 		if (lock_policy_rwsem_write(cpu) < 0) {
-			__cpufreq_cpu_put(cpu_policy, 1);
+			__cpufreq_cpu_put(cpu_policy, true);
 			continue;
 		}
 
@@ -869,7 +869,7 @@ static ssize_t store_scaling_governor_all_cpus(struct kobject *a, struct attribu
 
 		unlock_policy_rwsem_write(cpu);
 
-		__cpufreq_cpu_put(cpu_policy, 1);
+		__cpufreq_cpu_put(cpu_policy, true);
 	}
 	put_online_cpus();
 
@@ -900,7 +900,7 @@ static ssize_t store_scaling_governor_cpu##num_core					\
 		}									\
 											\
 		if (lock_policy_rwsem_write(num_core) < 0) {				\
-			__cpufreq_cpu_put(cpu_policy, 1);				\
+			__cpufreq_cpu_put(cpu_policy, true);				\
 			put_online_cpus();						\
 			return -EINVAL;							\
 		}									\
@@ -909,7 +909,7 @@ static ssize_t store_scaling_governor_cpu##num_core					\
 											\
 		unlock_policy_rwsem_write(num_core);					\
 											\
-		__cpufreq_cpu_put(cpu_policy, 1);					\
+		__cpufreq_cpu_put(cpu_policy, true);					\
 	}										\
 	put_online_cpus();								\
 											\
@@ -1855,7 +1855,7 @@ unsigned int cpufreq_quick_get_util(unsigned int cpu)
 
 	if (policy) {
 		ret_util = policy->util;
-		__cpufreq_cpu_put(policy, 0);
+		__cpufreq_cpu_put(policy, false);
 	}
 
 	return ret_util;
@@ -2474,7 +2474,7 @@ static int __cpufreq_set_policy(struct cpufreq_policy *data,
 error_out:
 #ifdef CONFIG_UNI_CPU_POLICY_LIMIT
 	if (cpu0_policy) {
-		__cpufreq_cpu_put(cpu0_policy, 0);
+		__cpufreq_cpu_put(cpu0_policy, false);
 	}
 #endif
 	/* restore the limits that the policy requested */
