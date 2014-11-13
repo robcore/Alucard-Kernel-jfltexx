@@ -775,14 +775,14 @@ static ssize_t show_scaling_governor_all_cpus(struct kobject *a, struct attribut
 	else if (cpu_policy->policy == CPUFREQ_POLICY_PERFORMANCE)
 		sprintf(str_governor, "performance\n");
 	else if (cpu_policy->governor)
-		scnprintf(str_governor, CPUFREQ_NAME_LEN, "%s\n",
+		scnprintf(str_governor, CPUFREQ_NAME_PLEN, "%s\n",
 				cpu_policy->governor->name);
 
 	unlock_policy_rwsem_read(cpu_policy->cpu);
 
 	__cpufreq_cpu_put(cpu_policy, 1);
 
-	return scnprintf(buf, CPUFREQ_NAME_LEN, "%s\n",
+	return scnprintf(buf, CPUFREQ_NAME_PLEN, "%s\n",
 				str_governor);
 }
 
@@ -815,7 +815,7 @@ static ssize_t show_scaling_governor_cpu##num_core					\
 		else if (cpu_policy->policy == CPUFREQ_POLICY_PERFORMANCE)		\
 			sprintf(str_governor, "performance\n");				\
 		else if (cpu_policy->governor)						\
-			scnprintf(str_governor, CPUFREQ_NAME_LEN, "%s\n",		\
+			scnprintf(str_governor, CPUFREQ_NAME_PLEN, "%s\n",		\
 					cpu_policy->governor->name);			\
 											\
 		unlock_policy_rwsem_read(num_core);					\
@@ -824,7 +824,7 @@ static ssize_t show_scaling_governor_cpu##num_core					\
 	}										\
 	put_online_cpus();								\
 											\
-	return scnprintf(buf, CPUFREQ_NAME_LEN, "%s\n",					\
+	return scnprintf(buf, CPUFREQ_NAME_PLEN, "%s\n",					\
 				str_governor);						\
 }
 show_pcpu_scaling_governor(0);
