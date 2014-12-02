@@ -808,12 +808,12 @@ const struct dev_pm_ops kgsl_pm_ops = {
 };
 EXPORT_SYMBOL(kgsl_pm_ops);
 
-#ifdef CONFIG_HAS_EARLYSUSPEND
-void kgsl_early_suspend_driver(struct early_suspend *h)
+#ifdef CONFIG_POWERSUSPEND
+void kgsl_power_suspend_driver(struct power_suspend *h)
 {
 	struct kgsl_device *device = container_of(h,
 					struct kgsl_device, display_off);
-	KGSL_PWR_WARN(device, "early suspend start\n");
+	KGSL_PWR_WARN(device, "power suspend start\n");
 	mutex_lock(&device->mutex);
 
 	/* Only go to slumber if active_cnt is 0 */
@@ -826,7 +826,7 @@ void kgsl_early_suspend_driver(struct early_suspend *h)
 	mutex_unlock(&device->mutex);
 	KGSL_PWR_WARN(device, "early suspend end\n");
 }
-EXPORT_SYMBOL(kgsl_early_suspend_driver);
+EXPORT_SYMBOL(kgsl_power_suspend_driver);
 #endif
 
 int kgsl_suspend_driver(struct platform_device *pdev,
@@ -844,8 +844,8 @@ int kgsl_resume_driver(struct platform_device *pdev)
 }
 EXPORT_SYMBOL(kgsl_resume_driver);
 
-#ifdef CONFIG_HAS_EARLYSUSPEND
-void kgsl_late_resume_driver(struct early_suspend *h)
+#ifdef CONFIG_POWERSUSPEND
+void kgsl_late_resume_driver(struct power_suspend *h)
 {
 	struct kgsl_device *device = container_of(h,
 					struct kgsl_device, display_off);
@@ -865,7 +865,7 @@ void kgsl_late_resume_driver(struct early_suspend *h)
 	 * the desired state here.
 	 *
 	 * Except if active_cnt is non zero which means that
-	 * we probably went to early_suspend with it non zero
+	 * we probably went to power_suspend with it non zero
 	 * and thus the system is still in an active state.
 	 */
 
