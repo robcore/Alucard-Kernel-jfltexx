@@ -118,7 +118,7 @@ struct cypress_touchkey_info {
 	struct i2c_client			*client;
 	struct cypress_touchkey_platform_data	*pdata;
 	struct input_dev			*input_dev;
-	struct power_suspend			early_suspend;
+	struct power_suspend			power_suspend;
 	char			phys[32];
 	unsigned char			keycode[NUM_OF_KEY];
 	u8			sensitivity[NUM_OF_KEY];
@@ -163,7 +163,7 @@ struct cypress_touchkey_info {
 };
 
 #ifdef CONFIG_POWERSUSPEND
-static void cypress_touchkey_early_suspend(struct power_suspend *h);
+static void cypress_touchkey_power_suspend(struct power_suspend *h);
 static void cypress_touchkey_late_resume(struct power_suspend *h);
 #endif
 
@@ -1633,9 +1633,9 @@ static int __devinit cypress_touchkey_probe(struct i2c_client *client,
 	}
 
 #ifdef CONFIG_POWERSUSPEND
-	info->early_suspend.suspend = cypress_touchkey_early_suspend;
-	info->early_suspend.resume = cypress_touchkey_late_resume;
-	register_power_suspend(&info->early_suspend);
+	info->power_suspend.suspend = cypress_touchkey_power_suspend;
+	info->power_suspend.resume = cypress_touchkey_late_resume;
+	register_power_suspend(&info->power_suspend);
 #endif /* CONFIG_POWERSUSPEND */
 
 #if defined(CONFIG_GLOVE_TOUCH)
@@ -2033,17 +2033,17 @@ static int cypress_touchkey_resume(struct device *dev)
 #endif
 
 #ifdef CONFIG_POWERSUSPEND
-static void cypress_touchkey_early_suspend(struct power_suspend *h)
+static void cypress_touchkey_power_suspend(struct power_suspend *h)
 {
 	struct cypress_touchkey_info *info;
-	info = container_of(h, struct cypress_touchkey_info, early_suspend);
+	info = container_of(h, struct cypress_touchkey_info, power_suspend);
 	cypress_touchkey_suspend(&info->client->dev);
 }
 
 static void cypress_touchkey_late_resume(struct power_suspend *h)
 {
 	struct cypress_touchkey_info *info;
-	info = container_of(h, struct cypress_touchkey_info, early_suspend);
+	info = container_of(h, struct cypress_touchkey_info, power_suspend);
 	cypress_touchkey_resume(&info->client->dev);
 }
 #endif

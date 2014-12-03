@@ -384,7 +384,7 @@ struct ssp_data {
 		struct sensor_value *);
 
 #ifdef CONFIG_POWERSUSPEND
-	struct power_suspend early_suspend;
+	struct power_suspend power_suspend;
 #endif
 
 #ifdef CONFIG_SENSORS_SSP_SENSORHUB
