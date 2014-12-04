@@ -40,7 +40,9 @@
 #include <linux/switch.h>
 #include <linux/msm_mdp.h>
 
-#ifdef CONFIG_POWERSUSPEND
+#if defined(CONFIG_HAS_EARLYSUSPEND)
+#include <linux/earlysuspend.h>
+#elif defined(CONFIG_POWERSUSPEND)
 #include <linux/powersuspend.h>
 #endif
 
@@ -163,12 +165,12 @@ struct msm_fb_data_type {
 	struct dentry *sub_dir;
 #endif
 
-#ifdef CONFIG_POWERSUSPEND
-	struct power_suspend power_suspend;
-#endif
-#if defined(CONFIG_HAS_EARLYSUSPEND) && defined(CONFIG_FB_MSM_MDDI)
+#ifdef CONFIG_HAS_EARLYSUSPEND
+	struct early_suspend early_suspend;
+#ifdef CONFIG_FB_MSM_MDDI
 	struct early_suspend mddi_early_suspend;
 	struct early_suspend mddi_ext_early_suspend;
+#endif
 #endif
 	u32 mdp_fb_page_protection;
 
