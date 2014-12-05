@@ -28,7 +28,9 @@
 #include "devices.h"
 #include "board-8064.h"
 
-#ifdef CONFIG_LCD_NOTIFY
+#if defined(CONFIG_POWERSUSPEND)
+#include <linux/powersuspend.h>
+#elif defined(CONFIG_LCD_NOTIFY)
 #include <linux/lcd_notify.h>
 #endif
 
@@ -926,6 +928,11 @@ static int mipi_panel_power_oled(int enable)
 #ifdef CONFIG_LCD_NOTIFY
 		lcd_notifier_call_chain(LCD_EVENT_ON_END, NULL);
 #endif
+#ifdef CONFIG_POWERSUSPEND
+		if (suspend_mode == POWER_SUSPEND_PANEL)
+			set_power_suspend_state_panel_hook(
+				POWER_SUSPEND_INACTIVE);
+#endif
 	} else {
 
 		pr_info("[lcd] PANEL OFF\n");
@@ -963,6 +970,11 @@ static int mipi_panel_power_oled(int enable)
 
 #ifdef CONFIG_LCD_NOTIFY
 		lcd_notifier_call_chain(LCD_EVENT_OFF_END, NULL);
+#endif
+#ifdef CONFIG_POWERSUSPEND
+		if (suspend_mode == POWER_SUSPEND_PANEL)
+			set_power_suspend_state_panel_hook(
+				POWER_SUSPEND_ACTIVE);
 #endif
 	}
 
