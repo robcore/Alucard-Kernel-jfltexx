@@ -28,6 +28,10 @@
 #include "devices.h"
 #include "board-8064.h"
 
+#ifdef CONFIG_LCD_NOTIFY
+#include <linux/lcd_notify.h>
+#endif
+
 #ifdef CONFIG_FB_MSM_TRIPLE_BUFFER
 #if defined(CONFIG_FB_MSM_MIPI_SAMSUNG_OLED_VIDEO_HD_PT_PANEL)
 /* prim = 1280 x 736 x 3(bpp) x 3(pages) */
@@ -886,6 +890,9 @@ static int mipi_panel_power_oled(int enable)
 
 		pr_info("[lcd] PANEL ON\n");
 
+#ifdef CONFIG_LCD_NOTIFY
+		lcd_notifier_call_chain(LCD_EVENT_ON_START, NULL);
+#endif
 		/* 3000mv VCI(ANALOG) */
 		rc = regulator_set_optimum_mode(reg_L30, 100000);
 		if (rc < 0) {
@@ -915,9 +922,17 @@ static int mipi_panel_power_oled(int enable)
 			return -ENODEV;
 		}
 #endif
+
+#ifdef CONFIG_LCD_NOTIFY
+		lcd_notifier_call_chain(LCD_EVENT_ON_END, NULL);
+#endif
 	} else {
 
 		pr_info("[lcd] PANEL OFF\n");
+
+#ifdef CONFIG_LCD_NOTIFY
+		lcd_notifier_call_chain(LCD_EVENT_OFF_START, NULL);
+#endif
 
 #ifdef CONFIG_LCD_VDD3_BY_PMGPIO
 		gpio_set_value_cansleep(pmic_gpio4, 0);
@@ -945,6 +960,10 @@ static int mipi_panel_power_oled(int enable)
 			pr_err("disable reg_L30 failed, rc=%d\n", rc);
 			return -ENODEV;
 		}
+
+#ifdef CONFIG_LCD_NOTIFY
+		lcd_notifier_call_chain(LCD_EVENT_OFF_END, NULL);
+#endif
 	}
 
 	return rc;

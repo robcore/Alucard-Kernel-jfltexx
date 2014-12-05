@@ -54,10 +54,6 @@
 #include "mdp.h"
 #include "mdp4.h"
 
-#ifdef CONFIG_LCD_NOTIFY
-#include <linux/lcd_notify.h>
-#endif
-
 #ifdef CONFIG_FB_MSM_TRIPLE_BUFFER
 #define MSM_FB_NUM	3
 #endif
@@ -543,9 +539,6 @@ static int msm_fb_suspend(struct platform_device *pdev, pm_message_t state)
 		fb_set_suspend(mfd->fbi, FBINFO_STATE_RUNNING);
 	} else {
 		pdev->dev.power.power_state = state;
-#ifdef CONFIG_LCD_NOTIFY
-		lcd_notifier_call_chain(LCD_EVENT_OFF_END, NULL);
-#endif
 	}
 
 	console_unlock();
@@ -679,9 +672,6 @@ static int msm_fb_resume(struct platform_device *pdev)
 	ret = msm_fb_resume_sub(mfd);
 	pdev->dev.power.power_state = PMSG_ON;
 	fb_set_suspend(mfd->fbi, FBINFO_STATE_RUNNING);
-#ifdef CONFIG_LCD_NOTIFY
-	lcd_notifier_call_chain(LCD_EVENT_ON_END, NULL);
-#endif
 	console_unlock();
 
 	return ret;
