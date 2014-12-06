@@ -30,7 +30,8 @@
 
 #if defined(CONFIG_POWERSUSPEND)
 #include <linux/powersuspend.h>
-#elif defined(CONFIG_LCD_NOTIFY)
+#endif
+#if defined(CONFIG_LCD_NOTIFY)
 #include <linux/lcd_notify.h>
 #endif
 
