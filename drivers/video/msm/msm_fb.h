@@ -40,10 +40,8 @@
 #include <linux/switch.h>
 #include <linux/msm_mdp.h>
 
-#if defined(CONFIG_HAS_EARLYSUSPEND)
+#ifdef CONFIG_HAS_EARLYSUSPEND
 #include <linux/earlysuspend.h>
-#elif defined(CONFIG_POWERSUSPEND)
-#include <linux/powersuspend.h>
 #endif
 
 #include "msm_fb_panel.h"
