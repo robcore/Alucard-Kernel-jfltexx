@@ -120,10 +120,10 @@ struct cypress_touchkey_info {
 	struct i2c_client			*client;
 	struct cypress_touchkey_platform_data	*pdata;
 	struct input_dev			*input_dev;
-#ifdef CONFIG_HAS_EARLYSUSPEND
-	struct early_suspend			early_suspend;
-#elif defined(CONFIG_LCD_NOTIFY)
+#if defined(CONFIG_LCD_NOTIFY)
 	struct notifier_block			notif;
+#elif defined(CONFIG_HAS_EARLYSUSPEND)
+	struct early_suspend			early_suspend;
 #endif
 	char			phys[32];
 	unsigned char			keycode[NUM_OF_KEY];
@@ -168,7 +168,8 @@ struct cypress_touchkey_info {
 
 };
 
-#ifdef CONFIG_HAS_EARLYSUSPEND
+#if defined(CONFIG_HAS_EARLYSUSPEND) && \
+	!defined(CONFIG_LCD_NOTIFY)
 static void cypress_touchkey_early_suspend(struct early_suspend *h);
 static void cypress_touchkey_late_resume(struct early_suspend *h);
 #endif
