@@ -22,8 +22,10 @@
 #include <linux/platform_device.h>
 #include <linux/gpio.h>
 #include <linux/miscdevice.h>
-#ifdef CONFIG_POWERSUSPEND
-#include <linux/powersuspend.h>
+#ifdef CONFIG_LCD_NOTIFY
+#include <linux/lcd_notify.h>
+#elif defined(CONFIG_HAS_EARLYSUSPEND)
+#include <linux/earlysuspend.h>
 #endif
 #include <linux/i2c/cypress_touchkey.h>
 #include "cypress_tkey_fw.h"
@@ -118,7 +120,11 @@ struct cypress_touchkey_info {
 	struct i2c_client			*client;
 	struct cypress_touchkey_platform_data	*pdata;
 	struct input_dev			*input_dev;
-	struct power_suspend			power_suspend;
+#ifdef CONFIG_HAS_EARLYSUSPEND
+	struct early_suspend			early_suspend;
+#elif defined(CONFIG_LCD_NOTIFY)
+	struct notifier_block			notif;
+#endif
 	char			phys[32];
 	unsigned char			keycode[NUM_OF_KEY];
 	u8			sensitivity[NUM_OF_KEY];
@@ -162,9 +168,9 @@ struct cypress_touchkey_info {
 
 };
 
-#ifdef CONFIG_POWERSUSPEND
-static void cypress_touchkey_power_suspend(struct power_suspend *h);
-static void cypress_touchkey_late_resume(struct power_suspend *h);
+#ifdef CONFIG_HAS_EARLYSUSPEND
+static void cypress_touchkey_early_suspend(struct early_suspend *h);
+static void cypress_touchkey_late_resume(struct early_suspend *h);
 #endif
 
 
@@ -1505,6 +1511,120 @@ static DEVICE_ATTR(flip_mode, S_IRUGO | S_IWUSR | S_IWGRP, NULL,
 		   flip_cover_mode_enable);
 #endif
 
+#if defined(CONFIG_PM) || \
+	defined(CONFIG_HAS_EARLYSUSPEND) || \
+	defined(CONFIG_LCD_NOTIFY)
+static int cypress_touchkey_suspend(struct device *dev)
+{
+	struct i2c_client *client = to_i2c_client(dev);
+	struct cypress_touchkey_info *info = i2c_get_clientdata(client);
+	int ret = 0;
+
+	info->is_powering_on = true;
+	disable_irq(info->irq);
+	if (info->pdata->gpio_led_en)
+		cypress_touchkey_con_hw(info, false);
+	info->power_onoff(0);
+	cypress_int_gpio_setting(false);
+	cypress_gpio_setting(false);
+	info->enabled = false;
+	info->done_ta_setting = true;
+
+#ifdef TSP_BOOSTER
+	cypress_set_dvfs_lock(info, 2);
+	dev_info(&info->client->dev,
+			"%s: dvfs_lock free.\n", __func__);
+#endif
+	return ret;
+}
+
+static int cypress_touchkey_resume(struct device *dev)
+{
+	struct i2c_client *client = to_i2c_client(dev);
+	struct cypress_touchkey_info *info = i2c_get_clientdata(client);
+	int ret = 0;
+
+	info->power_onoff(1);
+	cypress_int_gpio_setting(true);
+	cypress_gpio_setting(true);
+	if (info->pdata->gpio_led_en)
+		cypress_touchkey_con_hw(info, true);
+	msleep(100);
+
+	if (touchled_cmd_reversed) {
+			touchled_cmd_reversed = 0;
+			i2c_smbus_write_byte_data(info->client,
+					CYPRESS_GEN, touchkey_led_status);
+			printk(KERN_INFO "%s: LED returned on, %d\n", __func__, ret);
+
+			msleep(30);
+			i2c_smbus_write_byte_data(info->client,
+					CYPRESS_GEN, touchkey_led_status);
+			printk(KERN_INFO "%s: LED returned on, %d\n", __func__, ret);
+	}
+
+	info->enabled = true;
+
+	if(!(info->done_ta_setting)) {
+		printk(KERN_DEBUG "[Touchkey] Enter the TA setting\n");
+		touchkey_ta_setting(info);
+		}
+
+	cypress_touchkey_auto_cal(info);
+/*
+	if (touchled_cmd_reversed) {
+			msleep(30);
+			touchled_cmd_reversed = 0;
+			i2c_smbus_write_byte_data(info->client,
+					CYPRESS_GEN, touchkey_led_status);
+			printk(KERN_DEBUG "LED returned on\n");
+		}
+*/
+	enable_irq(info->irq);
+
+	info->is_powering_on = false;
+	return ret;
+}
+#endif
+
+#if defined(CONFIG_LCD_NOTIFY)
+static int lcd_notifier_callback(struct notifier_block *nb,
+				unsigned long event, void *data)
+{
+	struct cypress_touchkey_info *info;
+	info = container_of(nb, struct cypress_touchkey_info, notif);
+
+	switch (event) {
+	case LCD_EVENT_ON_START:
+	case LCD_EVENT_OFF_START:
+		break;
+	case LCD_EVENT_ON_END:
+		cypress_touchkey_resume(&info->client->dev);
+		break;
+	case LCD_EVENT_OFF_END:
+		cypress_touchkey_suspend(&info->client->dev);
+		break;
+	default:
+		break;
+	}
+
+	return NOTIFY_OK;
+}
+#elif defined(CONFIG_HAS_EARLYSUSPEND)
+static void cypress_touchkey_early_suspend(struct early_suspend *h)
+{
+	struct cypress_touchkey_info *info;
+	info = container_of(h, struct cypress_touchkey_info, early_suspend);
+	cypress_touchkey_suspend(&info->client->dev);
+}
+
+static void cypress_touchkey_late_resume(struct early_suspend *h)
+{
+	struct cypress_touchkey_info *info;
+	info = container_of(h, struct cypress_touchkey_info, early_suspend);
+	cypress_touchkey_resume(&info->client->dev);
+}
+#endif
 
 static int __devinit cypress_touchkey_probe(struct i2c_client *client,
 				  const struct i2c_device_id *id)
@@ -1632,11 +1752,17 @@ static int __devinit cypress_touchkey_probe(struct i2c_client *client,
 		goto err_req_irq;
 	}
 
-#ifdef CONFIG_POWERSUSPEND
-	info->power_suspend.suspend = cypress_touchkey_power_suspend;
-	info->power_suspend.resume = cypress_touchkey_late_resume;
-	register_power_suspend(&info->power_suspend);
-#endif /* CONFIG_POWERSUSPEND */
+#if defined(CONFIG_LCD_NOTIFY)
+	info->notif.notifier_call = lcd_notifier_callback;
+	if (lcd_register_client(&info->notif) != 0) {
+		pr_err("%s: Failed to register LCD notifier callback\n",
+			"cypress-touchkey-236");
+	}
+#elif defined(CONFIG_HAS_EARLYSUSPEND)
+	info->early_suspend.suspend = cypress_touchkey_early_suspend;
+	info->early_suspend.resume = cypress_touchkey_late_resume;
+	register_early_suspend(&info->early_suspend);
+#endif /* CONFIG_HAS_EARLYSUSPEND */
 
 #if defined(CONFIG_GLOVE_TOUCH)
 	info->glove_wq = create_singlethread_workqueue("cypress_touchkey");
@@ -1958,103 +2084,15 @@ static int __devexit cypress_touchkey_remove(struct i2c_client *client)
 	return 0;
 }
 
-#if defined(CONFIG_PM) || defined(CONFIG_POWERSUSPEND)
-static int cypress_touchkey_suspend(struct device *dev)
-{
-	struct i2c_client *client = to_i2c_client(dev);
-	struct cypress_touchkey_info *info = i2c_get_clientdata(client);
-	int ret = 0;
-
-	info->is_powering_on = true;
-	disable_irq(info->irq);
-	if (info->pdata->gpio_led_en)
-		cypress_touchkey_con_hw(info, false);
-	info->power_onoff(0);
-	cypress_int_gpio_setting(false);
-	cypress_gpio_setting(false);
-	info->enabled = false;
-	info->done_ta_setting = true;
-
-#ifdef TSP_BOOSTER
-	cypress_set_dvfs_lock(info, 2);
-	dev_info(&info->client->dev,
-			"%s: dvfs_lock free.\n", __func__);
-#endif
-	return ret;
-}
-
-static int cypress_touchkey_resume(struct device *dev)
-{
-	struct i2c_client *client = to_i2c_client(dev);
-	struct cypress_touchkey_info *info = i2c_get_clientdata(client);
-	int ret = 0;
-
-	info->power_onoff(1);
-	cypress_int_gpio_setting(true);
-	cypress_gpio_setting(true);
-	if (info->pdata->gpio_led_en)
-		cypress_touchkey_con_hw(info, true);
-	msleep(100);
-
-	if (touchled_cmd_reversed) {
-			touchled_cmd_reversed = 0;
-			i2c_smbus_write_byte_data(info->client,
-					CYPRESS_GEN, touchkey_led_status);
-			printk(KERN_INFO "%s: LED returned on, %d\n", __func__, ret);
-
-			msleep(30);
-			i2c_smbus_write_byte_data(info->client,
-					CYPRESS_GEN, touchkey_led_status);
-			printk(KERN_INFO "%s: LED returned on, %d\n", __func__, ret);
-	}
-
-	info->enabled = true;
-
-	if(!(info->done_ta_setting)) {
-		printk(KERN_DEBUG "[Touchkey] Enter the TA setting\n");
-		touchkey_ta_setting(info);
-		}
-
-	cypress_touchkey_auto_cal(info);
-/*
-	if (touchled_cmd_reversed) {
-			msleep(30);
-			touchled_cmd_reversed = 0;
-			i2c_smbus_write_byte_data(info->client,
-					CYPRESS_GEN, touchkey_led_status);
-			printk(KERN_DEBUG "LED returned on\n");
-		}
-*/
-	enable_irq(info->irq);
-
-	info->is_powering_on = false;
-	return ret;
-}
-#endif
-
-#ifdef CONFIG_POWERSUSPEND
-static void cypress_touchkey_power_suspend(struct power_suspend *h)
-{
-	struct cypress_touchkey_info *info;
-	info = container_of(h, struct cypress_touchkey_info, power_suspend);
-	cypress_touchkey_suspend(&info->client->dev);
-}
-
-static void cypress_touchkey_late_resume(struct power_suspend *h)
-{
-	struct cypress_touchkey_info *info;
-	info = container_of(h, struct cypress_touchkey_info, power_suspend);
-	cypress_touchkey_resume(&info->client->dev);
-}
-#endif
-
 static const struct i2c_device_id cypress_touchkey_id[] = {
 	{"cypress_touchkey", 0},
 	{}
 };
 MODULE_DEVICE_TABLE(i2c, cypress_touchkey_id);
 
-#if defined(CONFIG_PM) && !defined(CONFIG_POWERSUSPEND)
+#if defined(CONFIG_PM) && \
+	!defined(CONFIG_HAS_EARLYSUSPEND) && \
+	!defined(CONFIG_LCD_NOTIFY)
 static const struct dev_pm_ops cypress_touchkey_pm_ops = {
 	.suspend	= cypress_touchkey_suspend,
 	.resume		= cypress_touchkey_resume,
@@ -2066,7 +2104,9 @@ struct i2c_driver cypress_touchkey_driver = {
 	.remove = cypress_touchkey_remove,
 	.driver = {
 		.name = "cypress_touchkey",
-#if defined(CONFIG_PM) && !defined(CONFIG_POWERSUSPEND)
+#if defined(CONFIG_PM) && \
+	!defined(CONFIG_HAS_EARLYSUSPEND) && \
+	!defined(CONFIG_LCD_NOTIFY)
 		.pm	= &cypress_touchkey_pm_ops,
 #endif
 		   },
