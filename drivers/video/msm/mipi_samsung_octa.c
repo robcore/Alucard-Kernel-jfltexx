@@ -34,9 +34,6 @@
 #include <linux/syscalls.h>
 #endif
 
-static int panel_colors = 2;
-extern void panel_load_colors(unsigned int value);
-
 static int pm_gpio8;	/* ERR_FG */
 static int pm_gpio5;	/* LDI_CHIP_SELECT */
 #define PMIC_GPIO_ERR_FG 8
@@ -762,7 +759,7 @@ static ssize_t mipi_samsung_disp_get_power(struct device *dev,
 	if (unlikely(mfd->key != MFD_KEY))
 		return -EINVAL;
 
-	rc = snprintf((char *)buf, sizeof(*buf), "%d\n", mfd->panel_power_on);
+	rc = snprintf((char *)buf, sizeof(buf), "%d\n", mfd->panel_power_on);
 	pr_info("mipi_samsung_disp_get_power(%d)\n", mfd->panel_power_on);
 
 	return rc;
@@ -797,34 +794,6 @@ static ssize_t mipi_samsung_disp_set_power(struct device *dev,
 }
 #endif
 
-static ssize_t panel_colors_show(struct device *dev,
-		struct device_attribute *attr, char *buf)
-{
-	return sprintf(buf, "%d\n", panel_colors);
-}
-
-static ssize_t panel_colors_store(struct device *dev,
-		struct device_attribute *attr, const char *buf, size_t size)
-{
-	int ret;
-	unsigned int value;
-
-	ret = sscanf(buf, "%d\n", &value);
-
-	if (ret != 1)
-		return -EINVAL;
-
-	if (value < 0)
-		value = 0;
-	else if (value > 4)
-		value = 4;
-
-	panel_colors = value;
-	panel_load_colors(panel_colors);
-
-	return size;
-}
-
 static ssize_t mipi_samsung_disp_lcdtype_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
@@ -855,7 +824,7 @@ static ssize_t mipi_samsung_auto_brightness_show(struct device *dev,
 {
 	int rc;
 
-	rc = snprintf((char *)buf, sizeof(*buf), "%d\n",
+	rc = snprintf((char *)buf, sizeof(buf), "%d\n",
 			msd.dstat.auto_brightness);
 	pr_info("auot_brightness: %d\n", *buf);
 
@@ -947,7 +916,7 @@ static ssize_t mipi_samsung_disp_acl_show(struct device *dev,
 {
 	int rc;
 
-	rc = snprintf((char *)buf, sizeof(*buf), "%d\n", msd.mpd->acl_status);
+	rc = snprintf((char *)buf, sizeof(buf), "%d\n", msd.mpd->acl_status);
 	pr_info("acl status: %d\n", *buf);
 
 	return rc;
@@ -987,7 +956,7 @@ static ssize_t mipi_samsung_disp_siop_show(struct device *dev,
 {
 	int rc;
 
-	rc = snprintf((char *)buf, sizeof(*buf), "%d\n", msd.mpd->siop_status);
+	rc = snprintf((char *)buf, sizeof(buf), "%d\n", msd.mpd->siop_status);
 	pr_info("siop status: %d\n", *buf);
 
 	return rc;
@@ -1106,7 +1075,7 @@ static ssize_t mipi_samsung_disp_backlight_show(struct device *dev,
 	struct msm_fb_data_type *mfd;
 	mfd = platform_get_drvdata(msd.msm_pdev);
 
-	rc = snprintf((char *)buf, sizeof(*buf), "%d\n", mfd->bl_level);
+	rc = snprintf((char *)buf, sizeof(buf), "%d\n", mfd->bl_level);
 
 	return rc;
 }
@@ -1184,8 +1153,6 @@ static ssize_t mipi_samsung_temperature_store(struct device *dev,
 	return size;
 }
 
-static DEVICE_ATTR(panel_colors, S_IRUGO | S_IWUSR | S_IWGRP,
-		panel_colors_show, panel_colors_store);
 static DEVICE_ATTR(lcd_power, S_IRUGO | S_IWUSR,
 		mipi_samsung_disp_get_power,
 		mipi_samsung_disp_set_power);
@@ -1536,13 +1503,6 @@ static int __devinit mipi_samsung_disp_probe(struct platform_device *pdev)
 				dev_attr_fps_change.attr.name);
 	}
 #endif
-
-	ret = sysfs_create_file(&lcd_device->dev.kobj,
-				&dev_attr_panel_colors.attr);
-	if (ret) {
-		pr_info("sysfs create fail-%s\n",
-				dev_attr_panel_colors.attr.name);
-	}
 
 	ret = sysfs_create_file(&lcd_device->dev.kobj,
 						&dev_attr_temperature.attr);

@@ -181,7 +181,7 @@ static int get_time_for_vibetonz(struct timed_output_dev *dev)
 
 static void enable_vibetonz_from_user(struct timed_output_dev *dev, int value)
 {
-	//printk(KERN_DEBUG "tspdrv: Enable time = %d msec\n", value);
+	printk(KERN_DEBUG "tspdrv: Enable time = %d msec\n", value);
 	hrtimer_cancel(&timer);
 
 	/* set_vibetonz(value); */
@@ -301,8 +301,6 @@ static __devinit int tspdrv_probe(struct platform_device *pdev)
 {
 	struct vibrator_platform_data *pdata;
 	int ret, i;   /* initialized below */
-
-	create_vibrator_sysfs();
 
 	DbgOut((KERN_INFO "tspdrv: tspdrv_probe.\n"));
 
