@@ -952,7 +952,7 @@ static void __init cpufreq_table_init(void)
 		int i, freq_cnt = 0;
 		/* Construct the freq_table tables from acpu_freq_tbl. */
 		for (i = 0; drv.acpu_freq_tbl[i].speed.khz != 0
-				&& freq_cnt < ARRAY_SIZE(*freq_table); i++) {
+				&& freq_cnt < ARRAY_SIZE(*freq_table)-1; i++) {
 			if (drv.acpu_freq_tbl[i].use_for_scaling) {
 #ifdef CONFIG_SEC_FACTORY 
 				// if factory_condition, set the core freq limit.
@@ -1119,7 +1119,6 @@ static struct pvs_table * __init select_freq_plan(u32 pte_efuse_phys,
 	speed_bin = bin_idx;
 	pvs_bin = tbl_idx;
 #endif
-	
 	return &pvs_tables[bin_idx][tbl_idx];
 }
 

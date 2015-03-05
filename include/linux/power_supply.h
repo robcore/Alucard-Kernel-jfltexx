@@ -148,7 +148,6 @@ enum power_supply_type {
 	POWER_SUPPLY_TYPE_UARTOFF,
 	POWER_SUPPLY_TYPE_OTG,
 	POWER_SUPPLY_TYPE_BMS,
-	POWER_SUPPLY_TYPE_POWER_SHARING,		/* power sharing clable */
 };
 
 /*

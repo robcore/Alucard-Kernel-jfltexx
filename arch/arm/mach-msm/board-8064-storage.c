@@ -562,20 +562,8 @@ void __init apq8064_init_mmc(void)
 					ARRAY_SIZE(sdc1_sup_clk_rates_all);
 		}
 		apq8064_add_sdcc(1, apq8064_sdc1_pdata);
+		apq8064_add_uio();
 	}
-#if defined(CONFIG_MACH_JFVE_EUR)
-	apq8064_sdc2_pdata = NULL;
-	apq8064_sdc4_pdata = NULL;
-
-	// SDC3 is used for External memory Card
-	if (apq8064_sdc3_pdata)
-   {  
-		apq8064_sdc3_pdata->status_gpio = PM8921_GPIO_PM_TO_SYS(33);
-		apq8064_sdc3_pdata->status_irq	= PM8921_GPIO_IRQ(PM8921_IRQ_BASE, 33);
-
-		apq8064_add_sdcc(3, apq8064_sdc3_pdata);
-   }
-#else
 /*
 	if (apq8064_sdc2_pdata)
 		apq8064_add_sdcc(2, apq8064_sdc2_pdata);
@@ -665,5 +653,4 @@ void __init apq8064_init_mmc(void)
 		apq8064_add_sdcc(4, apq8064_sdc4_pdata);
 	else if (apq8064_sdc2_pdata)
 		apq8064_add_sdcc(2, apq8064_sdc2_pdata);
-#endif
 }
