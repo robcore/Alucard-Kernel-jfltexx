@@ -84,3 +84,4 @@ obj-$(CONFIG_BU52031NVX) += pm8xxx-cradle.o
 obj-$(CONFIG_SLIMPORT_ANX7808)	+= slimport_anx7808/
 obj-$(CONFIG_2MIC_ES305)		+= a2220.o
 obj-$(CONFIG_SEC_TORCH_FLASH)	+= sec_torch.o
+obj-$(CONFIG_UID_CPUTIME) += uid_cputime.o
