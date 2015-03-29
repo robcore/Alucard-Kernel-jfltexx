@@ -159,12 +159,9 @@ static struct attribute_group darkness_attr_group = {
 static void darkness_check_cpu(struct cpufreq_darkness_cpuinfo *this_darkness_cpuinfo)
 {
 	struct cpufreq_policy *cpu_policy;
-	unsigned int min_freq;
-	unsigned int max_freq;
 	u64 cur_wall_time, cur_idle_time;
 	unsigned int wall_time, idle_time;
 	unsigned int index = 0;
-	unsigned int next_freq = 0;
 	int cur_load = -1;
 	unsigned int cpu;
 	int io_busy = darkness_tuners_ins.io_is_busy;
@@ -194,26 +191,12 @@ static void darkness_check_cpu(struct cpufreq_darkness_cpuinfo *this_darkness_cp
 
 	cpufreq_notify_utilization(cpu_policy, cur_load);
 
-	/* Checking Frequency Limit */
-	min_freq = cpu_policy->min;
-	max_freq = cpu_policy->max;
-
 	/* CPUs Online Scale Frequency*/
-	next_freq = max(min(cur_load * (max_freq / 100), max_freq), min_freq);
-	cpufreq_frequency_table_target(cpu_policy, this_darkness_cpuinfo->freq_table, next_freq,
-		CPUFREQ_RELATION_H, &index);
-	if (this_darkness_cpuinfo->freq_table[index].frequency != cpu_policy->cur) {
-		cpufreq_frequency_table_target(cpu_policy, this_darkness_cpuinfo->freq_table, next_freq,
-			CPUFREQ_RELATION_L, &index);
-	} else {
-		return;
-	}
-
-	next_freq = this_darkness_cpuinfo->freq_table[index].frequency;
-	/*printk(KERN_ERR "FREQ CALC.: CPU[%u], load[%d], target freq[%u], cur freq[%u], min freq[%u], max_freq[%u]\n",cpu, cur_load, next_freq, cpu_policy->cur, cpu_policy->min, max_freq);*/
-	if (next_freq != cpu_policy->cur) {
-		__cpufreq_driver_target(cpu_policy, next_freq, CPUFREQ_RELATION_L);
-	}
+	cpufreq_frequency_table_target(cpu_policy, this_darkness_cpuinfo->freq_table, max(min(cur_load * (cpu_policy->max / 100), cpu_policy->max), cpu_policy->min),
+		CPUFREQ_RELATION_L, &index);
+	if (this_darkness_cpuinfo->freq_table[index].frequency != cpu_policy->cur
+			 && this_darkness_cpuinfo->freq_table[index].frequency > 0)
+		__cpufreq_driver_target(cpu_policy, this_darkness_cpuinfo->freq_table[index].frequency, CPUFREQ_RELATION_L);
 }
 
 static void do_darkness_timer(struct work_struct *work)
