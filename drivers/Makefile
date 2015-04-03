@@ -149,3 +149,6 @@ obj-$(CONFIG_SEC_FPGA)	+= barcode_emul/
 obj-$(CONFIG_IRDA_MC96)		+= irda/
 
 obj-$(CONFIG_FELICA) += felica/
+
+#sensor_class
+obj-$(CONFIG_SENSORS)		+= sensors/
