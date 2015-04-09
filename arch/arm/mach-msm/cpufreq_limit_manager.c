@@ -47,14 +47,9 @@ static struct notifier_block notif;
 
 int update_cpufreq_limit(unsigned int limit_type, bool limit_status)
 {
-#ifdef CONFIG_SEC_DVFS
 	unsigned int min_freq = 0;
 	unsigned int max_freq = 0;
 	bool immediately_update = true;
-#else
-	unsigned int min_freq = MSM_CPUFREQ_NO_LIMIT;
-	unsigned int max_freq = MSM_CPUFREQ_NO_LIMIT;
-#endif
 	unsigned int cpu;
 
 	switch (limit_type) {
@@ -80,24 +75,15 @@ int update_cpufreq_limit(unsigned int limit_type, bool limit_status)
 	}
 	
 	if (oncall_status && suspended) {
-#ifdef CONFIG_SEC_DVFS
 		min_freq = 0;
-#else
-		min_freq = MSM_CPUFREQ_NO_LIMIT;
-#endif
 		max_freq = scaling_max_oncall_freq;
 	}
 		
 	if (gps_status) {
-#ifdef CONFIG_SEC_DVFS
 		min_freq = 0;
-#else
-		min_freq = MSM_CPUFREQ_NO_LIMIT;
-#endif
 		max_freq = scaling_max_gps_freq;
 	}
 
-#ifdef CONFIG_SEC_DVFS
 	set_min_lock(min_freq);
 	set_max_lock(max_freq);
 
@@ -119,11 +105,6 @@ int update_cpufreq_limit(unsigned int limit_type, bool limit_status)
 			}
 		}
 	}
-#else
-	for_each_possible_cpu(cpu) {
-		msm_cpufreq_set_freq_limits(cpu, min_freq, max_freq);
-	}
-#endif
 
 	return 0;
 }

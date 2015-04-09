@@ -3057,7 +3057,8 @@ config FORCE_FAST_CHARGE
 
 config CPUFREQ_LIMIT_MANAGER
 	bool "CPUFREQ limitter for suspend, gps, oncall using"
-	default n
+	depends on SEC_DVFS
+	default y
 	help
 	  A simple sysfs interface to limit cpufreq,
 	  when using gps, or call or suspend.

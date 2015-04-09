@@ -17,23 +17,35 @@
 
 #ifdef CONFIG_CPU_FREQ_MSM
 
-/**
- * msm_cpufreq_set_freq_limit() - Set max/min freq limits on cpu
- *
- * @cpu: The cpu core for which the limits apply
- * @max: The max frequency allowed
- * @min: The min frequency allowed
- *
- * If the @max or @min is set to MSM_CPUFREQ_NO_LIMIT, the limit
- * will default to the CPUFreq limit.
- *
- * returns 0 on success, errno on failure
- */
-extern int msm_cpufreq_set_freq_limits(
-		uint32_t cpu, uint32_t min, uint32_t max);
+extern unsigned int get_cpu_min_lock(unsigned int cpu);
+extern void set_cpu_min_lock(unsigned int cpu, int freq);
+extern unsigned int get_max_lock(void);
+extern void set_max_lock(int freq);
+extern unsigned int get_cpu_max_lock(unsigned int cpu);
+extern void set_cpu_max_lock(unsigned int cpu, int freq);
+
 #else
-static inline int msm_cpufreq_set_freq_limits(
-		uint32_t cpu, uint32_t min, uint32_t max)
+static unsigned int get_cpu_min_lock(unsigned int cpu)
+{
+	return -ENOSYS;
+}
+static void set_cpu_min_lock(unsigned int cpu, int freq)
+{
+	return -ENOSYS;
+}
+static unsigned int get_max_lock(void)
+{
+	return -ENOSYS;
+}
+static void set_max_lock(int freq)
+{
+	return -ENOSYS;
+}
+static unsigned int get_cpu_max_lock(unsigned int cpu)
+{
+	return -ENOSYS;
+}
+static void set_cpu_max_lock(unsigned int cpu, int freq)
 {
 	return -ENOSYS;
 }
