@@ -1541,17 +1541,18 @@ static int mmc_blk_issue_flush(struct mmc_queue *mq, struct request *req)
 
 	ret = mmc_flush_cache(card);
 	if (ret == -ETIMEDOUT) {
-		pr_info("%s: requeue flush request after timeout", __func__);
+        pr_info("%s: %s: requeue flush request after timeout.\n",
+                req->rq_disk->disk_name, __func__);
+
 		spin_lock_irq(q->queue_lock);
 		blk_requeue_request(q, req);
 		spin_unlock_irq(q->queue_lock);
 		ret = 0;
 		goto exit;
 	} else if (ret) {
-		pr_err("%s: notify flush error to upper layers", __func__);
+		pr_err("%s: %s: notify flush error to upper layers\n", mmc_hostname(card->host), __func__);
 		ret = -EIO;
 	}
-
 	blk_end_request_all(req, ret);
 exit:
 	return ret ? 0 : 1;
@@ -2793,12 +2794,12 @@ static int mmc_blk_issue_rq(struct mmc_queue *mq, struct request *req)
 
 	if (req && !mq->mqrq_prev->req) {
 		mmc_rpm_hold(host, &card->dev);
-		/* claim host only for the first request */
-		mmc_claim_host(card->host);
 #ifdef CONFIG_MMC_BLOCK_DEFERRED_RESUME
 		if (mmc_bus_needs_resume(card->host))
 			mmc_resume_bus(card->host);
 #endif
+		/* claim host only for the first request */
+		mmc_claim_host(card->host);
 		if (card->ext_csd.bkops_en)
 			mmc_stop_bkops(card);
 	}
