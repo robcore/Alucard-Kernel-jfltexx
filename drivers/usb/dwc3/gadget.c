@@ -852,6 +852,9 @@ static void dwc3_prepare_trbs(struct dwc3_ep *dep, bool starting)
 				if (last_one)
 					break;
 			}
+
+			if (last_one)
+				break;
 		} else {
 			dma = req->request.dma;
 			length = req->request.length;
@@ -1608,6 +1611,7 @@ static int dwc3_cleanup_done_reqs(struct dwc3 *dwc, struct dwc3_ep *dep,
 						dep->name);
 				status = -ECONNRESET;
 			}
+
 		} else {
 			if (count && (event->status & DEPEVT_STATUS_SHORT))
 				s_pkt = 1;
