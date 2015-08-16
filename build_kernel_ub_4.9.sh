@@ -1,5 +1,7 @@
 #!/bin/bash
 
+LANG=C
+
 # location
 if [ "${1}" != "" ]; then
 	export KERNELDIR=`readlink -f ${1}`;
