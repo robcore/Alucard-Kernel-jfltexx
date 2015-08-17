@@ -19,9 +19,10 @@
 #include <linux/swapops.h>
 #include <linux/buffer_head.h>
 #include <linux/writeback.h>
+#include <linux/frontswap.h>
+#include <linux/aio.h>
 #include <linux/blkdev.h>
 #include <linux/ratelimit.h>
-#include <linux/frontswap.h>
 #include <asm/pgtable.h>
 
 /*
