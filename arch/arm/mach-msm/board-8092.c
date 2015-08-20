@@ -104,7 +104,6 @@ DT_MACHINE_START(MSM_DT, "Qualcomm MSM (Flattened Device Tree)")
 	.map_io = mpq8092_dt_map_io,
 	.init_irq = mpq8092_dt_init_irq,
 	.init_machine = mpq8092_dt_init,
-	.handle_irq = gic_handle_irq,
 	.timer = &mpq8092_dt_timer,
 	.dt_compat = mpq8092_dt_match,
 MACHINE_END
