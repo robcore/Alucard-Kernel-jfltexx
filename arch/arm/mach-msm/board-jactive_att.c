@@ -5617,7 +5617,6 @@ MACHINE_START(JF, "SAMSUNG JF")
 	.map_io = apq8064_map_io,
 	.reserve = apq8064_reserve,
 	.init_irq = apq8064_init_irq,
-	.handle_irq = gic_handle_irq,
 	.timer = &msm_timer,
 	.init_machine = samsung_jf_init,
 	.init_early = apq8064_allocate_memory_regions,

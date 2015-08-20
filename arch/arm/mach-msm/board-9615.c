@@ -1045,7 +1045,6 @@ static void __init mdm9615_allocate_memory_regions(void)
 MACHINE_START(MSM9615_CDP, "QCT MSM9615 CDP")
 	.map_io = msm9615_map_io,
 	.init_irq = msm9615_init_irq,
-	.handle_irq = gic_handle_irq,
 	.timer = &msm_timer,
 	.init_machine = msm9615_cdp_init,
 	.reserve = msm9615_reserve,
@@ -1058,7 +1057,6 @@ MACHINE_END
 MACHINE_START(MSM9615_MTP, "QCT MSM9615 MTP")
 	.map_io = msm9615_map_io,
 	.init_irq = msm9615_init_irq,
-	.handle_irq = gic_handle_irq,
 	.timer = &msm_timer,
 	.init_machine = msm9615_mtp_init,
 	.reserve = msm9615_reserve,
