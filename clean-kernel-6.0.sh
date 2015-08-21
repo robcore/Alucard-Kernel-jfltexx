@@ -1,5 +1,7 @@
 #!/bin/bash
 
+LANG=C
+
 cp -pv .config .config.bkp;
 make ARCH=arm CROSS_COMPILE=../../arm-eabi-6.0/bin/arm-eabi- mrproper;
 cp -pv .config.bkp .config;
