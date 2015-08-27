@@ -18,10 +18,10 @@
 #define FCC_CC_COLS		5
 #define FCC_TEMP_COLS		8
 
-#define PC_CC_ROWS             29
+#define PC_CC_ROWS             30
 #define PC_CC_COLS             13
 
-#define PC_TEMP_ROWS		29
+#define PC_TEMP_ROWS		31
 #define PC_TEMP_COLS		8
 
 #define MAX_SINGLE_LUT_COLS	20
@@ -73,6 +73,7 @@ enum battery_type {
 	BATT_UNKNOWN = 0,
 	BATT_PALLADIUM,
 	BATT_DESAY,
+	BATT_SEC,
 };
 
 /**

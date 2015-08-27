@@ -17,7 +17,6 @@
 #include <linux/power_supply.h>
 
 #define PM8921_CHARGER_DEV_NAME	"pm8921-charger"
-
 struct pm8xxx_charger_core_data {
 	unsigned int	vbat_channel;
 	unsigned int	batt_temp_channel;
@@ -145,8 +144,10 @@ enum pm8921_chg_led_src_config {
  */
 struct pm8921_charger_platform_data {
 	struct pm8xxx_charger_core_data	charger_cdata;
+	unsigned int			safety_time;
 	unsigned int			ttrkl_time;
 	unsigned int			update_time;
+	unsigned int			sleep_update_time;
 	unsigned int			max_voltage;
 	unsigned int			min_voltage;
 	unsigned int			uvd_thresh_voltage;
@@ -170,6 +171,7 @@ struct pm8921_charger_platform_data {
 	int64_t				batt_id_min;
 	int64_t				batt_id_max;
 	bool				keep_btm_on_suspend;
+	bool					dc_unplug_check;
 	bool				has_dc_supply;
 	int				trkl_voltage;
 	int				weak_voltage;
@@ -191,6 +193,16 @@ struct pm8921_charger_platform_data {
 	int				stop_chg_upon_expiry;
 	bool				disable_chg_rmvl_wrkarnd;
 	bool				enable_tcxo_warmup_delay;
+#if defined(CONFIG_PM8921_SEC_CHARGER)
+	int		(*get_cable_type)(void);
+	int		(*get_board_rev)(void);
+	bool	(*get_lpm_mode)(void);
+	int	wc_w_gpio;
+	int	wpc_acok;
+	void		(*wpc_int_init)(void);
+#endif
+	struct pm8921_sec_battery_data *batt_pdata;
+
 };
 
 enum pm8921_charger_source {
