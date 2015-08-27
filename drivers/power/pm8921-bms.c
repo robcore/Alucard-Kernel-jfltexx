@@ -283,6 +283,8 @@ module_param_cb(bms_end_percent, &bms_ro_param_ops, &bms_end_percent, 0644);
 module_param_cb(bms_end_ocv_uv, &bms_ro_param_ops, &bms_end_ocv_uv, 0644);
 module_param_cb(bms_end_cc_uah, &bms_ro_param_ops, &bms_end_cc_uah, 0644);
 
+bool bms_reset;
+
 static void readjust_fcc_table(void)
 {
 	struct single_row_lut *temp, *old;
@@ -993,7 +995,23 @@ static int reset_bms_for_test(void)
 
 	return rc;
 }
+/* Samsung wants to enable bms_reset via a api */
+void bms_quickstart(void)
+{
+	int rc = 0;
 
+	pr_debug("bms quickstart is called\n");
+	rc = reset_bms_for_test();
+	if (rc)
+		pr_err("%s : failed to reset BMS soc\n", __func__);
+	/*
+	 * Set the flag to indicate bms_reset, this will set the
+	 * uuc to  3% and skip adjusting the soc
+	 */
+	bms_reset = 1;
+}
+EXPORT_SYMBOL_GPL(bms_quickstart);
+#if 0
 static int bms_reset_set(const char *val, const struct kernel_param *kp)
 {
 	int rc;
@@ -1021,6 +1039,7 @@ static struct kernel_param_ops bms_reset_ops = {
 
 static bool bms_reset;
 module_param_cb(bms_reset, &bms_reset_ops, &bms_reset, 0644);
+#endif
 /*
  * This reflects what should the CC readings should be for
  * a 5mAh discharge. This value is dependent on
@@ -2158,6 +2177,8 @@ static bool is_shutdown_soc_within_limits(struct pm8921_bms_chip *chip, int soc)
 		return 0;
 	}
 
+	if (is_warm_restart(chip))
+		return 1;
 	if (abs(chip->shutdown_soc - soc) > chip->shutdown_soc_valid_limit) {
 		pr_debug("rejecting shutdown soc = %d, soc = %d limit = %d\n",
 			chip->shutdown_soc, soc,
@@ -3183,6 +3204,9 @@ static int set_battery_data(struct pm8921_bms_chip *chip)
 	else if (chip->batt_type == BATT_PALLADIUM)
 		goto palladium;
 
+	else if (chip->batt_type == BATT_SEC)
+		goto battsec;
+
 	battery_id = read_battery_id(chip);
 	if (battery_id < 0) {
 		pr_err("cannot read battery id err = %lld\n", battery_id);
@@ -3199,6 +3223,9 @@ static int set_battery_data(struct pm8921_bms_chip *chip)
 				battery_id);
 		goto palladium;
 	}
+
+battsec:
+		return 0;
 
 palladium:
 		chip->fcc = palladium_1500_data.fcc;
