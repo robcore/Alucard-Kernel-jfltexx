@@ -168,7 +168,6 @@ int max77693_muic_charger_cb(enum cable_type_muic cable_type)
 	union power_supply_propval value;
 	static enum cable_type_muic previous_cable_type = CABLE_TYPE_NONE_MUIC;
 #endif
-	pr_info("%s: %d\n", __func__, cable_type);
 
 #ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_I2C_RMI
 
@@ -281,6 +280,8 @@ int max77693_muic_charger_cb(enum cable_type_muic cable_type)
 		goto skip;
 	}
 
+	pr_err("%s: cable type for charger: MUIC(%d), CHARGER(%d)\n",
+			__func__, cable_type, current_cable_type);
 	if (!psy || !psy->set_property || !psy_ps || !psy_ps->set_property) {
 		pr_err("%s: fail to get battery/ps psy\n", __func__);
 	} else {
