@@ -114,8 +114,8 @@ if [ -e $KERNELDIR/arch/arm/boot/zImage ]; then
 
 	echo "Make boot.img"
 	./mkbootfs $INITRAMFS_TMP | gzip > $PACKAGEDIR/ramdisk.gz
-	#./mkbootimg --kernel $PACKAGEDIR/zImage --ramdisk $PACKAGEDIR/ramdisk.gz --cmdline "console=null androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x3F ehci-hcd.park=3" -o $PACKAGEDIR/boot.img --base "0x80200000" --ramdiskaddr "0x82200000"
-	./mkbootimg --cmdline 'console=null androidboot.hardware=qcom user_debug=31 ehci-hcd.park=3 androidboot.bootdevice=msm_sdcc.1 androidboot.selinux=permissive' --kernel $PACKAGEDIR/zImage --ramdisk $PACKAGEDIR/ramdisk.gz --base 0x80200000 --pagesize 2048 --ramdisk_offset 0x02000000 --output $PACKAGEDIR/boot.img
+	cmd_line="console=ttyHSL0,115200,n8 androidboot.hardware=qcom user_debug=31 ehci-hcd.park=3 androidboot.bootdevice=msm_sdcc.1 selinux=0"
+	./mkbootimg --cmdline "$cmd_line" --kernel $PACKAGEDIR/zImage --ramdisk $PACKAGEDIR/ramdisk.gz --base 0x80200000 --pagesize 2048 --ramdisk_offset 0x02000000 --output $PACKAGEDIR/boot.img
 	cd $PACKAGEDIR
 
 	if [ -e ramdisk.gz ]; then
