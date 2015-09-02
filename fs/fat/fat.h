@@ -10,6 +10,12 @@
 #include <linux/ratelimit.h>
 #include <linux/msdos_fs.h>
 
+#ifdef CONFIG_FAT_SUPPORT_STLOG
+#include <linux/stlog.h>
+#else
+#define ST_LOG(fmt,...) 
+#endif
+
 /*
  * vfat shortname flags
  */
@@ -390,6 +396,14 @@ extern struct dentry *fat_fh_to_dentry(struct super_block *sb, struct fid *fid,
 extern struct dentry *fat_fh_to_parent(struct super_block *sb, struct fid *fid,
 				       int fh_len, int fh_type);
 extern struct dentry *fat_get_parent(struct dentry *child_dir);
+
+/* fat/xattr.c */
+extern int fat_setxattr(struct dentry *dentry, const char *name,
+					const void *value, size_t size, int flags);
+extern ssize_t fat_getxattr(struct dentry *dentry, const char *name,
+					void *value, size_t size);
+extern ssize_t fat_listxattr(struct dentry *dentry, char *list, size_t size);
+extern int fat_removexattr(struct dentry *dentry, const char *name);
 
 /* helper for printk */
 typedef unsigned long long	llu;
