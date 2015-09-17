@@ -63,6 +63,8 @@ static unsigned int nightmare_enable;	/* number of CPUs using this policy */
  */
 static DEFINE_MUTEX(nightmare_mutex);
 
+static struct workqueue_struct *nightmare_wq;
+
 /* nightmare tuners */
 static struct nightmare_tuners {
 	unsigned int sampling_rate;
@@ -77,7 +79,6 @@ static struct nightmare_tuners {
 	int freq_step;
 	int freq_step_dec;
 	int freq_step_dec_at_max_freq;
-	unsigned int io_is_busy;
 
 } nightmare_tuners_ins = {
 	.sampling_rate = 50000,
@@ -97,7 +98,6 @@ static struct nightmare_tuners {
 	.freq_up_brake = 30,
 	.freq_step_dec = 10,
 	.freq_step_dec_at_max_freq = 10,
-	.io_is_busy = 0,
 };
 
 /************************** sysfs interface ************************/
@@ -121,7 +121,6 @@ show_one(freq_up_brake_at_min_freq, freq_up_brake_at_min_freq);
 show_one(freq_up_brake, freq_up_brake);
 show_one(freq_step_dec, freq_step_dec);
 show_one(freq_step_dec_at_max_freq, freq_step_dec_at_max_freq);
-show_one(io_is_busy, io_is_busy);
 
 /* sampling_rate */
 static ssize_t store_sampling_rate(struct kobject *a, struct attribute *b,
@@ -376,38 +375,6 @@ static ssize_t store_freq_step_dec_at_max_freq(struct kobject *a, struct attribu
 	return count;
 }
 
-/* io_is_busy */
-static ssize_t store_io_is_busy(struct kobject *a, struct attribute *b,
-				   const char *buf, size_t count)
-{
-	unsigned int input, cpu;
-	int ret;
-
-	ret = sscanf(buf, "%u", &input);
-	if (ret != 1)
-		return -EINVAL;
-
-	if (input > 1)
-		input = 1;
-
-	if (input == nightmare_tuners_ins.io_is_busy)
-		return count;
-
-	nightmare_tuners_ins.io_is_busy = !!input;
-
-	/* we need to re-evaluate prev_cpu_idle */
-	get_online_cpus();
-	for_each_online_cpu(cpu) {
-		struct cpufreq_nightmare_cpuinfo *this_nightmare_cpuinfo = 
-			&per_cpu(od_nightmare_cpuinfo, cpu);
-
-		this_nightmare_cpuinfo->prev_cpu_idle = get_cpu_idle_time(cpu,
-			&this_nightmare_cpuinfo->prev_cpu_wall, nightmare_tuners_ins.io_is_busy);
-	}
-	put_online_cpus();
-	return count;
-}
-
 define_one_global_rw(sampling_rate);
 define_one_global_rw(inc_cpu_load_at_min_freq);
 define_one_global_rw(inc_cpu_load);
@@ -420,7 +387,6 @@ define_one_global_rw(freq_up_brake_at_min_freq);
 define_one_global_rw(freq_up_brake);
 define_one_global_rw(freq_step_dec);
 define_one_global_rw(freq_step_dec_at_max_freq);
-define_one_global_rw(io_is_busy);
 
 static struct attribute *nightmare_attributes[] = {
 	&sampling_rate.attr,
@@ -435,7 +401,6 @@ static struct attribute *nightmare_attributes[] = {
 	&freq_up_brake.attr,
 	&freq_step_dec.attr,
 	&freq_step_dec_at_max_freq.attr,
-	&io_is_busy.attr,
 	NULL
 };
 
@@ -497,7 +462,6 @@ static void nightmare_check_cpu(struct cpufreq_nightmare_cpuinfo *this_nightmare
 	int freq_step_dec = nightmare_tuners_ins.freq_step_dec;
 	unsigned int max_load = 0;
 	unsigned int tmp_freq = 0;
-	int io_busy = nightmare_tuners_ins.io_is_busy;
 	unsigned int j;
 
 	policy = this_nightmare_cpuinfo->cur_policy;
@@ -510,7 +474,7 @@ static void nightmare_check_cpu(struct cpufreq_nightmare_cpuinfo *this_nightmare
 		unsigned int idle_time, wall_time;
 		unsigned int load;
 		
-		cur_idle_time = get_cpu_idle_time(j, &cur_wall_time, io_busy);
+		cur_idle_time = get_cpu_idle_time(j, &cur_wall_time, 0);
 
 		wall_time = (unsigned int)
 			(cur_wall_time - j_nightmare_cpuinfo->prev_cpu_wall);
@@ -561,6 +525,9 @@ static void do_nightmare_timer(struct work_struct *work)
 		container_of(work, struct cpufreq_nightmare_cpuinfo, work.work);
 	int delay;
 
+	if (unlikely(!cpu_online(this_nightmare_cpuinfo->cpu) || !this_nightmare_cpuinfo->cur_policy))
+		return;
+
 	mutex_lock(&this_nightmare_cpuinfo->timer_mutex);
 
 	nightmare_check_cpu(this_nightmare_cpuinfo);
@@ -574,18 +541,19 @@ static void do_nightmare_timer(struct work_struct *work)
 		delay -= jiffies % delay;
 	}
 
-	mod_delayed_work_on(this_nightmare_cpuinfo->cpu,
-		system_wq, &this_nightmare_cpuinfo->work, delay);
+	queue_delayed_work_on(this_nightmare_cpuinfo->cpu, nightmare_wq,
+			&this_nightmare_cpuinfo->work, delay);
 	mutex_unlock(&this_nightmare_cpuinfo->timer_mutex);
 }
 
 static int cpufreq_governor_nightmare(struct cpufreq_policy *policy,
 				unsigned int event)
 {
-	struct cpufreq_nightmare_cpuinfo *this_nightmare_cpuinfo = &per_cpu(od_nightmare_cpuinfo, policy->cpu);
+	struct cpufreq_nightmare_cpuinfo *this_nightmare_cpuinfo;
 	unsigned int cpu = policy->cpu, j;
-	int io_busy = nightmare_tuners_ins.io_is_busy;
 	int rc, delay;
+
+	this_nightmare_cpuinfo = &per_cpu(od_nightmare_cpuinfo, cpu);
 
 	switch (event) {
 	case CPUFREQ_GOV_START:
@@ -599,14 +567,11 @@ static int cpufreq_governor_nightmare(struct cpufreq_policy *policy,
 			return -EINVAL;
 		}
 
-		this_nightmare_cpuinfo->cpu = cpu;
-		this_nightmare_cpuinfo->cur_policy = policy;
-
 		for_each_cpu(j, policy->cpus) {
 			struct cpufreq_nightmare_cpuinfo *j_nightmare_cpuinfo = &per_cpu(od_nightmare_cpuinfo, j);
 
 			j_nightmare_cpuinfo->prev_cpu_idle = get_cpu_idle_time(j,
-				&j_nightmare_cpuinfo->prev_cpu_wall, io_busy);
+				&j_nightmare_cpuinfo->prev_cpu_wall, 0);
 		}
 
 		nightmare_enable++;
@@ -623,6 +588,8 @@ static int cpufreq_governor_nightmare(struct cpufreq_policy *policy,
 				return rc;
 			}
 		}
+		this_nightmare_cpuinfo->cpu = cpu;
+		this_nightmare_cpuinfo->cur_policy = policy;
 		this_nightmare_cpuinfo->governor_enabled = true;
 		mutex_unlock(&nightmare_mutex);
 
@@ -636,8 +603,8 @@ static int cpufreq_governor_nightmare(struct cpufreq_policy *policy,
 		}
 
 		INIT_DEFERRABLE_WORK(&this_nightmare_cpuinfo->work, do_nightmare_timer);
-		mod_delayed_work_on(cpu,
-			system_wq, &this_nightmare_cpuinfo->work, delay);
+		queue_delayed_work_on(cpu,
+			nightmare_wq, &this_nightmare_cpuinfo->work, delay);
 
 		break;
 	case CPUFREQ_GOV_STOP:
@@ -685,6 +652,12 @@ struct cpufreq_governor cpufreq_gov_nightmare = {
 
 static int __init cpufreq_gov_nightmare_init(void)
 {
+	nightmare_wq = alloc_workqueue("nightmare_wq", WQ_HIGHPRI, 0);
+	if (!nightmare_wq) {
+		printk(KERN_ERR "Failed to create nightmare_wq workqueue\n");
+		return -EFAULT;
+	}
+
 	return cpufreq_register_governor(&cpufreq_gov_nightmare);
 }
 
@@ -694,7 +667,7 @@ static void __exit cpufreq_gov_nightmare_exit(void)
 }
 
 MODULE_AUTHOR("Alucard24@XDA");
-MODULE_DESCRIPTION("'cpufreq_nightmare' - A dynamic cpufreq/cpuhotplug governor v4.5 (SnapDragon)");
+MODULE_DESCRIPTION("'cpufreq_nightmare' - A dynamic cpufreq/cpuhotplug governor v5.0 (SnapDragon)");
 MODULE_LICENSE("GPL");
 
 #ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_NIGHTMARE
