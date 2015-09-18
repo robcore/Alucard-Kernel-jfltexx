@@ -622,9 +622,6 @@ static void do_dbs_timer(struct work_struct *work)
 
 	int delay;
 
-	if (unlikely(!cpu_online(dbs_info->cpu) || !dbs_info->cur_policy))
-		return;
-
 	mutex_lock(&dbs_info->timer_mutex);
 
 	/* Common NORMAL_SAMPLE setup */
@@ -685,7 +682,7 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 
 	switch (event) {
 	case CPUFREQ_GOV_START:
-		if ((!cpu_online(cpu)) || (!policy->cur))
+		if (!policy)
 			return -EINVAL;
 
 		mutex_lock(&dbs_mutex);
