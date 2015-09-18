@@ -408,9 +408,6 @@ static void do_dbs_timer(struct work_struct *work)
 		container_of(work, struct cpu_dbs_info_s, work.work);
 	int delay;
 
-	if (unlikely(!cpu_online(dbs_info->cpu) || !dbs_info->cur_policy))
-		return;
-
 	/* We want all CPUs to do sampling nearly on same jiffy */
 	delay = usecs_to_jiffies(dbs_tuners_ins.sampling_rate);
 
@@ -456,7 +453,7 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 
 	switch (event) {
 	case CPUFREQ_GOV_START:
-		if ((!cpu_online(cpu)) || (!policy->cur))
+		if (!policy)
 			return -EINVAL;
 
 		mutex_lock(&dbs_mutex);
@@ -539,7 +536,7 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 	case CPUFREQ_GOV_LIMITS:
 		/* If device is being removed, skip set limits */
 		if (!this_dbs_info->cur_policy
-			 || !policy->cur)
+			 || !policy)
 			break;
 		mutex_lock(&this_dbs_info->timer_mutex);
 		__cpufreq_driver_target(this_dbs_info->cur_policy,

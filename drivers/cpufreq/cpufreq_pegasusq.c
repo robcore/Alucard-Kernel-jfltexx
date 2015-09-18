@@ -454,9 +454,6 @@ static void do_dbs_timer(struct work_struct *work)
 		container_of(work, struct cpu_dbs_info_s, work.work);
 	int delay;
 
-	if (unlikely(!cpu_online(dbs_info->cpu) || !dbs_info->cur_policy))
-		return;
-
 	mutex_lock(&dbs_info->timer_mutex);
 
 	dbs_check_cpu(dbs_info);
@@ -503,7 +500,7 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 
 	switch (event) {
 	case CPUFREQ_GOV_START:
-		if ((!cpu_online(cpu)) || (!policy->cur))
+		if (!policy)
 			return -EINVAL;
 
 		dbs_tuners_ins.max_freq = policy->max;

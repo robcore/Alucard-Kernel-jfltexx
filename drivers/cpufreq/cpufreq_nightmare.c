@@ -465,7 +465,7 @@ static void nightmare_check_cpu(struct cpufreq_nightmare_cpuinfo *this_nightmare
 	unsigned int j;
 
 	policy = this_nightmare_cpuinfo->cur_policy;
-	if (!policy->cur)
+	if (!policy)
 		return;
 
 	for_each_cpu(j, policy->cpus) {
@@ -496,7 +496,8 @@ static void nightmare_check_cpu(struct cpufreq_nightmare_cpuinfo *this_nightmare
 	cpufreq_notify_utilization(policy, max_load);
 
 	/* CPUs Online Scale Frequency*/
-	if (policy->cur < freq_for_responsiveness) {
+	if (policy->cur < freq_for_responsiveness
+		 && policy->cur > 0) {
 		inc_cpu_load = nightmare_tuners_ins.inc_cpu_load_at_min_freq;
 		freq_step = nightmare_tuners_ins.freq_step_at_min_freq;
 		freq_up_brake = nightmare_tuners_ins.freq_up_brake_at_min_freq;
@@ -525,9 +526,6 @@ static void do_nightmare_timer(struct work_struct *work)
 		container_of(work, struct cpufreq_nightmare_cpuinfo, work.work);
 	int delay;
 
-	if (unlikely(!cpu_online(this_nightmare_cpuinfo->cpu) || !this_nightmare_cpuinfo->cur_policy))
-		return;
-
 	mutex_lock(&this_nightmare_cpuinfo->timer_mutex);
 
 	nightmare_check_cpu(this_nightmare_cpuinfo);
@@ -536,8 +534,7 @@ static void do_nightmare_timer(struct work_struct *work)
 	/* We want all CPUs to do sampling nearly on
 	 * same jiffy
 	 */
-	if (num_online_cpus() > 1 
-		 && (jiffies % delay) < delay) {
+	if (num_online_cpus() > 1) {
 		delay -= jiffies % delay;
 	}
 
@@ -557,7 +554,7 @@ static int cpufreq_governor_nightmare(struct cpufreq_policy *policy,
 
 	switch (event) {
 	case CPUFREQ_GOV_START:
-		if (!policy->cur)
+		if (!policy)
 			return -EINVAL;
 
 		mutex_lock(&nightmare_mutex);
@@ -597,8 +594,7 @@ static int cpufreq_governor_nightmare(struct cpufreq_policy *policy,
 
 		delay=usecs_to_jiffies(nightmare_tuners_ins.sampling_rate);
 		/* We want all CPUs to do sampling nearly on same jiffy */
-		if (num_online_cpus() > 1 
-			 && (jiffies % delay) < delay) {
+		if (num_online_cpus() > 1) {
 			delay -= jiffies % delay;
 		}
 
@@ -626,8 +622,8 @@ static int cpufreq_governor_nightmare(struct cpufreq_policy *policy,
 
 		break;
 	case CPUFREQ_GOV_LIMITS:
-		if (!this_nightmare_cpuinfo->cur_policy->cur
-			 || !policy->cur) {
+		if (!this_nightmare_cpuinfo->cur_policy
+			 || !policy) {
 			pr_debug("Unable to limit cpu freq due to cur_policy == NULL\n");
 			return -EPERM;
 		}
