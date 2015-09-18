@@ -244,7 +244,7 @@ static int cpufreq_governor_darkness(struct cpufreq_policy *policy,
 
 	switch (event) {
 	case CPUFREQ_GOV_START:
-		if (!policy->cur)
+		if (!policy)
 			return -EINVAL;
 
 		mutex_lock(&darkness_mutex);
