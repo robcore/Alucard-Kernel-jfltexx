@@ -33,6 +33,9 @@
 #elif defined(CONFIG_LCD_NOTIFY)
 #include <linux/lcd_notify.h>
 #elif defined(CONFIG_STATE_NOTIFIER)
+#ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
+bool scr_suspended;
+#endif
 #include <linux/state_notifier.h>
 #endif
 
@@ -509,6 +512,9 @@ static int mipi_dsi_power(int enable)
 				POWER_SUSPEND_INACTIVE);
 #endif
 #ifdef CONFIG_STATE_NOTIFIER
+#ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
+		scr_suspended = false;
+#endif
 		if (!use_fb_notifier)
 			state_resume();
 #endif
@@ -538,6 +544,9 @@ static int mipi_dsi_power(int enable)
 				POWER_SUSPEND_ACTIVE);
 #endif
 #ifdef CONFIG_STATE_NOTIFIER
+#ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
+		scr_suspended = true;
+#endif
 		if (!use_fb_notifier)
 			state_suspend();
 #endif
