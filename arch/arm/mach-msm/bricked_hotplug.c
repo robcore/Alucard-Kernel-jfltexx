@@ -336,7 +336,7 @@ static void __ref bricked_hotplug_resume(struct work_struct *work)
 static void __bricked_hotplug_suspend(struct power_suspend *handler)
 {
 	INIT_DELAYED_WORK(&suspend_work, bricked_hotplug_suspend);
-	mod_delayed_work_on(0, susp_wq, &suspend_work,
+	queue_delayed_work_on(0, susp_wq, &suspend_work,
 			msecs_to_jiffies(hotplug.suspend_defer_time * 1000));
 }
 
@@ -379,7 +379,7 @@ static int fb_notifier_callback(struct notifier_block *self,
 				if (prev_fb == FB_BLANK_UNBLANK) {
 					/* display off */
 					INIT_DELAYED_WORK(&suspend_work, bricked_hotplug_suspend);
-					mod_delayed_work_on(0, susp_wq, &suspend_work,
+					queue_delayed_work_on(0, susp_wq, &suspend_work,
 						msecs_to_jiffies(hotplug.suspend_defer_time * 1000));
 					prev_fb = FB_BLANK_POWERDOWN;
 				}

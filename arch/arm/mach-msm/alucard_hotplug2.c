@@ -109,7 +109,7 @@ static void start_rq_work(void)
 		rq_data->nr_run_wq =
 			create_singlethread_workqueue("nr_run_avg");
 
-	mod_delayed_work(rq_data->nr_run_wq, &rq_data->work,
+	queue_delayed_work(rq_data->nr_run_wq, &rq_data->work,
 			   msecs_to_jiffies(rq_data->update_rate));
 	return;
 }
@@ -170,7 +170,7 @@ static void rq_work_fn(struct work_struct *work)
 	nr_run_avg = nr_run;
 
 	if (rq_data->update_rate != 0)
-		mod_delayed_work(rq_data->nr_run_wq, &rq_data->work,
+		queue_delayed_work(rq_data->nr_run_wq, &rq_data->work,
 				   msecs_to_jiffies(rq_data->update_rate));
 
 	spin_unlock_irqrestore(&rq_data->lock, flags);
@@ -311,7 +311,7 @@ static void __ref hotplug_timer_fn(struct work_struct *work)
 		if (delay <= 0)
 			delay = 1;
 
-		mod_delayed_work_on(pcpu_info->cpu, system_wq, &pcpu_info->work,
+		queue_delayed_work_on(pcpu_info->cpu, system_wq, &pcpu_info->work,
 		     					delay);
 	} else
 		cpu_down(pcpu_info->cpu);
@@ -376,7 +376,7 @@ static void online_cpu_work(unsigned int cpu)
 	if (delay <= 0)
 			delay = 1;
 
-	mod_delayed_work_on(cpu, system_wq, &pcpu_info->work,
+	queue_delayed_work_on(cpu, system_wq, &pcpu_info->work,
 						delay);
 }
 
@@ -447,7 +447,7 @@ static int hotplug_start(void)
 
 		if (cpu_online(cpu)) {
 			INIT_DEFERRABLE_WORK(&pcpu_info->work, hotplug_timer_fn);
-			mod_delayed_work_on(cpu, system_wq, &pcpu_info->work,
+			queue_delayed_work_on(cpu, system_wq, &pcpu_info->work,
 								delay);
 		}
 		
