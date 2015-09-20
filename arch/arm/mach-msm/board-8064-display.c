@@ -32,6 +32,8 @@
 #include <linux/powersuspend.h>
 #elif defined(CONFIG_LCD_NOTIFY)
 #include <linux/lcd_notify.h>
+#elif defined(CONFIG_STATE_NOTIFIER)
+#include <linux/state_notifier.h>
 #endif
 
 #ifdef CONFIG_FB_MSM_TRIPLE_BUFFER
@@ -506,6 +508,10 @@ static int mipi_dsi_power(int enable)
 			set_power_suspend_state_panel_hook(
 				POWER_SUSPEND_INACTIVE);
 #endif
+#ifdef CONFIG_STATE_NOTIFIER
+		if (!use_fb_notifier)
+			state_resume();
+#endif
 	} else {
 
 #ifdef CONFIG_LCD_NOTIFY
@@ -530,6 +536,10 @@ static int mipi_dsi_power(int enable)
 		if (suspend_mode == POWER_SUSPEND_PANEL)
 			set_power_suspend_state_panel_hook(
 				POWER_SUSPEND_ACTIVE);
+#endif
+#ifdef CONFIG_STATE_NOTIFIER
+		if (!use_fb_notifier)
+			state_suspend();
 #endif
 	}
 
