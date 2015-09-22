@@ -23,8 +23,8 @@
 #include <linux/input/mt.h>
 #include <linux/gpio.h>
 #include <linux/regulator/consumer.h>
-#ifdef CONFIG_POWERSUSPEND
-#include <linux/powersuspend.h>
+#ifdef CONFIG_STATE_NOTIFIER
+#include <linux/state_notifier.h>
 #endif
 #include "synaptics_i2c_rmi.h"
 #ifdef CONFIG_SEC_DVFS_BOOSTER
@@ -161,16 +161,33 @@ static int synaptics_rmi4_i2c_write(struct synaptics_rmi4_data *rmi4_data,
 
 static int synaptics_rmi4_reinit_device(struct synaptics_rmi4_data *rmi4_data);
 
-#ifdef CONFIG_POWERSUSPEND
+#ifdef CONFIG_STATE_NOTIFIER
 static ssize_t synaptics_rmi4_full_pm_cycle_show(struct device *dev,
 		struct device_attribute *attr, char *buf);
 
 static ssize_t synaptics_rmi4_full_pm_cycle_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count);
 
-static void synaptics_rmi4_power_suspend(struct power_suspend *h);
+static void synaptics_rmi4_power_suspend(struct notifier_block *h);
 
-static void synaptics_rmi4_late_resume(struct power_suspend *h);
+static void synaptics_rmi4_late_resume(struct notifier_block *h);
+
+static int state_notifier_callback(struct notifier_block *this,
+ 				unsigned long event, void *data)
+ {
+	switch (event) {
+		case STATE_NOTIFIER_ACTIVE:
+			synaptics_rmi4_late_resume(this);
+			break;
+		case STATE_NOTIFIER_SUSPEND:
+			synaptics_rmi4_power_suspend(this);
+			break;
+		default:
+			break;
+ 	}
+ 
+ 	return NOTIFY_OK;
+ }
 
 #else
 
@@ -563,7 +580,7 @@ struct synaptics_rmi4_exp_fn {
 };
 
 static struct device_attribute attrs[] = {
-#ifdef CONFIG_POWERSUSPEND
+#ifdef CONFIG_STATE_NOTIFIER
 	__ATTR(full_pm_cycle, (S_IRUGO | S_IWUSR | S_IWGRP),
 			synaptics_rmi4_full_pm_cycle_show,
 			synaptics_rmi4_full_pm_cycle_store),
@@ -602,7 +619,7 @@ static struct list_head exp_fn_list;
 static struct synaptics_rmi4_f51_handle *f51;
 #endif
 
-#ifdef CONFIG_POWERSUSPEND
+#ifdef CONFIG_STATE_NOTIFIER
 static ssize_t synaptics_rmi4_full_pm_cycle_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
@@ -3762,7 +3779,7 @@ int synaptics_rmi4_new_function(enum exp_fn fn_type,
 	return 0;
 }
 
-#ifdef CONFIG_POWERSUSPEND
+#ifdef CONFIG_STATE_NOTIFIER
 static void synaptics_init_power_on(struct work_struct *work)
 {
 	struct synaptics_rmi4_data *rmi4_data =
@@ -3776,10 +3793,10 @@ static void synaptics_init_power_on(struct work_struct *work)
 			schedule_delayed_work(&rmi4_data->work_init_power_on,
 					msecs_to_jiffies(1000));
 	} else {
-		synaptics_rmi4_late_resume(&rmi4_data->power_suspend);
+		synaptics_rmi4_late_resume(&rmi4_data->notif);
 	}
 #else
-	synaptics_rmi4_late_resume(&rmi4_data->power_suspend);
+	synaptics_rmi4_late_resume(&rmi4_data->notif);
 #endif
 }
 #endif
@@ -3935,10 +3952,12 @@ static int __devinit synaptics_rmi4_probe(struct i2c_client *client,
 					__func__);
 	}
 
-#ifdef CONFIG_POWERSUSPEND
-	rmi4_data->power_suspend.suspend = synaptics_rmi4_power_suspend;
-	rmi4_data->power_suspend.resume = synaptics_rmi4_late_resume;
-	register_power_suspend(&rmi4_data->power_suspend);
+#ifdef CONFIG_STATE_NOTIFIER
+	rmi4_data->notif.notifier_call = state_notifier_callback;
+	if (state_register_client(&rmi4_data->notif)) {
+		pr_err("Failed to register STATE notifier callback for synaptics_i2c_rmi module\n");
+		goto err_sysfs;
+	}
 #endif
 
 	rmi4_data->register_cb = rmi4_data->board->register_cb;
@@ -3947,9 +3966,9 @@ static int __devinit synaptics_rmi4_probe(struct i2c_client *client,
 	if (rmi4_data->register_cb)
 		rmi4_data->register_cb(&rmi4_data->callbacks);
 
-#ifdef CONFIG_POWERSUSPEND
+#ifdef CONFIG_STATE_NOTIFIER
 	/* turn off TSP power. after LCD module on, TSP power will turn on */
-	synaptics_rmi4_power_suspend(&rmi4_data->power_suspend);
+	synaptics_rmi4_power_suspend(&rmi4_data->notif);
 
 	INIT_DELAYED_WORK(&rmi4_data->work_init_power_on,
 					synaptics_init_power_on);
@@ -4006,8 +4025,8 @@ static int __devexit synaptics_rmi4_remove(struct i2c_client *client)
 			rmi4_data->board;*/
 
 	rmi = &(rmi4_data->rmi4_mod_info);
-#ifdef CONFIG_POWERSUSPEND
-	unregister_power_suspend(&rmi4_data->power_suspend);
+#ifdef CONFIG_STATE_NOTIFIER
+	state_unregister_client(&rmi4_data->notif);
 #endif
 
 	synaptics_rmi4_irq_enable(rmi4_data, false);
@@ -4202,7 +4221,7 @@ static void synaptics_rmi4_input_close(struct input_dev *dev)
 }
 #endif
 
-#ifdef CONFIG_POWERSUSPEND
+#ifdef CONFIG_STATE_NOTIFIER
 #define synaptics_rmi4_suspend NULL
 #define synaptics_rmi4_resume NULL
 
@@ -4215,11 +4234,11 @@ static void synaptics_rmi4_input_close(struct input_dev *dev)
  * This function calls synaptics_rmi4_sensor_sleep() to stop finger
  * data acquisition and put the sensor to sleep.
  */
-static void synaptics_rmi4_power_suspend(struct power_suspend *h)
+static void synaptics_rmi4_power_suspend(struct notifier_block *h)
 {
 	struct synaptics_rmi4_data *rmi4_data =
 			container_of(h, struct synaptics_rmi4_data,
-			power_suspend);
+			notif);
 
 	if (rmi4_data->stay_awake) {
 		rmi4_data->staying_awake = true;
@@ -4250,11 +4269,11 @@ static void synaptics_rmi4_power_suspend(struct power_suspend *h)
  * This function goes through the sensor wake process if the system wakes
  * up from early suspend (without going into suspend).
  */
-static void synaptics_rmi4_late_resume(struct power_suspend *h)
+static void synaptics_rmi4_late_resume(struct notifier_block *h)
 {
 	struct synaptics_rmi4_data *rmi4_data =
 			container_of(h, struct synaptics_rmi4_data,
-			power_suspend);
+			notif);
 	int retval;
 
 	if (rmi4_data->staying_awake)

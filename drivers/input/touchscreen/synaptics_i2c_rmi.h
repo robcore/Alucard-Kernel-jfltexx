@@ -18,8 +18,8 @@
 #include <linux/device.h>
 #include <linux/i2c/synaptics_rmi.h>
 
-#ifdef CONFIG_POWERSUSPEND
-#include <linux/powersuspend.h>
+#ifdef CONFIG_STATE_NOTIFIER
+#include <linux/state_notifier.h>
 #endif
 
 /*#define dev_dbg(dev, fmt, arg...) dev_info(dev, fmt, ##arg)*/
@@ -264,8 +264,8 @@ struct synaptics_rmi4_data {
 	struct mutex rmi4_io_ctrl_mutex;
 	struct mutex rmi4_reflash_mutex;
 	struct timer_list f51_finger_timer;
-#ifdef CONFIG_POWERSUSPEND
-	struct power_suspend power_suspend;
+#ifdef CONFIG_STATE_NOTIFIER
+	struct notifier_block notif;
 #endif
 	unsigned char *firmware_image;
 
