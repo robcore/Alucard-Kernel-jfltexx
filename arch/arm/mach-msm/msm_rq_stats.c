@@ -54,8 +54,6 @@ struct cpu_load_data {
 
 static DEFINE_PER_CPU(struct cpu_load_data, cpuload);
 
-static bool hp_io_is_busy = 0;
-
 static int update_average_load(unsigned int freq, unsigned int cpu)
 {
 	int ret;
@@ -69,7 +67,7 @@ static int update_average_load(unsigned int freq, unsigned int cpu)
 	if (ret)
 		return -EINVAL;
 
-	cur_idle_time = get_cpu_idle_time(cpu, &cur_wall_time, hp_io_is_busy);
+	cur_idle_time = get_cpu_idle_time(cpu, &cur_wall_time, 0);
 
 	wall_time = (unsigned int) (cur_wall_time - pcpu->prev_cpu_wall);
 	pcpu->prev_cpu_wall = cur_wall_time;
@@ -268,7 +266,7 @@ static ssize_t store_hotplug_enable(struct kobject *kobj,
 	if (val) {
 		for_each_possible_cpu(cpu) {
 			struct cpu_load_data *pcpu = &per_cpu(cpuload, cpu);
-			pcpu->prev_cpu_idle = get_cpu_idle_time(cpu, &pcpu->prev_cpu_wall, hp_io_is_busy);
+			pcpu->prev_cpu_idle = get_cpu_idle_time(cpu, &pcpu->prev_cpu_wall, 0);
 		}
 		rq_info.hotplug_disabled = 0;
 	} else {
@@ -292,35 +290,6 @@ static struct kobj_attribute hotplug_disabled_attr = __ATTR_RO(hotplug_disable);
 static struct kobj_attribute hotplug_enabled_attr =
 	__ATTR(hotplug_enable, S_IWUSR | S_IRUSR, show_hotplug_enable,
 	       store_hotplug_enable);
-
-static ssize_t store_hp_io_is_busy(struct kobject *kobj,
-				     struct kobj_attribute *attr,
-				     const char *buf, size_t count)
-{
-	int ret;
-	unsigned int val;
-
-	ret = sscanf(buf, "%u", &val);
-	if (ret != 1 || val < 0 || val > 1)
-		return -EINVAL;
-
-	if (val == hp_io_is_busy)
-		return count;
-
-	hp_io_is_busy = val;
-
-	return count;
-}
-
-static ssize_t show_hp_io_is_busy(struct kobject *kobj,
-				    struct kobj_attribute *attr, char *buf)
-{
-	return sprintf(buf, "%d\n", hp_io_is_busy);
-}
-
-static struct kobj_attribute hp_io_is_busy_attr =
-	__ATTR(hp_io_is_busy, S_IWUSR | S_IRUSR, show_hp_io_is_busy,
-	       store_hp_io_is_busy);
 
 static void def_work_fn(struct work_struct *work)
 {
@@ -449,7 +418,6 @@ static struct attribute *rq_attrs[] = {
 	&run_queue_avg_attr.attr,
 	&run_queue_poll_ms_attr.attr,
 	&hotplug_disabled_attr.attr,
-	&hp_io_is_busy_attr.attr,
 	&hotplug_enabled_attr.attr,
 	NULL,
 };
@@ -513,7 +481,7 @@ static int __init msm_rq_stats_init(void)
 		pcpu->policy_max = cpu_policy.max;
 		if (cpu_online(i))
 			pcpu->cur_freq = cpu_policy.cur;
-		pcpu->prev_cpu_idle = get_cpu_idle_time(i, &pcpu->prev_cpu_wall, hp_io_is_busy);
+		pcpu->prev_cpu_idle = get_cpu_idle_time(i, &pcpu->prev_cpu_wall, 0);
 		cpumask_copy(pcpu->related_cpus, cpu_policy.cpus);
 	}
 	freq_transition.notifier_call = cpufreq_transition_handler;
