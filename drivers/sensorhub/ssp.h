@@ -36,7 +36,7 @@
 #include <linux/timer.h>
 #include <linux/alarmtimer.h>
 
-#ifndef CONFIG_POWERSUSPEND
+#ifdef CONFIG_POWERSUSPEND
 #undef CONFIG_POWERSUSPEND
 #endif
 
