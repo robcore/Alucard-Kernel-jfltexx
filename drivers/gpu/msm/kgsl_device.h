@@ -15,8 +15,8 @@
 
 #include <linux/idr.h>
 #include <linux/pm_qos.h>
-#ifdef CONFIG_HAS_EARLYSUSPEND
-#include <linux/earlysuspend.h>
+#ifdef CONFIG_STATE_NOTIFIER
+#include <linux/state_notifier.h>
 #endif
 
 #include "kgsl.h"
@@ -189,8 +189,8 @@ struct kgsl_device {
 	struct completion ft_gate;
 	struct dentry *d_debugfs;
 	struct idr context_idr;
-#ifdef CONFIG_HAS_EARLYSUSPEND
-	struct early_suspend display_off;
+#ifdef CONFIG_STATE_NOTIFIER
+	struct notifier_block display_off;
 #endif
 	rwlock_t context_lock;
 

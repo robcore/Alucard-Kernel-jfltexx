@@ -1028,6 +1028,25 @@ void kgsl_pwrctrl_irq(struct kgsl_device *device, int state)
 }
 EXPORT_SYMBOL(kgsl_pwrctrl_irq);
 
+#ifdef CONFIG_STATE_NOTIFIER
+static int state_notifier_callback(struct notifier_block *this,
+ 				unsigned long event, void *data)
+ {
+	switch (event) {
+		case STATE_NOTIFIER_ACTIVE:
+			kgsl_late_resume_driver(this);
+			break;
+		case STATE_NOTIFIER_SUSPEND:
+			kgsl_early_suspend_driver(this);
+			break;
+		default:
+			break;
+ 	}
+ 
+ 	return NOTIFY_OK;
+ }
+#endif
+
 int kgsl_pwrctrl_init(struct kgsl_device *device)
 {
 	int i, result = 0;
@@ -1126,8 +1145,9 @@ int kgsl_pwrctrl_init(struct kgsl_device *device)
 
 
 	pm_runtime_enable(device->parentdev);
-#ifdef CONFIG_HAS_EARLYSUSPEND
-	register_early_suspend(&device->display_off);
+#ifdef CONFIG_STATE_NOTIFIER
+	device->display_off.notifier_call = state_notifier_callback;
+	state_register_client(&device->display_off);
 #endif
 	return result;
 
@@ -1148,8 +1168,8 @@ void kgsl_pwrctrl_close(struct kgsl_device *device)
 	KGSL_PWR_INFO(device, "close device %d\n", device->id);
 
 	pm_runtime_disable(device->parentdev);
-#ifdef CONFIG_HAS_EARLYSUSPEND
-	unregister_early_suspend(&device->display_off);
+#ifdef CONFIG_STATE_NOTIFIER
+	state_unregister_client(&device->display_off);
 #endif
 
 	clk_put(pwr->ebi1_clk);

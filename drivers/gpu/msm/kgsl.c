@@ -796,8 +796,8 @@ const struct dev_pm_ops kgsl_pm_ops = {
 };
 EXPORT_SYMBOL(kgsl_pm_ops);
 
-#ifdef CONFIG_HAS_EARLYSUSPEND
-void kgsl_early_suspend_driver(struct early_suspend *h)
+#ifdef CONFIG_STATE_NOTIFIER
+void kgsl_early_suspend_driver(struct notifier_block *h)
 {
 	struct kgsl_device *device = container_of(h,
 					struct kgsl_device, display_off);
@@ -832,8 +832,8 @@ int kgsl_resume_driver(struct platform_device *pdev)
 }
 EXPORT_SYMBOL(kgsl_resume_driver);
 
-#ifdef CONFIG_HAS_EARLYSUSPEND
-void kgsl_late_resume_driver(struct early_suspend *h)
+#ifdef CONFIG_STATE_NOTIFIER
+void kgsl_late_resume_driver(struct notifier_block *h)
 {
 	struct kgsl_device *device = container_of(h,
 					struct kgsl_device, display_off);
