@@ -28,8 +28,8 @@
 #include <linux/wakelock.h>
 #include <linux/kfifo.h>
 #include <linux/of.h>
-#include <mach/msm_ipc_logging.h>
 #include <linux/srcu.h>
+#include <mach/msm_ipc_logging.h>
 #include <mach/sps.h>
 #include <mach/bam_dmux.h>
 #include <mach/msm_smsm.h>
@@ -64,9 +64,6 @@ module_param_named(inactivity, POLLING_INACTIVITY,
 static int bam_adaptive_timer_enabled;
 module_param_named(adaptive_timer_enabled,
 			bam_adaptive_timer_enabled,
-		   int, S_IRUGO | S_IWUSR | S_IWGRP);
-static int ul_wakeup_timeout = 10;
-module_param_named(ul_wakeup_response_timeout, ul_wakeup_timeout,
 		   int, S_IRUGO | S_IWUSR | S_IWGRP);
 
 static struct bam_ops_if bam_default_ops = {
@@ -178,7 +175,6 @@ struct bam_ch_info {
 
 #define A2_NUM_PIPES		6
 #define A2_SUMMING_THRESHOLD	4096
-#define A2_DEFAULT_DESCRIPTORS	32
 #define A2_PHYS_BASE		0x124C2000
 #define A2_PHYS_SIZE		0x2000
 #define DEFAULT_NUM_BUFFERS	32
@@ -445,6 +441,8 @@ static void __queue_rx(gfp_t alloc_flags)
 			mutex_unlock(&bam_rx_pool_mutexlock);
 			DMUX_LOG_KERR("%s: sps_transfer_one failed %d\n",
 				__func__, ret);
+			if (bam_connection_is_active)
+				panic("forced crash\n");
 
 			dma_unmap_single(NULL, info->dma_address, BUFFER_SIZE,
 						bam_ops->dma_from);
@@ -686,6 +684,7 @@ static int bam_mux_write_cmd(void *data, uint32_t len)
 	if (rc) {
 		DMUX_LOG_KERR("%s sps_transfer_one failed rc=%d\n",
 			__func__, rc);
+		panic("forced crash\n");
 		list_del(&pkt->list_node);
 		DBG_INC_TX_SPS_FAILURE_CNT();
 		spin_unlock_irqrestore(&bam_tx_pool_spinlock, flags);
@@ -871,6 +870,7 @@ int msm_bam_dmux_write(uint32_t id, struct sk_buff *skb)
 	if (rc) {
 		DMUX_LOG_KERR("%s sps_transfer_one failed rc=%d\n",
 			__func__, rc);
+		panic("forced crash\n");
 		list_del(&pkt->list_node);
 		DBG_INC_TX_SPS_FAILURE_CNT();
 		spin_unlock_irqrestore(&bam_tx_pool_spinlock, flags);
@@ -1088,6 +1088,7 @@ static void rx_switch_to_interrupt_mode(void)
 	ret = bam_ops->sps_get_config_ptr(bam_rx_pipe, &cur_rx_conn);
 	if (ret) {
 		pr_err("%s: sps_get_config() failed %d\n", __func__, ret);
+		panic("forced crash\n");
 		goto fail;
 	}
 
@@ -1095,6 +1096,7 @@ static void rx_switch_to_interrupt_mode(void)
 	ret = bam_ops->sps_register_event_ptr(bam_rx_pipe, &rx_register_event);
 	if (ret) {
 		pr_err("%s: sps_register_event() failed %d\n", __func__, ret);
+		panic("forced crash\n");
 		goto fail;
 	}
 
@@ -1103,6 +1105,7 @@ static void rx_switch_to_interrupt_mode(void)
 	ret = bam_ops->sps_set_config_ptr(bam_rx_pipe, &cur_rx_conn);
 	if (ret) {
 		pr_err("%s: sps_set_config() failed %d\n", __func__, ret);
+		panic("forced crash\n");
 		goto fail;
 	}
 	polling_mode = 0;
@@ -1115,6 +1118,7 @@ static void rx_switch_to_interrupt_mode(void)
 		if (ret) {
 			pr_err("%s: sps_get_iovec failed %d\n",
 					__func__, ret);
+			panic("forced crash\n");
 			break;
 		}
 		if (iov.addr == 0)
@@ -1200,6 +1204,7 @@ static void rx_timer_work_func(struct work_struct *work)
 			if (ret) {
 				DMUX_LOG_KERR("%s: sps_get_iovec failed %d\n",
 						__func__, ret);
+				panic("forced crash\n");
 				break;
 			}
 			if (iov.addr == 0)
@@ -1329,6 +1334,7 @@ static void bam_mux_rx_notify(struct sps_event_notify *notify)
 			if (ret) {
 				pr_err("%s: sps_get_config() failed %d, interrupts"
 					" not disabled\n", __func__, ret);
+				panic("forced crash\n");
 				break;
 			}
 			cur_rx_conn.options = SPS_O_AUTO_ENABLE |
@@ -1338,6 +1344,7 @@ static void bam_mux_rx_notify(struct sps_event_notify *notify)
 			if (ret) {
 				pr_err("%s: sps_set_config() failed %d, interrupts"
 					" not disabled\n", __func__, ret);
+				panic("forced crash\n");
 				break;
 			}
 			INIT_COMPLETION(shutdown_completion);
@@ -1649,11 +1656,7 @@ static void ul_timeout(struct work_struct *work)
 			ul_packet_written = 0;
 			schedule_delayed_work(&ul_timeout_work,
 					msecs_to_jiffies(UL_TIMEOUT_DELAY));
-                } else if(polling_mode) {
-                        DMUX_LOG_KERR("%s: BAM is in polling mode, delay UL power down", __func__);
-                        schedule_delayed_work(&ul_timeout_work,
-                                       msecs_to_jiffies(UL_TIMEOUT_DELAY));
-                } else {
+		} else {
 			ul_powerdown();
 		}
 	}
@@ -1675,10 +1678,8 @@ static int ssrestart_check(void)
 								__func__);
 	in_global_reset = 1;
 	ret = subsystem_restart("modem");
-	if (ret == -ENODEV) {
-		DMUX_LOG_KERR("%s: modem subsystem restart failed\n", __func__);
-		dump_stack();
-	}
+	if (ret == -ENODEV)
+		PR_BUG("modem subsystem restart failed\n");
 	return 1;
 }
 
@@ -1809,27 +1810,37 @@ static void reconnect_to_bam(void)
 		}
 		ssr_skipped_disconnect = 0;
 		i = bam_ops->sps_device_reset_ptr(a2_device_handle);
-		if (i)
+		if (i) {
 			pr_err("%s: device reset failed rc = %d\n", __func__,
 									i);
+			panic("forced crash\n");
+		}
 		i = bam_ops->sps_connect_ptr(bam_tx_pipe, &tx_connection);
-		if (i)
+		if (i) {
 			pr_err("%s: tx connection failed rc = %d\n", __func__,
 									i);
+			panic("forced crash\n");
+		}
 		i = bam_ops->sps_connect_ptr(bam_rx_pipe, &rx_connection);
-		if (i)
+		if (i) {
 			pr_err("%s: rx connection failed rc = %d\n", __func__,
 									i);
+			panic("forced crash\n");
+		}
 		i = bam_ops->sps_register_event_ptr(bam_tx_pipe,
 				&tx_register_event);
-		if (i)
+		if (i) {
 			pr_err("%s: tx event reg failed rc = %d\n", __func__,
 									i);
+			panic("forced crash\n");
+		}
 		i = bam_ops->sps_register_event_ptr(bam_rx_pipe,
 				&rx_register_event);
-		if (i)
+		if (i) {
 			pr_err("%s: rx event reg failed rc = %d\n", __func__,
 									i);
+			panic("forced crash\n");
+		}
 	}
 
 	bam_connection_is_active = 1;
@@ -2107,7 +2118,7 @@ static int bam_init(void)
 	a2_props.virt_addr = a2_virt_addr;
 	a2_props.virt_size = a2_phys_size;
 	a2_props.irq = a2_bam_irq;
-	a2_props.options = SPS_BAM_OPT_IRQ_WAKEUP | SPS_BAM_HOLD_MEM;
+	a2_props.options = SPS_BAM_OPT_IRQ_WAKEUP;
 	a2_props.num_pipes = A2_NUM_PIPES;
 	a2_props.summing_threshold = A2_SUMMING_THRESHOLD;
 	a2_props.constrained_logging = true;
@@ -2118,6 +2129,7 @@ static int bam_init(void)
 	ret = bam_ops->sps_register_bam_device_ptr(&a2_props, &h);
 	if (ret < 0) {
 		pr_err("%s: register bam error %d\n", __func__, ret);
+		panic("forced crash\n");
 		goto register_bam_failed;
 	}
 	a2_device_handle = h;
@@ -2125,12 +2137,14 @@ static int bam_init(void)
 	bam_tx_pipe = bam_ops->sps_alloc_endpoint_ptr();
 	if (bam_tx_pipe == NULL) {
 		pr_err("%s: tx alloc endpoint failed\n", __func__);
+		panic("forced crash\n");
 		ret = -ENOMEM;
 		goto tx_alloc_endpoint_failed;
 	}
 	ret = bam_ops->sps_get_config_ptr(bam_tx_pipe, &tx_connection);
 	if (ret) {
 		pr_err("%s: tx get config failed %d\n", __func__, ret);
+		panic("forced crash\n");
 		goto tx_get_config_failed;
 	}
 
@@ -2156,18 +2170,21 @@ static int bam_init(void)
 	ret = bam_ops->sps_connect_ptr(bam_tx_pipe, &tx_connection);
 	if (ret < 0) {
 		pr_err("%s: tx connect error %d\n", __func__, ret);
+		panic("forced crash\n");
 		goto tx_connect_failed;
 	}
 
 	bam_rx_pipe = bam_ops->sps_alloc_endpoint_ptr();
 	if (bam_rx_pipe == NULL) {
 		pr_err("%s: rx alloc endpoint failed\n", __func__);
+		panic("forced crash\n");
 		ret = -ENOMEM;
 		goto rx_alloc_endpoint_failed;
 	}
 	ret = bam_ops->sps_get_config_ptr(bam_rx_pipe, &rx_connection);
 	if (ret) {
 		pr_err("%s: rx get config failed %d\n", __func__, ret);
+		panic("forced crash\n");
 		goto rx_get_config_failed;
 	}
 
@@ -2194,6 +2211,7 @@ static int bam_init(void)
 	ret = bam_ops->sps_connect_ptr(bam_rx_pipe, &rx_connection);
 	if (ret < 0) {
 		pr_err("%s: rx connect error %d\n", __func__, ret);
+		panic("forced crash\n");
 		goto rx_connect_failed;
 	}
 
@@ -2205,6 +2223,7 @@ static int bam_init(void)
 	ret = bam_ops->sps_register_event_ptr(bam_tx_pipe, &tx_register_event);
 	if (ret < 0) {
 		pr_err("%s: tx register event error %d\n", __func__, ret);
+		panic("forced crash\n");
 		goto rx_event_reg_failed;
 	}
 
@@ -2216,6 +2235,7 @@ static int bam_init(void)
 	ret = bam_ops->sps_register_event_ptr(bam_rx_pipe, &rx_register_event);
 	if (ret < 0) {
 		pr_err("%s: tx register event error %d\n", __func__, ret);
+		panic("forced crash\n");
 		goto rx_event_reg_failed;
 	}
 
@@ -2452,7 +2472,7 @@ EXPORT_SYMBOL(msm_bam_dmux_reinit);
 
 static int bam_dmux_probe(struct platform_device *pdev)
 {
-	int rc, ret;
+	int rc;
 	struct resource *r;
 
 	DBG("%s probe called\n", __func__);
@@ -2525,8 +2545,8 @@ static int bam_dmux_probe(struct platform_device *pdev)
 
 	bam_mux_tx_workqueue = create_singlethread_workqueue("bam_dmux_tx");
 	if (!bam_mux_tx_workqueue) {
-		ret = -ENOMEM;
-		goto exit_rx_wq;
+		destroy_workqueue(bam_mux_rx_workqueue);
+		return -ENOMEM;
 	}
 
 	for (rc = 0; rc < BAM_DMUX_NUM_CHANNELS; ++rc) {
@@ -2537,8 +2557,9 @@ static int bam_dmux_probe(struct platform_device *pdev)
 		bam_ch[rc].pdev = platform_device_alloc(bam_ch[rc].name, 2);
 		if (!bam_ch[rc].pdev) {
 			pr_err("%s: platform device alloc failed\n", __func__);
-			ret = -ENOMEM;
-			goto exit_device_put;
+			destroy_workqueue(bam_mux_rx_workqueue);
+			destroy_workqueue(bam_mux_tx_workqueue);
+			return -ENOMEM;
 		}
 	}
 
@@ -2556,9 +2577,10 @@ static int bam_dmux_probe(struct platform_device *pdev)
 			bam_dmux_smsm_cb, NULL);
 
 	if (rc) {
+		destroy_workqueue(bam_mux_rx_workqueue);
+		destroy_workqueue(bam_mux_tx_workqueue);
 		pr_err("%s: smsm cb register failed, rc: %d\n", __func__, rc);
-		ret = -ENOMEM;
-		goto exit_device_put;
+		return -ENOMEM;
 	}
 
 	rc = bam_ops->smsm_state_cb_register_ptr(SMSM_MODEM_STATE,
@@ -2573,8 +2595,9 @@ static int bam_dmux_probe(struct platform_device *pdev)
 					bam_dmux_smsm_cb, NULL);
 		pr_err("%s: smsm ack cb register failed, rc: %d\n", __func__,
 				rc);
-		ret = -ENOMEM;
-		goto exit_smsm_deregister;
+		for (rc = 0; rc < BAM_DMUX_NUM_CHANNELS; ++rc)
+			platform_device_put(bam_ch[rc].pdev);
+		return -ENOMEM;
 	}
 
 	if (bam_ops->smsm_get_state_ptr(SMSM_MODEM_STATE) &
@@ -2583,19 +2606,6 @@ static int bam_dmux_probe(struct platform_device *pdev)
 			bam_ops->smsm_get_state_ptr(SMSM_MODEM_STATE));
 
 	return 0;
-
-exit_smsm_deregister:
-	bam_ops->smsm_state_cb_deregister_ptr(SMSM_MODEM_STATE,
-				SMSM_A2_POWER_CONTROL,
-				bam_dmux_smsm_cb, NULL);
-exit_device_put:
-	for (rc = 0; rc < BAM_DMUX_NUM_CHANNELS; ++rc)
-		platform_device_put(bam_ch[rc].pdev);
-	destroy_workqueue(bam_mux_tx_workqueue);
-exit_rx_wq:
-	destroy_workqueue(bam_mux_rx_workqueue);
-
-	return ret;
 }
 
 static struct of_device_id msm_match_table[] = {
