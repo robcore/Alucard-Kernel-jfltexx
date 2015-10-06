@@ -23,7 +23,7 @@
 #include <mach/board.h>
 #include <mach/msm_iomap.h>
 #include <mach/usbdiag.h>
-#include <mach/msm_sps.h>
+#include <linux/msm-sps.h>
 #include <mach/dma.h>
 #include <mach/msm_dsps.h>
 #include <mach/clk-provider.h>

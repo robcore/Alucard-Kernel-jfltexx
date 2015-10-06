@@ -1487,12 +1487,15 @@ void bam_pipe_halt(void *base, u32 pipe, bool halt)
 /* output the content of BAM-level registers */
 void print_bam_reg(void *virt_addr)
 {
-	int i, n, index = 0;
+	int i, n;
 	u32 *bam = (u32 *) virt_addr;
 	u32 ctrl;
 	u32 ver;
 	u32 pipes;
+#ifdef CONFIG_SPS_SUPPORT_NDP_BAM
+	int index = 0;
 	u32 offset = 0;
+#endif
 
 	if (bam == NULL)
 		return;
@@ -1558,7 +1561,9 @@ void print_bam_pipe_reg(void *virt_addr, u32 pipe_index)
 	int i;
 	u32 *bam = (u32 *) virt_addr;
 	u32 pipe = pipe_index;
+#ifdef CONFIG_SPS_SUPPORT_NDP_BAM
 	u32 offset = 0;
+#endif
 
 	if (bam == NULL)
 		return;
