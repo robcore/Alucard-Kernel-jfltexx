@@ -521,6 +521,14 @@ static struct resource resources_uart_gsbi5[] = {
 		.name	= "gsbi_resource",
 		.flags	= IORESOURCE_MEM,
 	},
+#if defined(CONFIG_UART_RX_WAKEUP)
+	{
+		.start = 23,	/* GSBI5[2] UART_RX */
+		.end   = 23,
+		.name  = "wakeup_gpio",
+		.flags = IORESOURCE_IO,
+	},
+#endif
 };
 
 struct platform_device msm8960_device_uart_gsbi5 = {
@@ -1728,7 +1736,7 @@ struct platform_device msm_device_bam_dmux = {
 
 static struct msm_watchdog_pdata msm_watchdog_pdata = {
 	.pet_time = 10000,
-	.bark_time = 11000,
+	.bark_time = 20000,
 	.has_secure = true,
 	.base = MSM_TMR0_BASE + WDT0_OFFSET,
 };
@@ -1821,6 +1829,33 @@ int __init msm_add_sdcc(unsigned int controller, struct mmc_platform_data *plat)
 	return platform_device_register(pdev);
 }
 
+static struct resource resources_qup_i2c_gsbi7[] = {
+	{
+		.name	= "gsbi_qup_i2c_addr",
+		.start	= MSM_GSBI7_PHYS,
+		.end	= MSM_GSBI7_PHYS + MSM_QUP_SIZE - 1,
+		.flags	= IORESOURCE_MEM,
+	},
+	{
+		.name	= "qup_phys_addr",
+		.start	= MSM_GSBI7_QUP_PHYS,
+		.end	= MSM_GSBI7_QUP_PHYS + 4 - 1,
+		.flags	= IORESOURCE_MEM,
+	},
+	{
+		.name	= "qup_err_intr",
+		.start	= GSBI7_QUP_IRQ,
+		.end	= GSBI7_QUP_IRQ,
+		.flags	= IORESOURCE_IRQ,
+	},
+};
+
+struct platform_device msm8960_device_qup_i2c_gsbi7 = {
+	.name		= "qup_i2c",
+	.id		= 7,
+	.num_resources	= ARRAY_SIZE(resources_qup_i2c_gsbi7),
+	.resource	= resources_qup_i2c_gsbi7,
+};
 static struct resource resources_qup_i2c_gsbi4[] = {
 	{
 		.name	= "gsbi_qup_i2c_addr",
@@ -2474,6 +2509,57 @@ struct platform_device msm8960_device_qup_spi_gsbi1 = {
 	.resource	= resources_qup_spi_gsbi1,
 };
 #if !defined(CONFIG_MACH_KS02)
+static struct resource resources_qup_spi_gsbi2[] = {
+	{
+		.name = "spi_base",
+		.start = MSM_GSBI2_QUP_PHYS,
+		.end = MSM_GSBI2_QUP_PHYS + SZ_4K - 1,
+		.flags = IORESOURCE_MEM,
+	},
+	{
+		.name = "gsbi_base",
+		.start = MSM_GSBI2_PHYS,
+		.end = MSM_GSBI2_PHYS + 4 - 1,
+		.flags = IORESOURCE_MEM,
+	},
+	{
+		.name = "spi_irq_in",
+		.start = MSM8960_GSBI2_QUP_IRQ,
+		.end = MSM8960_GSBI2_QUP_IRQ,
+		.flags = IORESOURCE_IRQ,
+	},
+	{
+		.name = "spi_clk",
+		.start = 13,
+		.end = 13,
+		.flags = IORESOURCE_IO,
+	},
+	{
+		.name = "spi_cs",
+		.start = 12,
+		.end = 12,
+		.flags = IORESOURCE_IO,
+	},
+	{
+		.name = "spi_miso",
+		.start = 11,
+		.end = 11,
+		.flags = IORESOURCE_IO,
+	},
+	{
+		.name = "spi_mosi",
+		.start = 10,
+		.end = 10,
+		.flags = IORESOURCE_IO,
+	},
+};
+
+struct platform_device msm8960_device_qup_spi_gsbi2 = {
+	.name	= "spi_qsd",
+	.id		= 2,
+	.num_resources	= ARRAY_SIZE(resources_qup_spi_gsbi2),
+	.resource	= resources_qup_spi_gsbi2,
+};
 static struct resource resources_qup_spi_gsbi11[] = {
 	{
 		.name = "spi_base",
