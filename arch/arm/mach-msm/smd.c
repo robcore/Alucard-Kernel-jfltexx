@@ -863,8 +863,6 @@ const char *smd_edge_to_subsystem(uint32_t type)
 		subsys = edge_to_pids[type].subsys_name;
 		if (subsys[0] == 0x0)
 			subsys = NULL;
-		if (!edge_to_pids[type].initialized)
-			subsys = ERR_PTR(-EPROBE_DEFER);
 	}
 	return subsys;
 }
@@ -883,18 +881,11 @@ const char *smd_pid_to_subsystem(uint32_t pid)
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(edge_to_pids); ++i) {
-		if (pid == edge_to_pids[i].remote_pid) {
-			if (!edge_to_pids[i].initialized) {
-				subsys = ERR_PTR(-EPROBE_DEFER);
-				break;
-			}
-			if (edge_to_pids[i].subsys_name[0] != 0x0) {
-				subsys = edge_to_pids[i].subsys_name;
-				break;
-			} else if (pid == SMD_RPM) {
-				subsys = "rpm";
-				break;
-			}
+		if (pid == edge_to_pids[i].remote_pid &&
+			edge_to_pids[i].subsys_name[0] != 0x0
+			) {
+			subsys = edge_to_pids[i].subsys_name;
+			break;
 		}
 	}
 
@@ -1874,7 +1865,7 @@ int smd_named_open_on_edge(const char *name, uint32_t edge,
 
 	if (smd_initialized == 0) {
 		SMD_INFO("smd_open() before smd_init()\n");
-		return -EPROBE_DEFER;
+		return -ENODEV;
 	}
 
 	SMD_DBG("smd_open('%s', %p, %p)\n", name, priv, notify);

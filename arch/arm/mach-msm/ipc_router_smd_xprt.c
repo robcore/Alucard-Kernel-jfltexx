@@ -418,8 +418,8 @@ static void *msm_ipc_load_subsystem(uint32_t edge)
 	const char *peripheral;
 
 	peripheral = smd_edge_to_subsystem(edge);
-	if (!IS_ERR_OR_NULL(peripheral)) {
-		pil = subsystem_get(peripheral);
+	if (peripheral) {
+		pil = pil_get(peripheral);
 		if (IS_ERR(pil)) {
 			pr_err("%s: Failed to load %s\n",
 				__func__, peripheral);
@@ -504,8 +504,8 @@ void *msm_ipc_load_default_node(void)
 	const char *peripheral;
 
 	peripheral = smd_edge_to_subsystem(SMD_APPS_MODEM);
-	if (!IS_ERR_OR_NULL(peripheral) && !strcmp(peripheral, "modem")) {
-		pil = subsystem_get(peripheral);
+	if (peripheral && !strncmp(peripheral, "modem", 6)) {
+		pil = pil_get(peripheral);
 		if (IS_ERR(pil)) {
 			pr_err("%s: Failed to load %s\n",
 				__func__, peripheral);
