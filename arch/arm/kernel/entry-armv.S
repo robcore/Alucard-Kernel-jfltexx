@@ -766,7 +766,7 @@ ENDPROC(__switch_to)
 	.align	5
 	.globl	__kuser_helper_start
 __kuser_helper_start:
-#ifdef GENERIC_TIME_VSYSCALL
+#if defined(GENERIC_TIME_VSYSCALL) || defined(GENERIC_TIME_VSYSCALL_OLD)
 /*
  * Reference declaration:
  *
