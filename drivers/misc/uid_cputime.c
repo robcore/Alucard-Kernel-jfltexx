@@ -77,8 +77,6 @@ static int uid_stat_show(struct seq_file *m, void *v)
 	struct uid_entry *uid_entry;
 	struct task_struct *task;
 	struct hlist_node *node;
-	cputime_t utime;
-	cputime_t stime;
 	unsigned long bkt;
 
 	mutex_lock(&uid_lock);
@@ -98,9 +96,8 @@ static int uid_stat_show(struct seq_file *m, void *v)
 						__func__, task_uid(task));
 			return -ENOMEM;
 		}
-		task_times(task, &utime, &stime);
-		uid_entry->active_utime += utime;
-		uid_entry->active_stime += stime;
+		uid_entry->active_utime += task->utime;
+		uid_entry->active_stime += task->stime;
 	}
 	read_unlock(&tasklist_lock);
 
@@ -187,7 +184,6 @@ static int process_notifier(struct notifier_block *self,
 {
 	struct task_struct *task = v;
 	struct uid_entry *uid_entry;
-	cputime_t utime, stime;
 	uid_t uid;
 
 	if (!task)
@@ -201,9 +197,8 @@ static int process_notifier(struct notifier_block *self,
 		goto exit;
 	}
 
-	task_times(task, &utime, &stime);
-	uid_entry->utime += utime;
-	uid_entry->stime += stime;
+	uid_entry->utime += task->utime;
+	uid_entry->stime += task->stime;
 
 exit:
 	mutex_unlock(&uid_lock);
