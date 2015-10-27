@@ -515,8 +515,7 @@ static int mipi_dsi_power(int enable)
 #ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
 		scr_suspended = false;
 #endif
-		if (!use_fb_notifier)
-			state_resume();
+		state_resume();
 #endif
 	} else {
 
@@ -547,8 +546,7 @@ static int mipi_dsi_power(int enable)
 #ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
 		scr_suspended = true;
 #endif
-		if (!use_fb_notifier)
-			state_suspend();
+		state_suspend();
 #endif
 	}
 
