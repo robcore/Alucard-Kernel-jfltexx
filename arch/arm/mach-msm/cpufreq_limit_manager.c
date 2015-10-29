@@ -40,6 +40,11 @@ static bool oncall_status = false;
 static struct notifier_block notif;
 #endif
 
+/*
+ * cpufreq_limit_mutex protects cpu frequency changing in update_cpufreq_limit fn.
+ */
+static DEFINE_MUTEX(cpufreq_limit_mutex);
+
 int update_cpufreq_limit(unsigned int limit_type, bool limit_status)
 {
 	unsigned int min_freq = 0;
@@ -47,6 +52,7 @@ int update_cpufreq_limit(unsigned int limit_type, bool limit_status)
 	bool immediately_update = true;
 	unsigned int cpu;
 
+	mutex_lock(&cpufreq_limit_mutex);
 	switch (limit_type) {
 	case 0:
 		/* SUSPEND */
@@ -100,6 +106,7 @@ int update_cpufreq_limit(unsigned int limit_type, bool limit_status)
 			}
 		}
 	}
+	mutex_unlock(&cpufreq_limit_mutex);
 
 	return 0;
 }
