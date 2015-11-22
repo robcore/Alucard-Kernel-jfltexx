@@ -29,8 +29,8 @@
 #include <linux/if_arp.h>
 #include <linux/msm_rmnet.h>
 
-#ifdef CONFIG_STATE_NOTIFIER
-#include <linux/state_notifier.h>
+#ifdef CONFIG_POWERSUSPEND
+#include <linux/powersuspend.h>
 #endif
 
 #include <mach/sdio_dmux.h>
@@ -88,12 +88,11 @@ struct rmnet_private {
 #ifdef CONFIG_MSM_RMNET_DEBUG
 static unsigned long timeout_us;
 
-#ifdef CONFIG_STATE_NOTIFIER
+#ifdef CONFIG_POWERSUSPEND
 /*
  * If early suspend is enabled then we specify two timeout values,
  * screen on (default), and screen is off.
  */
-static struct notifier_block notif;
 static unsigned long timeout_suspend_us;
 static struct device *rmnet0;
 
@@ -117,7 +116,7 @@ static ssize_t timeout_suspend_show(struct device *d,
 static DEVICE_ATTR(timeout_suspend, 0664, timeout_suspend_show,
 		   timeout_suspend_store);
 
-static void rmnet_early_suspend(void)
+static void rmnet_early_suspend(struct power_suspend *handler)
 {
 	if (rmnet0) {
 		struct rmnet_private *p = netdev_priv(to_net_dev(rmnet0));
@@ -125,7 +124,7 @@ static void rmnet_early_suspend(void)
 	}
 }
 
-static void rmnet_late_resume(void)
+static void rmnet_late_resume(struct power_suspend *handler)
 {
 	if (rmnet0) {
 		struct rmnet_private *p = netdev_priv(to_net_dev(rmnet0));
@@ -133,30 +132,14 @@ static void rmnet_late_resume(void)
 	}
 }
 
-static int state_notifier_callback(struct notifier_block *this,
-				unsigned long event, void *data)
-{
-	switch (event) {
-		case STATE_NOTIFIER_ACTIVE:
-			rmnet_late_resume();
-			break;
-		case STATE_NOTIFIER_SUSPEND:
-			rmnet_early_suspend();
-			break;
-		default:
-			break;
-	}
-
-	return NOTIFY_OK;
-}
+static struct power_suspend rmnet_power_suspend = {
+	.suspend = rmnet_early_suspend,
+	.resume = rmnet_late_resume,
+};
 
 static int __init rmnet_late_init(void)
 {
-#ifdef CONFIG_STATE_NOTIFIER
-	notif.notifier_call = state_notifier_callback;
-	if (state_register_client(&notif))
-		pr_err("Failed to register State notifier callback for msm_rmnet_sdio\n");
-#endif
+	register_power_suspend(&rmnet_power_suspend);
 	return 0;
 }
 
@@ -204,7 +187,7 @@ DEVICE_ATTR(wakeups_rcv, 0444, wakeups_rcv_show, NULL);
 static ssize_t timeout_store(struct device *d, struct device_attribute *attr,
 			     const char *buf, size_t n)
 {
-#ifndef CONFIG_STATE_NOTIFIER
+#ifndef CONFIG_POWERSUSPEND
 	struct rmnet_private *p = netdev_priv(to_net_dev(d));
 	p->timeout_us = timeout_us = strict_strtoul(buf, NULL, 10);
 #else
@@ -674,7 +657,7 @@ static int __init rmnet_init(void)
 
 #ifdef CONFIG_MSM_RMNET_DEBUG
 	timeout_us = 0;
-#ifdef CONFIG_STATE_NOTIFIER
+#ifdef CONFIG_POWERSUSPEND
 	timeout_suspend_us = 0;
 #endif
 #endif
@@ -711,7 +694,7 @@ static int __init rmnet_init(void)
 			continue;
 		if (device_create_file(d, &dev_attr_wakeups_rcv))
 			continue;
-#ifdef CONFIG_STATE_NOTIFIER
+#ifdef CONFIG_POWERSUSPEND
 		if (device_create_file(d, &dev_attr_timeout_suspend))
 			continue;
 
