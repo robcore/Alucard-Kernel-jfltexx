@@ -16,7 +16,7 @@ export PACKAGEDIR=$KERNELDIR/READY-JB
 #Enable FIPS mode
 export USE_SEC_FIPS_MODE=true
 export ARCH=arm
-export CROSS_COMPILE=$PARENT_DIR/../cr-arm-eabi-4.9.4/bin/arm-eabi-
+export CROSS_COMPILE=$KERNELDIR/android-toolchain/bin/arm-eabi-
 export KERNEL_CONFIG=alucard_defconfig;
 
 chmod -R 777 /tmp;
@@ -114,7 +114,7 @@ if [ -e $KERNELDIR/arch/arm/boot/zImage ]; then
 
 	echo "Make boot.img"
 	./mkbootfs $INITRAMFS_TMP | gzip > $PACKAGEDIR/ramdisk.gz
-	cmd_line="console=ttyHSL0,115200,n8 androidboot.hardware=qcom user_debug=31 ehci-hcd.park=3 enforcing=0 selinux=1 audit=1"
+	cmd_line="console=ttyHSL0,115200,n8 androidboot.hardware=qcom user_debug=31 ehci-hcd.park=3 enforcing=0 selinux=1"
 	./mkbootimg --cmdline "$cmd_line" --kernel $PACKAGEDIR/zImage --ramdisk $PACKAGEDIR/ramdisk.gz --base 0x80200000 --pagesize 2048 --ramdisk_offset 0x02000000 --output $PACKAGEDIR/boot.img
 	cd $PACKAGEDIR
 
@@ -131,7 +131,7 @@ if [ -e $KERNELDIR/arch/arm/boot/zImage ]; then
 	 rm $i;
 	done;
 
-	FILENAME=Kernel-Alucard-${GETVER}-`date +"[%H-%M]-[%d-%m]-AOSPV2-EUR-LP5.1-SGIV-PWR-CORE"`.zip
+	FILENAME=Kernel-Alucard-${GETVER}-`date +"[%H-%M]-[%d-%m]-AOSPV4-EUR-MM6.0-SGIV-PWR-CORE"`.zip
 	zip -r $FILENAME .;
 
 	time_end=$(date +%s.%N)
