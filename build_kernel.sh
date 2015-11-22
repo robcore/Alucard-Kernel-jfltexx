@@ -16,7 +16,7 @@ export PACKAGEDIR=$KERNELDIR/READY-JB
 #Enable FIPS mode
 export USE_SEC_FIPS_MODE=true
 export ARCH=arm
-export CROSS_COMPILE=$PARENT_DIR/../arm-eabi-5.2/bin/arm-eabi-
+export CROSS_COMPILE=$KERNELDIR/android-toolchain/bin/arm-eabi-
 export KERNEL_CONFIG=alucard_defconfig;
 
 chmod -R 777 /tmp;
