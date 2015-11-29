@@ -435,6 +435,13 @@ error_get_fail:
 	return ret;
 }
 
+#if !defined(CONFIG_OF)
+static inline struct device_node *of_find_node_by_path(const char *path)
+{
+	return NULL;
+}
+#endif
+
 static void cpufreq_powerstats_create(unsigned int cpu,
 		struct cpufreq_frequency_table *table, int count) {
 	unsigned int alloc_size, i = 0, j = 0, ret = 0;
