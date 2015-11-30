@@ -435,19 +435,15 @@ error_get_fail:
 	return ret;
 }
 
-#if !defined(CONFIG_OF)
-static inline struct device_node *of_find_node_by_path(const char *path)
-{
-	return NULL;
-}
-#endif
-
 static void cpufreq_powerstats_create(unsigned int cpu,
 		struct cpufreq_frequency_table *table, int count) {
-	unsigned int alloc_size, i = 0, j = 0, ret = 0;
+	unsigned int alloc_size, i = 0, j = 0;
 	struct cpufreq_power_stats *powerstats;
+#ifdef CONFIG_OF
+	unsigned int ret = 0;
 	struct device_node *cpu_node;
 	char device_path[16];
+#endif
 
 	powerstats = kzalloc(sizeof(struct cpufreq_power_stats),
 			GFP_KERNEL);
@@ -475,6 +471,7 @@ static void cpufreq_powerstats_create(unsigned int cpu,
 	}
 	powerstats->state_num = j;
 
+#ifdef CONFIG_OF
 	snprintf(device_path, sizeof(device_path), "/cpus/cpu@%d", cpu);
 	cpu_node = of_find_node_by_path(device_path);
 	if (cpu_node) {
@@ -486,6 +483,11 @@ static void cpufreq_powerstats_create(unsigned int cpu,
 			powerstats = NULL;
 		}
 	}
+#else
+	kfree(powerstats->curr);
+	kfree(powerstats);
+	powerstats = NULL;
+#endif
 	per_cpu(cpufreq_power_stats, cpu) = powerstats;
 	spin_unlock(&cpufreq_stats_lock);
 }
