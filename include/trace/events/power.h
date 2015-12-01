@@ -113,6 +113,7 @@ TRACE_EVENT(cpu_frequency_limits,
 		  (unsigned long)__entry->min_freq,
 		  (unsigned long)__entry->max_freq,
 		  (unsigned long)__entry->cpu_id)
+);
 
 DECLARE_EVENT_CLASS(set,
 	TP_PROTO(u32 cpu_id, unsigned long currfreq,
