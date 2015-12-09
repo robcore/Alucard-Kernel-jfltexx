@@ -1,7 +1,7 @@
 /*
  *  'Standard' SDIO HOST CONTROLLER driver
  *
- * Copyright (C) 1999-2013, Broadcom Corporation
+ * Copyright (C) 1999-2014, Broadcom Corporation
  *
  *      Unless you and Broadcom execute a separate written software license
  * agreement governing use of this software, this software is licensed to you
@@ -21,7 +21,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: bcmsdstd.h 343301 2012-07-06 13:07:32Z $
+ * $Id: bcmsdstd.h 455427 2014-02-14 00:11:19Z $
  */
 #ifndef	_BCM_SD_STD_H
 #define	_BCM_SD_STD_H
@@ -93,8 +93,10 @@ extern void sdstd_osfree(sdioh_info_t *sd);
 
 
 #ifdef BCMSDIOH_TXGLOM
-/* Setting the MAX limit to 10 */
-#define SDIOH_MAXGLOM_SIZE	10
+/* Total glom pkt can not exceed 64K
+ * need one more slot for glom padding packet
+ */
+#define SDIOH_MAXGLOM_SIZE	(40+1)
 
 typedef struct glom_buf {
 	uint32 count;				/* Total number of pkts queued */
@@ -120,6 +122,7 @@ struct sdioh_info {
 	uint		target_dev;		/* Target device ID */
 	uint16		intmask;		/* Current active interrupts */
 	void		*sdos_info;		/* Pointer to per-OS private data */
+	void		*bcmsdh;		/* handler to upper layer stack (bcmsdh) */
 
 	uint32		controller_type;	/* Host controller type */
 	uint8		version;		/* Host Controller Spec Compliance Version */
@@ -200,6 +203,13 @@ struct sdioh_info {
 #define CHECK_TUNING_PRE_DATA	1
 #define CHECK_TUNING_POST_DATA	2
 
+
+#ifdef DHD_DEBUG
+#define SD_DHD_DISABLE_PERIODIC_TUNING 0x01
+#define SD_DHD_ENABLE_PERIODIC_TUNING  0x00
+#endif
+
+
 /************************************************************
  * Internal interfaces: per-port references into bcmsdstd.c
  */
@@ -239,6 +249,10 @@ extern void sdstd_lock(sdioh_info_t *sd);
 extern void sdstd_unlock(sdioh_info_t *sd);
 extern void sdstd_waitlockfree(sdioh_info_t *sd);
 
+/* OS-specific wrappers for safe concurrent register access */
+extern void sdstd_os_lock_irqsave(sdioh_info_t *sd, ulong* flags);
+extern void sdstd_os_unlock_irqrestore(sdioh_info_t *sd, ulong* flags);
+
 /* OS-specific wait-for-interrupt-or-status */
 extern int sdstd_waitbits(sdioh_info_t *sd, uint16 norm, uint16 err, bool yield, uint16 *bits);
 
@@ -261,4 +275,8 @@ extern void sdstd_3_start_tuning(sdioh_info_t *sd);
 extern void sdstd_3_osinit_tuning(sdioh_info_t *sd);
 extern void sdstd_3_osclean_tuning(sdioh_info_t *sd);
 
+extern void sdstd_enable_disable_periodic_timer(sdioh_info_t * sd, uint val);
+
+extern sdioh_info_t *sdioh_attach(osl_t *osh, void *bar0, uint irq);
+extern SDIOH_API_RC sdioh_detach(osl_t *osh, sdioh_info_t *sd);
 #endif /* _BCM_SD_STD_H */
