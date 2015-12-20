@@ -148,7 +148,7 @@ static bool ok_to_update_tz(int nr, int last_nr)
 
 static enum hrtimer_restart msm_mpd_rq_avg_poll_timer(struct hrtimer *timer)
 {
-	int nr, nr_iowait;
+	int nr, nr_iowait, nr_big;
 	ktime_t curr_time = ktime_get();
 	unsigned long flags;
 	int cpu = smp_processor_id();
@@ -165,7 +165,7 @@ static enum hrtimer_restart msm_mpd_rq_avg_poll_timer(struct hrtimer *timer)
 	msm_mpd.next_update = ktime_add_ns(curr_time,
 			(msm_mpd.rq_avg_poll_ms * NSEC_PER_MSEC));
 
-	sched_get_nr_running_avg(&nr, &nr_iowait);
+	sched_get_nr_running_avg(&nr, &nr_iowait, &nr_big);
 
 	if ((nr_iowait >= msm_mpd.iowait_threshold_pct) && (nr < last_nr))
 		nr = last_nr;
