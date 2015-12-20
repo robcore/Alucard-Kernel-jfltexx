@@ -271,7 +271,7 @@ static void __ref do_freq_control(long temp)
 	}
 
 	if (debug_mode == 1)
-		printk(KERN_ERR "pre-check do_freq_control temp[%ld], \
+		printk(KERN_INFO "pre-check do_freq_control temp[%ld], \
 				limit_idx[%d], limit_idx_low[%d], \
 				limited_idx_high[%d]\n",
 				temp, limit_idx, limit_idx_low,
@@ -304,7 +304,7 @@ static void __ref do_freq_control(long temp)
 	}
 
 	if (debug_mode == 1)
-		printk(KERN_ERR "do_freq_control temp[%ld], \
+		printk(KERN_INFO "do_freq_control temp[%ld], \
 				limit_idx[%d], max_freq[%d], \
 				limited_max_freq[%d]\n",
 				temp, limit_idx, max_freq,
@@ -335,7 +335,7 @@ static void __ref check_temp(struct work_struct *work)
 	tsens_dev.sensor_num = msm_thermal_info_local.sensor_id;
 	ret = tsens_get_temp(&tsens_dev, &temp);
 	if (ret) {
-		pr_debug("%s: Unable to read TSENS sensor %d\n",
+		pr_err("%s: Unable to read TSENS sensor:%d\n",
 				KBUILD_MODNAME, tsens_dev.sensor_num);
 		goto reschedule;
 	}
@@ -430,15 +430,15 @@ static int __ref set_enabled(const char *val, const struct kernel_param *kp)
 		if (!intelli_enabled) {
 			intelli_enabled = 1;
 			schedule_delayed_work(&check_temp_work,
-					msecs_to_jiffies(10000));
+					msecs_to_jiffies(1000));
 			pr_info("%s: rescheduling...\n", KBUILD_MODNAME);
 		} else
 			pr_info("%s: already running...\n \
 				if you wish to disable echo N > \
 				intelli_enabled\n", KBUILD_MODNAME);
 	}
-	pr_info("%s: enabled = %d\n", KBUILD_MODNAME, intelli_enabled);
 	ret = param_set_bool(val, kp);
+	pr_info("%s: intelli_enabled = %d\n", KBUILD_MODNAME, intelli_enabled);
 
 	return ret;
 }
@@ -737,7 +737,7 @@ int __devinit msm_thermal_init(struct msm_thermal_data *pdata)
 	INIT_DELAYED_WORK(&check_temp_work, check_temp);
 	if (intelli_enabled)
 		schedule_delayed_work(&check_temp_work,
-				msecs_to_jiffies(10000));
+				msecs_to_jiffies(5000));
 
 	if (num_possible_cpus() > 1)
 		register_cpu_notifier(&msm_thermal_cpu_notifier);
