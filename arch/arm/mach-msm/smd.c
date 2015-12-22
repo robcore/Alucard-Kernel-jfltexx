@@ -2726,7 +2726,7 @@ static irqreturn_t smsm_irq_handler(int irq, void *data)
 			modem_queue_start_reset_notify();
 
 		} else if (modm & SMSM_RESET) {
-			pr_err("\nSMSM: Modem SMSM state changed to SMSM_RESET.");
+			pr_err("SMSM: Modem SMSM state changed to SMSM_RESET.\n");
 			if (!disable_smsm_reset_handshake) {
 				apps |= SMSM_RESET;
 				flush_cache_all();
