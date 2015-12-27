@@ -34,7 +34,11 @@ do {				\
 		pr_info(msg);	\
 } while (0)
 
+#ifdef CONFIG_MACH_JF
+static unsigned int suspend_defer_time = 1;
+#else
 static unsigned int suspend_defer_time = DEFAULT_SUSPEND_DEFER_TIME;
+#endif
 module_param_named(suspend_defer_time, suspend_defer_time, uint, 0664);
 static struct delayed_work suspend_work;
 static struct workqueue_struct *susp_wq;
@@ -100,7 +104,11 @@ void state_suspend(void)
 	suspend_in_progress = true;
 
 	queue_delayed_work_on(0, susp_wq, &suspend_work, 
+#ifdef CONFIG_MACH_JF
+		msecs_to_jiffies(suspend_defer_time * 100));
+#else
 		msecs_to_jiffies(suspend_defer_time * 1000));
+#endif
 }
 
 void state_resume(void)
