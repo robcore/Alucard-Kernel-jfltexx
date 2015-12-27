@@ -208,7 +208,6 @@ int bluesleep_can_sleep(void)
 {
 	/* check if WAKE_BT_GPIO and BT_WAKE_GPIO are both deasserted */
 	return (!gpio_get_value(bsi->host_wake) &&
-			!gpio_get_value(bsi->ext_wake) &&
 		(bsi->uport != NULL));
 }
 
