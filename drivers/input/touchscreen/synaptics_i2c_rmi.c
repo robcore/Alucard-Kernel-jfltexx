@@ -116,8 +116,8 @@ module_param(booster_off_time, uint, 0644);
 #define EDGE_SWIPE_DATA_OFFSET	8
 
 #define EDGE_SWIPE_WIDTH_MAX	255
-//#define EDGE_SWIPE_ANGLE_MIN	(-90)
-//#define EDGE_SWIPE_ANGLE_MAX	90
+#define EDGE_SWIPE_ANGLE_MIN	(-90)
+#define EDGE_SWIPE_ANGLE_MAX	90
 #define EDGE_SWIPE_PALM_MAX		1
 #endif
 
@@ -1523,8 +1523,8 @@ static int synaptics_rmi4_f12_abs_report(struct synaptics_rmi4_data *rmi4_data,
 			wy = finger_data->wy;
 #ifdef EDGE_SWIPE
 			if (f51) {
-				if ((f51->proximity_controls & HAS_EDGE_SWIPE)){
-//					&& f51->surface_data.palm) {					Delta merge from JBP, for palm swipe
+				if ((f51->proximity_controls & HAS_EDGE_SWIPE)
+					&& f51->surface_data.palm) {
 					wx = f51->surface_data.wx;
 					wy = f51->surface_data.wy;
 				}
@@ -1555,8 +1555,8 @@ static int synaptics_rmi4_f12_abs_report(struct synaptics_rmi4_data *rmi4_data,
 				if (f51->proximity_controls & HAS_EDGE_SWIPE) {
 					input_report_abs(rmi4_data->input_dev,
 							ABS_MT_WIDTH_MAJOR, f51->surface_data.width_major);
-					/*input_report_abs(rmi4_data->input_dev,
-							ABS_MT_ANGLE, f51->surface_data.angle); */
+					input_report_abs(rmi4_data->input_dev,
+							ABS_MT_ANGLE, f51->surface_data.angle);
 					input_report_abs(rmi4_data->input_dev,
 							ABS_MT_PALM, f51->surface_data.palm);
 				}
@@ -1730,7 +1730,7 @@ static int synaptics_rmi4_f51_edge_swipe(struct synaptics_rmi4_data *rmi4_data,
 	if (!f51)
 		return -ENODEV;
 
-	/*if (data->edge_swipe_dg >= 90 && data->edge_swipe_dg <= 180)
+	if (data->edge_swipe_dg >= 90 && data->edge_swipe_dg <= 180)
 #if defined(CONFIG_MACH_JACTIVE_EUR)
 		f51->surface_data.angle = data->edge_swipe_dg - 90;
 #else
@@ -1746,7 +1746,7 @@ static int synaptics_rmi4_f51_edge_swipe(struct synaptics_rmi4_data *rmi4_data,
 		dev_err(&rmi4_data->i2c_client->dev,
 				"Skip wrong edge swipe angle [%d]\n",
 				data->edge_swipe_dg);
-*/
+
 	f51->surface_data.width_major = data->edge_swipe_mm;
 	f51->surface_data.wx = data->edge_swipe_wx;
 	f51->surface_data.wy = data->edge_swipe_wy;
@@ -3297,10 +3297,9 @@ static int synaptics_rmi4_set_input_device
 	input_set_abs_params(rmi4_data->input_dev,
 			ABS_MT_WIDTH_MAJOR, 0,
 			EDGE_SWIPE_WIDTH_MAX, 0, 0);
-	/*input_set_abs_params(rmi4_data->input_dev,
+	input_set_abs_params(rmi4_data->input_dev,
 			ABS_MT_ANGLE, 0,
 			EDGE_SWIPE_ANGLE_MAX, 0, 0);
-	*/
 	input_set_abs_params(rmi4_data->input_dev,
 			ABS_MT_PALM, 0,
 			EDGE_SWIPE_PALM_MAX, 0, 0);
@@ -3811,7 +3810,7 @@ static void synaptics_init_power_on(struct work_struct *work)
  * as an input driver, turns on the power to the sensor, queries the
  * sensor for its supported Functions and characteristics, registers
  * the driver to the input subsystem, sets up the interrupt, handles
- * the registration of the power_suspend and late_resume functions,
+ * the registration of the suspend and resume functions,
  * and creates a work queue for detection of other expansion Function
  * modules.
  */
