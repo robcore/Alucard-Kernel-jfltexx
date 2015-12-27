@@ -232,7 +232,7 @@ struct synaptics_hover {
  * @rmi4_mod_info: device information
  * @regulator: pointer to associated regulator
  * @rmi4_io_ctrl_mutex: mutex for i2c i/o control
- * @power_suspend: instance to support early suspend power management
+ * @suspend: instance to support suspend power management
  * @current_page: current page in sensor to acess
  * @button_0d_enabled: flag for 0d button support
  * @full_pm_cycle: flag for full power management cycle in early suspend stage
