@@ -791,12 +791,8 @@ static int msm_pm_idle_prepare(struct cpuidle_device *dev,
 								& UINT_MAX);
 	time_param.modified_time_us = 0;
 
-	if (!dev->cpu)
-		time_param.next_event_us =
-			(uint32_t) (ktime_to_us(get_next_event_time())
+	time_param.next_event_us = (uint32_t) (ktime_to_us(get_next_event_time(dev->cpu))
 								& UINT_MAX);
-	else
-		time_param.next_event_us = 0;
 
 	for (i = 0; i < drv->state_count; i++) {
 		struct cpuidle_state *state = &drv->states[i];
@@ -862,7 +858,7 @@ static int msm_pm_idle_prepare(struct cpuidle_device *dev,
 
 	}
 
-	if (modified_time_us && !dev->cpu)
+	if (modified_time_us)
 		msm_pm_set_timer(modified_time_us);
 
 	msm_pm_ftrace_lpm_enter(dev->cpu, time_param.latency_us,
