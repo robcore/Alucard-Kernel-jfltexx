@@ -3836,7 +3836,7 @@ static int __init voice_init(void)
 	memset(&common, 0, sizeof(struct common_data));
 
 	/* Allocate memory for VoIP calibration */
-	common.client = msm_ion_client_create(UINT_MAX, "voip_client");
+	common.client = msm_ion_client_create("voip_client");
 	if (IS_ERR_OR_NULL((void *)common.client)) {
 		pr_err("%s: ION create client for Voip failed\n", __func__);
 		goto cont;

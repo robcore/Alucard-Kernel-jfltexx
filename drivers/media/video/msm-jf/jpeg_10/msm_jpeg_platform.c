@@ -218,7 +218,7 @@ int msm_jpeg_platform_init(struct platform_device *pdev,
 	*irq  = jpeg_irq;
 
 #ifdef CONFIG_MSM_MULTIMEDIA_USE_ION
-	jpeg_client = msm_ion_client_create(-1, "camera/jpeg");
+	jpeg_client = msm_ion_client_create("camera/jpeg");
 #endif
 	JPEG_DBG("%s:%d] success\n", __func__, __LINE__);
 

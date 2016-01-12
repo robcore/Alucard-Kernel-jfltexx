@@ -3799,7 +3799,7 @@ static int __msm_open(struct msm_cam_device *pmsm, const char *const apps_id,
 		sync->core_powered_on = 1;
 	}
 	sync->opencnt++;
-	client_for_ion = msm_ion_client_create(-1, "camera");
+	client_for_ion = msm_ion_client_create("camera");
 
 msm_open_done:
 	mutex_unlock(&sync->lock);
