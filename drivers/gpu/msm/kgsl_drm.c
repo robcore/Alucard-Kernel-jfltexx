@@ -1587,7 +1587,8 @@ int kgsl_drm_init(struct platform_device *dev)
 	}
 
 	/* Create ION Client */
-	kgsl_drm_ion_client = msm_ion_client_create("kgsl_drm");
+	kgsl_drm_ion_client = msm_ion_client_create(
+			0xffffffff, "kgsl_drm");
 	if (!kgsl_drm_ion_client) {
 		DRM_ERROR("Unable to create ION client\n");
 		return -ENOMEM;

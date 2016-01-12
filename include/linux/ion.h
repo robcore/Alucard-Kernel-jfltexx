@@ -153,7 +153,8 @@ struct ion_client *ion_client_create(struct ion_device *dev,
  * are the same as ion_client_create.
  */
 
-struct ion_client *msm_ion_client_create(const char *name);
+struct ion_client *msm_ion_client_create(unsigned int heap_mask,
+					const char *name);
 
 /**
  * ion_client_destroy() -  free's a client and all it's handles
@@ -389,7 +390,8 @@ static inline struct ion_client *ion_client_create(struct ion_device *dev,
 	return ERR_PTR(-ENODEV);
 }
 
-static inline struct ion_client *msm_ion_client_create(const char *name)
+static inline struct ion_client *msm_ion_client_create(unsigned int heap_mask,
+					const char *name)
 {
 	return ERR_PTR(-ENODEV);
 }

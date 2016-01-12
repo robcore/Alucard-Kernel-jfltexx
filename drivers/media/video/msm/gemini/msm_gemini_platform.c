@@ -191,7 +191,7 @@ int msm_gemini_platform_init(struct platform_device *pdev,
 	*irq  = gemini_irq;
 
 #ifdef CONFIG_MSM_MULTIMEDIA_USE_ION
-	gemini_client = msm_ion_client_create("camera/gemini");
+	gemini_client = msm_ion_client_create(-1, "camera/gemini");
 #endif
 	GMN_DBG("%s:%d] success\n", __func__, __LINE__);
 

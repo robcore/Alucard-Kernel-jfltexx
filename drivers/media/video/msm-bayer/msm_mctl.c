@@ -818,7 +818,7 @@ int msm_mctl_init(struct msm_cam_v4l2_device *pcam)
 	v4l2_set_subdev_hostdata(pcam->sensor_sdev, pmctl);
 
 #ifdef CONFIG_MSM_MULTIMEDIA_USE_ION
-	pmctl->client = msm_ion_client_create("camera");
+	pmctl->client = msm_ion_client_create(-1, "camera");
 	if(pmctl->client == NULL) 
 		return -EINVAL;
 	kref_init(&pmctl->refcount);

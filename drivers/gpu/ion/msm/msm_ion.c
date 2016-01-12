@@ -104,7 +104,8 @@ static struct ion_heap_desc ion_heap_meta[] = {
 	},
 };
 
-struct ion_client *msm_ion_client_create(const char *name)
+struct ion_client *msm_ion_client_create(unsigned int heap_mask,
+					const char *name)
 {
 	return ion_client_create(idev, heap_mask, name);
 }

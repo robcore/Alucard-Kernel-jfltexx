@@ -568,7 +568,8 @@ static int fastrpc_init(void)
 		VERIFY(err, 0 == context_list_ctor(&me->clst, SZ_4K));
 		if (err)
 			goto bail;
-		me->iclient = msm_ion_client_create(DEVICE_NAME);
+		me->iclient = msm_ion_client_create(ION_HEAP_CARVEOUT_MASK,
+							DEVICE_NAME);
 		VERIFY(err, 0 == IS_ERR_OR_NULL(me->iclient));
 		if (err)
 			goto bail;

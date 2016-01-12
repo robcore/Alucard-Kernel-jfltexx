@@ -204,7 +204,7 @@ static int mdss_fb_probe(struct platform_device *pdev)
 	mfd->panel_info.frame_count = 0;
 	mfd->bl_level = 0;
 	mfd->fb_imgType = MDP_RGBA_8888;
-	mfd->iclient = msm_ion_client_create(pdev->name);
+	mfd->iclient = msm_ion_client_create(-1, pdev->name);
 	if (IS_ERR(mfd->iclient))
 		mfd->iclient = NULL;
 

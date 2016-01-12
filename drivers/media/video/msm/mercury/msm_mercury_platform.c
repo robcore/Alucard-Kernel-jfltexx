@@ -153,7 +153,7 @@ int msm_mercury_platform_init(struct platform_device *pdev,
 	*irq  = mercury_irq;
 	MCR_DBG("%s:%d]\n", __func__, __LINE__);
 #ifdef CONFIG_MSM_MULTIMEDIA_USE_ION
-	mercury_client = msm_ion_client_create("camera/mercury");
+	mercury_client = msm_ion_client_create(-1, "camera/mercury");
 #endif
 	MCR_PR_ERR("%s:%d] success\n", __func__, __LINE__);
 	return rc;
