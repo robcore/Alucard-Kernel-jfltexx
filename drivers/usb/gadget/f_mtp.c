@@ -51,7 +51,7 @@
 #define STATE_ERROR                 4   /* error from completion routine */
 
 /* number of tx and rx requests to allocate */
-#define TX_REQ_MAX 4
+#define MTP_TX_REQ_MAX 8
 #define RX_REQ_MAX 2
 #define INTR_REQ_MAX 5
 
@@ -70,6 +70,12 @@
 
 unsigned int mtp_rx_req_len = MTP_RX_BUFFER_INIT_SIZE;
 module_param(mtp_rx_req_len, uint, S_IRUGO | S_IWUSR);
+
+unsigned int mtp_tx_req_len = MTP_BULK_BUFFER_SIZE;
+module_param(mtp_tx_req_len, uint, S_IRUGO | S_IWUSR);
+
+unsigned int mtp_tx_reqs = MTP_TX_REQ_MAX;
+module_param(mtp_tx_reqs, uint, S_IRUGO | S_IWUSR);
 
 static const char mtp_shortname[] = "mtp_usb";
 
@@ -423,14 +429,35 @@ static int mtp_create_bulk_endpoints(struct mtp_dev *dev,
 	ep->driver_data = dev;		/* claim the endpoint */
 	dev->ep_intr = ep;
 
+retry_tx_alloc:
+	if (mtp_tx_req_len > MTP_BULK_BUFFER_SIZE)
+		mtp_tx_reqs = 4;
+
 	/* now allocate requests for our endpoints */
-	for (i = 0; i < TX_REQ_MAX; i++) {
-		req = mtp_request_new(dev->ep_in, MTP_BULK_BUFFER_SIZE);
-		if (!req)
-			goto fail;
+	for (i = 0; i < mtp_tx_reqs; i++) {
+		req = mtp_request_new(dev->ep_in, mtp_tx_req_len);
+		if (!req) {
+			if (mtp_tx_req_len <= MTP_BULK_BUFFER_SIZE)
+				goto fail;
+			while ((req = mtp_req_get(dev, &dev->tx_idle)))
+				mtp_request_free(req, dev->ep_in);
+			mtp_tx_req_len = MTP_BULK_BUFFER_SIZE;
+			mtp_tx_reqs = MTP_TX_REQ_MAX;
+			goto retry_tx_alloc;
+		}
 		req->complete = mtp_complete_in;
 		mtp_req_put(dev, &dev->tx_idle, req);
 	}
+
+	/*
+	 * The RX buffer should be aligned to EP max packet for
+	 * some controllers.  At bind time, we don't know the
+	 * operational speed.  Hence assuming super speed max
+	 * packet size.
+	 */
+	if (mtp_rx_req_len % 1024)
+		mtp_rx_req_len = MTP_BULK_BUFFER_SIZE;
+
 retry_rx_alloc:
 	for (i = 0; i < RX_REQ_MAX; i++) {
 		req = mtp_request_new(dev->ep_out, mtp_rx_req_len);
@@ -468,11 +495,12 @@ static ssize_t mtp_read(struct file *fp, char __user *buf,
 	struct usb_request *req;
 	ssize_t r = count;
 	unsigned xfer;
+	int len;
 	int ret = 0;
 
 	DBG(cdev, "mtp_read(%zu)\n", count);
 
-	if (count > mtp_rx_req_len)
+	if (!dev->ep_out)
 		return -EINVAL;
 
 	/* we will block until we're online */
@@ -483,6 +511,11 @@ static ssize_t mtp_read(struct file *fp, char __user *buf,
 		r = ret;
 		goto done;
 	}
+	len = ALIGN(count, dev->ep_out->maxpacket);
+
+	if (len > mtp_rx_req_len)
+		return -EINVAL;
+
 	spin_lock_irq(&dev->lock);
 	if (dev->state == STATE_CANCELED) {
 		/* report cancelation to userspace */
@@ -496,7 +529,7 @@ static ssize_t mtp_read(struct file *fp, char __user *buf,
 requeue_req:
 	/* queue a request */
 	req = dev->rx_req[0];
-	req->length = count;
+	req->length = len;
 	dev->rx_done = 0;
 	ret = usb_ep_queue(dev->ep_out, req, GFP_KERNEL);
 	if (ret < 0) {
@@ -602,8 +635,8 @@ static ssize_t mtp_write(struct file *fp, const char __user *buf,
 			break;
 		}
 
-		if (count > MTP_BULK_BUFFER_SIZE)
-			xfer = MTP_BULK_BUFFER_SIZE;
+		if (count > mtp_tx_req_len)
+			xfer = mtp_tx_req_len;
 		else
 			xfer = count;
 		if (xfer && copy_from_user(req->buf, buf, xfer)) {
@@ -695,8 +728,8 @@ static void send_file_work(struct work_struct *data)
 			break;
 		}
 
-		if (count > MTP_BULK_BUFFER_SIZE)
-			xfer = MTP_BULK_BUFFER_SIZE;
+		if (count > mtp_tx_req_len)
+			xfer = mtp_tx_req_len;
 		else
 			xfer = count;
 
@@ -762,7 +795,7 @@ static void receive_file_work(struct work_struct *data)
 	struct file *filp;
 	loff_t offset;
 	int64_t count;
-	int ret, cur_buf = 0;
+	int ret, len, cur_buf = 0;
 	int r = 0;
 
 	/* read our parameters */
@@ -779,8 +812,16 @@ static void receive_file_work(struct work_struct *data)
 			read_req = dev->rx_req[cur_buf];
 			cur_buf = (cur_buf + 1) % RX_REQ_MAX;
 
-			read_req->length = (count > mtp_rx_req_len
-					? mtp_rx_req_len : count);
+			/* The ALIGN macro may overflow if count is very large, so we only use it
+			 * if count <= mtp_rx_req_len.  This is safe because mtp_rx_req_len
+			 * should already be aligned.
+			 */
+			if (count <= mtp_rx_req_len)
+				len = ALIGN(count, dev->ep_out->maxpacket);
+			else
+				len = mtp_rx_req_len;
+			read_req->length = len;
+
 			dev->rx_done = 0;
 			ret = usb_ep_queue(dev->ep_out, read_req, GFP_KERNEL);
 			if (ret < 0) {
@@ -811,11 +852,18 @@ static void receive_file_work(struct work_struct *data)
 				dev->rx_done || dev->state != STATE_BUSY);
 			if (dev->state == STATE_CANCELED
 					|| dev->state == STATE_OFFLINE) {
-				r = -ECANCELED;
+				if (dev->state == STATE_OFFLINE)
+					r = -EIO;
+				else
+					r = -ECANCELED;
 				if (!dev->rx_done)
 					usb_ep_dequeue(dev->ep_out, read_req);
 				break;
 			}
+			/* Check if we aligned the size due to MTU constraint */
+			if (count < read_req->length)
+				read_req->actual = (read_req->actual > count ?
+						count : read_req->actual);
 			/* if xfer_file_length is 0xFFFFFFFF, then we read until
 			 * we get a zero length packet
 			 */
@@ -1137,7 +1185,7 @@ static int mtp_ctrlrequest(struct usb_composite_dev *cdev,
 		DBG(cdev, "class request: %d index: %d value: %d length: %d\n",
 			ctrl->bRequest, w_index, w_value, w_length);
 
-		if (ctrl->bRequest == MTP_REQ_CANCEL && w_index == 0
+		if (ctrl->bRequest == MTP_REQ_CANCEL && (w_index == 0 || w_index == 3)
 				&& w_value == 0) {
 			DBG(cdev, "MTP_REQ_CANCEL\n");
 
@@ -1155,7 +1203,7 @@ static int mtp_ctrlrequest(struct usb_composite_dev *cdev,
 			 */
 			value = w_length;
 		} else if (ctrl->bRequest == MTP_REQ_GET_DEVICE_STATUS
-				&& w_index == 0 && w_value == 0) {
+				&& (w_index == 0 || w_index == 3) && w_value == 0) {
 			struct mtp_device_status *status = cdev->req->buf;
 			status->wLength =
 				__constant_cpu_to_le16(sizeof(*status));
