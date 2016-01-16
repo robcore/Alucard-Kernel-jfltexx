@@ -1470,7 +1470,7 @@ SYSCALL_DEFINE3(bind, int, fd, struct sockaddr __user *, umyaddr, int, addrlen)
 		if (!err) {
 			if (sock->sk)
 				sock_hold(sock->sk);
-			sockev_notify(SOCKEV_BIND, sock);
+
 			if (sock->sk)
 				sock_put(sock->sk);
 		}
@@ -1504,7 +1504,7 @@ SYSCALL_DEFINE2(listen, int, fd, int, backlog)
 		if (!err) {
 			if (sock->sk)
 				sock_hold(sock->sk);
-			sockev_notify(SOCKEV_LISTEN, sock);
+
 			if (sock->sk)
 				sock_put(sock->sk);
 		}
