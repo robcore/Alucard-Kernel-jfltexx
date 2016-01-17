@@ -365,7 +365,7 @@ static void unix_sock_destructor(struct sock *sk)
 	WARN_ON(!sk_unhashed(sk));
 	WARN_ON(sk->sk_socket);
 	if (!sock_flag(sk, SOCK_DEAD)) {
-		printk(KERN_INFO "Attempt to release alive unix socket: %p\n", sk);
+		WARN(1, "Attempt to release alive unix socket: %p\n", sk);
 		return;
 	}
 
@@ -2418,7 +2418,7 @@ static int __net_init unix_net_init(struct net *net)
 {
 	int error = -ENOMEM;
 
-	net->unx.sysctl_max_dgram_qlen = 10;
+	net->unx.sysctl_max_dgram_qlen = 300;
 	if (unix_sysctl_register(net))
 		goto out;
 
