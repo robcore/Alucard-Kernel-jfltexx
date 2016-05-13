@@ -163,19 +163,6 @@ static struct super_block *alloc_super(struct file_system_type *type, int flags)
 			s = NULL;
 			goto out;
 		}
-#ifdef CONFIG_SMP
-		s->s_files = alloc_percpu(struct list_head);
-		if (!s->s_files)
-			goto err_out;
-		else {
-			int i;
-
-			for_each_possible_cpu(i)
-				INIT_LIST_HEAD(per_cpu_ptr(s->s_files, i));
-		}
-#else
-		INIT_LIST_HEAD(&s->s_files);
-#endif
 		if (init_sb_writers(s, type))
 			goto err_out;
 		s->s_flags = flags;
@@ -251,9 +238,6 @@ err_out:
  */
 static inline void destroy_super(struct super_block *s)
 {
-#ifdef CONFIG_SMP
-	free_percpu(s->s_files);
-#endif
 	destroy_sb_writers(s);
 	security_sb_free(s);
 	WARN_ON(!list_empty(&s->s_mounts));
@@ -500,7 +484,7 @@ retry:
 			return ERR_PTR(-ENOMEM);
 		goto retry;
 	}
-		
+
 	err = set(s, data);
 	if (err) {
 		spin_unlock(&sb_lock);
@@ -642,7 +626,7 @@ EXPORT_SYMBOL(iterate_supers_type);
 /**
  *	get_super - get the superblock of a device
  *	@bdev: device to get the superblock for
- *	
+ *
  *	Scans the superblock list and finds the superblock of the file system
  *	mounted on the device given. %NULL is returned if no match is found.
  */
@@ -732,7 +716,7 @@ restart:
 	spin_unlock(&sb_lock);
 	return NULL;
 }
- 
+
 struct super_block *user_get_super(dev_t dev)
 {
 	struct super_block *sb;
@@ -792,7 +776,8 @@ int do_remount_sb(struct super_block *sb, int flags, void *data, int force)
 	   make sure there are no rw files opened */
 	if (remount_ro) {
 		if (force) {
-			mark_files_ro(sb);
+			sb->s_readonly_remount = 1;
+			smp_wmb();
 		} else {
 			retval = sb_prepare_remount_readonly(sb);
 			if (retval)
