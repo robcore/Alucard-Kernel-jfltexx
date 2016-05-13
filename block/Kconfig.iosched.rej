@@ -1,0 +1,10 @@
+--- block/Kconfig.iosched
++++ block/Kconfig.iosched
+@@ -135,6 +143,7 @@ config DEFAULT_IOSCHED
+         default "vr" if DEFAULT_VR
+ 	default "fiops" if DEFAULT_FIOPS
+ 	default "sioplus" if DEFAULT_SIOPLUS
++	default "tripndroid" if DEFAULT_TRIPNDROID
+ 
+ endmenu
+ 
