@@ -380,7 +380,8 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common -Wno-maybe-uninitialized \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security -Wdeprecated-declarations \
-		   -fno-delete-null-pointer-checks \
+		   -fno-delete-null-pointer-checks -Wno-unused-variable \
+		   -mtune=cortex-a15 -mfpu=neon-vfpv4 \
 		   $(KERNEL_FLAGS)
 
 KBUILD_AFLAGS_KERNEL :=
