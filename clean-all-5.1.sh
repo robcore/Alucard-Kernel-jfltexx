@@ -3,7 +3,7 @@
 LANG=C
 
 cp -pv .config .config.bkp;
-make ARCH=arm CROSS_COMPILE=../../arm-eabi-5.1/bin/arm-eabi- mrproper;
+make ARCH=arm CROSS_COMPILE=/opt/toolchains/arm-cortex_a15-linux-gnueabihf_5.3/bin/arm-cortex_a15-linux-gnueabihf- mrproper;
 cp -pv .config.bkp .config;
 make clean && make mrproper;
 rm -rf ./kernel/usr;
