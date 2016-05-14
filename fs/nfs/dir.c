@@ -7,7 +7,7 @@
  *
  * 10 Apr 1996	Added silly rename for unlink	--okir
  * 28 Sep 1996	Improved directory cache --okir
- * 23 Aug 1997  Claus Heine claus@momo.math.rwth-aachen.de 
+ * 23 Aug 1997  Claus Heine claus@momo.math.rwth-aachen.de
  *              Re-implemented silly rename for unlink, newly implemented
  *              silly rename for nfs_rename() following the suggestions
  *              of Olaf Kirch (okir) found in this file.
@@ -112,7 +112,7 @@ const struct inode_operations nfs3_dir_inode_operations = {
 #ifdef CONFIG_NFS_V4
 
 static struct file *nfs_atomic_open(struct inode *, struct dentry *,
-				    struct opendata *, unsigned, umode_t,
+				    struct file *, unsigned, umode_t,
 				    bool *);
 const struct inode_operations nfs4_dir_inode_operations = {
 	.create		= nfs_create,
@@ -772,7 +772,7 @@ int readdir_search_pagecache(nfs_readdir_descriptor_t *desc)
 /*
  * Once we've found the start of the dirent within a page: fill 'er up...
  */
-static 
+static
 int nfs_do_filldir(nfs_readdir_descriptor_t *desc, void *dirent,
 		   filldir_t filldir)
 {
@@ -1389,9 +1389,8 @@ static int do_open(struct inode *inode, struct file *filp)
 
 static struct file *nfs_finish_open(struct nfs_open_context *ctx,
 				    struct dentry *dentry,
-				    struct opendata *od, unsigned open_flags)
+				    struct file *file, unsigned open_flags)
 {
-	struct file *filp;
 	int err;
 
 	if (ctx->dentry != dentry) {
@@ -1401,16 +1400,12 @@ static struct file *nfs_finish_open(struct nfs_open_context *ctx,
 
 	/* If the open_intent is for execute, we have an extra check to make */
 	if (ctx->mode & FMODE_EXEC) {
-		err = nfs_may_open(dentry->d_inode, ctx->cred, open_flags);
-		if (err < 0) {
-			filp = ERR_PTR(err);
-			goto out;
+	err = finish_open(file, dentry, do_open, opened);
+	if (err)
+ 		goto out;
 		}
 	}
-
-	filp = finish_open(od, dentry, do_open);
-	if (!IS_ERR(filp))
-		nfs_file_set_open_context(filp, ctx);
+		nfs_file_set_open_context(fild, ctx);
 
 out:
 	put_nfs_open_context(ctx);
@@ -1418,7 +1413,7 @@ out:
 }
 
 static struct file *nfs_atomic_open(struct inode *dir, struct dentry *dentry,
-				    struct opendata *od, unsigned open_flags,
+				    struct file *file, unsigned open_flags,
 				    umode_t mode, bool *created)
 {
 	struct nfs_open_context *ctx;
@@ -1497,7 +1492,7 @@ static struct file *nfs_atomic_open(struct inode *dir, struct dentry *dentry,
 	nfs_unblock_sillyrename(dentry->d_parent);
 	nfs_set_verifier(dentry, nfs_save_change_attribute(dir));
 
-	filp = nfs_finish_open(ctx, dentry, od, open_flags);
+	filp = nfs_finish_open(ctx, dentry, file, open_flags);
 
 	dput(res);
 	return filp;
@@ -1511,7 +1506,7 @@ no_open:
 	if (IS_ERR(res))
 		goto out_err;
 
-	finish_no_open(od, res);
+	finish_no_open(file, res);
 	return NULL;
 }
 
@@ -1713,7 +1708,7 @@ static int nfs_rmdir(struct inode *dir, struct dentry *dentry)
 
 /*
  * Remove a file after making sure there are no pending writes,
- * and after checking that the file has only one user. 
+ * and after checking that the file has only one user.
  *
  * We invalidate the attribute cache and free the inode prior to the operation
  * to avoid possible races if the server reuses the inode.
@@ -1723,7 +1718,7 @@ static int nfs_safe_remove(struct dentry *dentry)
 	struct inode *dir = dentry->d_parent->d_inode;
 	struct inode *inode = dentry->d_inode;
 	int error = -EBUSY;
-		
+
 	dfprintk(VFS, "NFS: safe_remove(%s/%s)\n",
 		dentry->d_parent->d_name.name, dentry->d_name.name);
 
@@ -1850,7 +1845,7 @@ static int nfs_symlink(struct inode *dir, struct dentry *dentry, const char *sym
 	return 0;
 }
 
-static int 
+static int
 nfs_link(struct dentry *old_dentry, struct inode *dir, struct dentry *dentry)
 {
 	struct inode *inode = old_dentry->d_inode;
@@ -1881,7 +1876,7 @@ nfs_link(struct dentry *old_dentry, struct inode *dir, struct dentry *dentry)
  * file in old_dir will go away when the last process iput()s the inode.
  *
  * FIXED.
- * 
+ *
  * It actually works quite well. One needs to have the possibility for
  * at least one ".nfs..." file in each directory the file ever gets
  * moved or linked to which happens automagically with the new
