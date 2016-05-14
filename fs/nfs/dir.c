@@ -1095,7 +1095,7 @@ static int nfs_lookup_revalidate(struct dentry *dentry, unsigned int flags)
 	struct nfs_fattr *fattr = NULL;
 	int error;
 
-	if (nd->flags & LOOKUP_RCU)
+	if (flags & LOOKUP_RCU)
 		return -ECHILD;
 
 	parent = dget_parent(dentry);
@@ -1104,7 +1104,7 @@ static int nfs_lookup_revalidate(struct dentry *dentry, unsigned int flags)
 	inode = dentry->d_inode;
 
 	if (!inode) {
-		if (nfs_neg_need_reval(dir, dentry, nd))
+		if (nfs_neg_need_reval(dir, dentry, flags))
 			goto out_bad;
 		goto out_valid_noent;
 	}
@@ -1120,8 +1120,8 @@ static int nfs_lookup_revalidate(struct dentry *dentry, unsigned int flags)
 		goto out_set_verifier;
 
 	/* Force a full look up iff the parent directory has changed */
-	if (!nfs_is_exclusive_create(dir, nd) && nfs_check_verifier(dir, dentry)) {
-		if (nfs_lookup_verify_inode(inode, nd))
+	if (!nfs_is_exclusive_create(dir, flags) && nfs_check_verifier(dir, dentry)) {
+		if (nfs_lookup_verify_inode(inode, flags))
 			goto out_zap_parent;
 		goto out_valid;
 	}
@@ -1159,6 +1159,8 @@ out_set_verifier:
 out_zap_parent:
 	nfs_zap_caches(dir);
  out_bad:
+	nfs_free_fattr(fattr);
+	nfs_free_fhandle(fhandle);
 	nfs_mark_for_revalidate(dir);
 	if (inode && S_ISDIR(inode->i_mode)) {
 		/* Purge readdir caches. */
@@ -1171,8 +1173,6 @@ out_zap_parent:
 		shrink_dcache_parent(dentry);
 	}
 	d_drop(dentry);
-	nfs_free_fattr(fattr);
-	nfs_free_fhandle(fhandle);
 	dput(parent);
 	dfprintk(LOOKUPCACHE, "NFS: %s(%s/%s) is invalid\n",
 			__func__, dentry->d_parent->d_name.name,
@@ -1360,11 +1360,11 @@ static int do_open(struct inode *inode, struct file *filp)
 	return 0;
 }
 
-static struct file *nfs_finish_open(struct nfs_open_context *ctx,
-				    struct dentry *dentry,
-				    struct opendata *od, unsigned open_flags)
+static int nfs_finish_open(struct nfs_open_context *ctx,
+			   struct dentry *dentry,
+			   struct file *file, unsigned open_flags,
+			   int *opened)
 {
-	struct file *filp;
 	int err;
 
 	if (ctx->dentry != dentry) {
@@ -1375,19 +1375,18 @@ static struct file *nfs_finish_open(struct nfs_open_context *ctx,
 	/* If the open_intent is for execute, we have an extra check to make */
 	if (ctx->mode & FMODE_EXEC) {
 		err = nfs_may_open(dentry->d_inode, ctx->cred, open_flags);
-		if (err < 0) {
-			filp = ERR_PTR(err);
+		if (err < 0)
 			goto out;
-		}
 	}
 
-	filp = finish_open(od, dentry, do_open);
-	if (!IS_ERR(filp))
-		nfs_file_set_open_context(filp, ctx);
+	err = finish_open(file, dentry, do_open, opened);
+	if (err)
+		goto out;
+	nfs_file_set_open_context(file, ctx);
 
 out:
 	put_nfs_open_context(ctx);
-	return filp;
+	return err;
 }
 
 static int nfs_atomic_open(struct inode *dir, struct dentry *dentry,
@@ -1481,6 +1480,7 @@ no_open:
 
 	return finish_no_open(file, res);
 }
+EXPORT_SYMBOL_GPL(nfs_atomic_open);
 
 static int nfs4_lookup_revalidate(struct dentry *dentry, unsigned int flags)
 {
