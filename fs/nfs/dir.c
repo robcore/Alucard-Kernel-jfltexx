@@ -1510,7 +1510,6 @@ no_open:
 		goto out;
 
 	finish_no_open(od, res);
-	return 1;
 }
 
 static int nfs4_lookup_revalidate(struct dentry *dentry, unsigned int flags)
