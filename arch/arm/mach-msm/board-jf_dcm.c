@@ -1001,23 +1001,8 @@ static void __init reserve_ion_memory(void)
 }
 
 #ifdef CONFIG_ANDROID_RAM_CONSOLE
-static char bootreason[128] = {0,};
-int __init device_boot_reason(char *s)
-{
-	int n;
-
-	if (*s == '=')
-		s++;
-	n = snprintf(bootreason, sizeof(bootreason),
-		 "Boot info:\n"
-		 "Last boot reason: %s\n", s);
-	bootreason[n] = '\0';
-	return 1;
-}
-__setup("bootreason", device_boot_reason);
-
 static struct ram_console_platform_data ram_console_pdata = {
-	.bootinfo = bootreason,
+	.bootinfo = NULL,
 };
 
 static struct platform_device ram_console_device = {
@@ -3486,7 +3471,7 @@ static struct msm_thermal_data msm_thermal_pdata = {
 	.limit_temp_degC = 60,
 	.temp_hysteresis_degC = 10,
 	.freq_step = 2,
-	.core_limit_temp_degC = 80,
+	.core_limit_temp_degC = 70,
 	.core_temp_hysteresis_degC = 10,
 	.core_control_mask = 0xe,
 };
@@ -4257,7 +4242,9 @@ static struct platform_device *common_not_mpq_devices[] __initdata = {
 static struct platform_device *early_common_devices[] __initdata = {
 	&apq8064_device_acpuclk,
 	&apq8064_device_dmov,
+#if !defined(CONFIG_MACH_JACTIVE_ATT) && !defined(CONFIG_MACH_JACTIVE_EUR)
 	&apq8064_device_qup_spi_gsbi5,
+#endif	
 };
 
 static struct platform_device *pm8921_common_devices[] __initdata = {

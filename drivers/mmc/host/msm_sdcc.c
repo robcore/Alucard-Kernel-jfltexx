@@ -66,8 +66,11 @@
 #include "msm_sdcc.h"
 #include "msm_sdcc_dml.h"
 
+#if defined(CONFIG_MACH_M2_SPR) || defined(CONFIG_MACH_M2_VZW) || defined(CONFIG_MACH_M2_ATT)
+#include <mach/msm8960-gpio.h>
+#else
 #include <mach/apq8064-gpio.h>
-
+#endif
 #if defined(CONFIG_MACH_JF_SKT) || defined(CONFIG_MACH_JF_KTT) || defined(CONFIG_MACH_JF_LGT)
 #include <linux/mfd/pm8xxx/mpp.h>
 #include <../board-8064.h>
@@ -2595,6 +2598,7 @@ static int msmsdcc_setup_vreg(struct msmsdcc_host *host, bool enable,
 		goto out;
 	}
 
+#if !defined(CONFIG_MACH_JFVE_EUR)
 #ifdef CONFIG_MMC_MSM_SDC4_SUPPORT
 	if (!enable) {
 #if defined(CONFIG_MACH_JF_ATT) || defined(CONFIG_MACH_JF_TMO) || defined(CONFIG_MACH_JF_EUR) || \
@@ -2624,6 +2628,7 @@ static int msmsdcc_setup_vreg(struct msmsdcc_host *host, bool enable,
 		}
 	}
 #endif
+#endif
 
 	vreg_table[0] = curr_slot->vdd_data;
 	vreg_table[1] = curr_slot->vdd_io_data;
@@ -2640,6 +2645,7 @@ static int msmsdcc_setup_vreg(struct msmsdcc_host *host, bool enable,
 		}
 	}
 
+#if !defined(CONFIG_MACH_JFVE_EUR)
 #ifdef CONFIG_MMC_MSM_SDC4_SUPPORT
 	if (enable) {
 		mdelay(1);
@@ -2680,6 +2686,7 @@ static int msmsdcc_setup_vreg(struct msmsdcc_host *host, bool enable,
 			mdelay(1);
 		}
 	}
+#endif
 #endif
 
 out:
@@ -4374,7 +4381,7 @@ retry:
 			if (!is_tuning_all_phases)
 				goto kfree;
 			tuned_phases[tuned_phase_cnt++] = phase;
-			pr_debug("%s: %s: found good phase = %d\n",
+			pr_err("%s: %s: found good phase = %d\n",
 				mmc_hostname(mmc), __func__, phase);
 		} else if (!is_tuning_all_phases) {
 			pr_debug("%s: tuning failed at saved phase (%d), retrying\n",
@@ -4401,7 +4408,7 @@ retry:
 			goto kfree;
 		else
 			host->saved_tuning_phase = phase;
-		pr_debug("%s: %s: finally setting the tuning phase to %d\n",
+		pr_err("%s: %s: finally setting the tuning phase to %d\n",
 				mmc_hostname(mmc), __func__, phase);
 	} else {
 		/* tuning failed */

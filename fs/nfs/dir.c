@@ -109,33 +109,6 @@ const struct inode_operations nfs3_dir_inode_operations = {
 };
 #endif  /* CONFIG_NFS_V3 */
 
-#ifdef CONFIG_NFS_V4
-
-int nfs_atomic_open(struct inode *, struct dentry *,
-			   struct file *, unsigned, umode_t,
-			   int *);
-const struct inode_operations nfs4_dir_inode_operations = {
-	.create		= nfs_create,
-	.lookup		= nfs_lookup,
-	.atomic_open	= nfs_atomic_open,
-	.link		= nfs_link,
-	.unlink		= nfs_unlink,
-	.symlink	= nfs_symlink,
-	.mkdir		= nfs_mkdir,
-	.rmdir		= nfs_rmdir,
-	.mknod		= nfs_mknod,
-	.rename		= nfs_rename,
-	.permission	= nfs_permission,
-	.getattr	= nfs_getattr,
-	.setattr	= nfs_setattr,
-	.getxattr	= generic_getxattr,
-	.setxattr	= generic_setxattr,
-	.listxattr	= generic_listxattr,
-	.removexattr	= generic_removexattr,
-};
-
-#endif /* CONFIG_NFS_V4 */
-
 static struct nfs_open_dir_context *alloc_nfs_open_dir_context(struct inode *dir, struct rpc_cred *cred)
 {
 	struct nfs_open_dir_context *ctx;

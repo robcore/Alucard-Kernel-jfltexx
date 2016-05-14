@@ -41,7 +41,7 @@
 #define DEFAULT_SUSPEND_DEFER_TIME	10
 #define DEFAULT_DOWN_LOCK_DUR		500
 
-#define MSM_MPDEC_IDLE_FREQ		499200
+#define MSM_MPDEC_IDLE_FREQ		384000
 
 enum {
 	MSM_MPDEC_DISABLED = 0,
@@ -730,7 +730,6 @@ static ssize_t store_bricked_enabled(struct device *dev,
 {
 	unsigned int input;
 	int ret;
-
 	ret = sscanf(buf, "%u", &input);
 	if (ret != 1)
 		return -EINVAL;

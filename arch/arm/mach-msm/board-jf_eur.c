@@ -153,6 +153,10 @@
 #include <asm/kexec.h>
 #endif
 
+#ifdef CONFIG_CPU_FREQ_GOV_UBERDEMAND
+int set_second_phase_freq(int cpufreq);
+#endif
+
 #if defined(CONFIG_SENSORS_SSP)
 enum {
 	SNS_PWR_OFF,
@@ -768,6 +772,9 @@ static void __init apq8064_reserve_fixed_area(unsigned long fixed_area_size)
 
 	ret = memblock_remove(reserve_info->fixed_area_start,
 		reserve_info->fixed_area_size);
+	pr_info("mem_map: fixed_area reserved at 0x%lx with size 0x%lx\n",
+			reserve_info->fixed_area_start,
+			reserve_info->fixed_area_size);
 	BUG_ON(ret);
 #endif
 }
@@ -976,23 +983,8 @@ static void __init reserve_ion_memory(void)
 }
 
 #ifdef CONFIG_ANDROID_RAM_CONSOLE
-static char bootreason[128] = {0,};
-int __init device_boot_reason(char *s)
-{
-	int n;
-
-	if (*s == '=')
-		s++;
-	n = snprintf(bootreason, sizeof(bootreason),
-		 "Boot info:\n"
-		 "Last boot reason: %s\n", s);
-	bootreason[n] = '\0';
-	return 1;
-}
-__setup("bootreason", device_boot_reason);
-
 static struct ram_console_platform_data ram_console_pdata = {
-	.bootinfo = bootreason,
+	.bootinfo = NULL,
 };
 
 static struct platform_device ram_console_device = {
@@ -2133,9 +2125,7 @@ static void ssp_get_positions(int *acc, int *mag)
 	else
 		*acc = MPU6500_BOTTOM_RIGHT_UPPER;
 
-	if (system_rev > BOARD_REV06 
-		 && samsung_hardware != SPH_L720
-		 && samsung_hardware != SCH_I545)
+	if (system_rev > BOARD_REV06)
 		*mag = YAS532_BOTTOM_RIGHT_LOWER;
 	else if (system_rev > BOARD_REV03)
 		*mag = YAS532_TOP_RIGHT_LOWER;
@@ -3247,13 +3237,13 @@ static struct msm_thermal_data msm_thermal_pdata = {
 	.sensor_id = 7,
 	.poll_ms = 250,
 #ifdef CONFIG_CPU_OVERCLOCK
-	.limit_temp_degC = 80,
+	.limit_temp_degC = 65,
 #else
-	.limit_temp_degC = 70,
+	.limit_temp_degC = 60,
 #endif
 	.temp_hysteresis_degC = 10,
 	.freq_step = 2,
-	.core_limit_temp_degC = 80,
+	.core_limit_temp_degC = 70,
 	.core_temp_hysteresis_degC = 10,
 	.core_control_mask = 0xe,
 };
@@ -5372,6 +5362,10 @@ static void __init apq8064_common_init(void)
 	apq8064_device_otg.dev.platform_data = &msm_otg_pdata;
 	apq8064_ehci_host_init();
 	apq8064_init_buses();
+
+#ifdef CONFIG_CPU_FREQ_GOV_UBERDEMAND
+	set_second_phase_freq(CONFIG_CPU_FREQ_GOV_UBERDEMAND_SECOND_PHASE_FREQ);
+#endif
 
 	platform_add_devices(early_common_devices,
 				ARRAY_SIZE(early_common_devices));

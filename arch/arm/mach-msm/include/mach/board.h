@@ -302,7 +302,7 @@ struct msm_eeprom_info {
 	int eeprom_reg_addr;
 	int eeprom_read_length;
 	int eeprom_i2c_slave_addr;
-#if defined(CONFIG_MACH_JACTIVE_ATT) || defined(CONFIG_MACH_JACTIVE_EUR)
+#if defined(CONFIG_MACH_JACTIVE_ATT) || defined(CONFIG_MACH_JACTIVE_EUR) || defined(CONFIG_MACH_MELIUS) || defined(CONFIG_MACH_SERRANO) || defined(CONFIG_MACH_LT02)
 	enum msm_eeprom_type type;
 #endif
 };
