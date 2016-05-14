@@ -361,7 +361,7 @@ KERNEL_FLAGS	= -marm -mtune=cortex-a15 -mcpu=cortex-a15 -mfpu=neon-vfpv4 \
 
 CFLAGS_MODULE   = -DMODULE $(KERNEL_FLAGS)
 AFLAGS_MODULE   = -DMODULE $(KERNEL_FLAGS)
-LDFLAGS_MODULE  =
+LDFLAGS_MODULE  = --strip-debug
 CFLAGS_KERNEL	= $(KERNEL_FLAGS)
 ifdef CONFIG_CC_GRAPHITE_OPTIMIZATION
 CFLAGS_KERNEL	= -fgraphite-identity -floop-parallelize-all -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block -mcpu=cortex-a15 -mtune=cortex-a15 -munaligned-access -mfpu=neon-vfpv4 -fpredictive-commoning -fsched-spec-load -fsingle-precision-constant
@@ -585,10 +585,6 @@ else
         KBUILD_CFLAGS += -O2
 endif
 
-# conserve stack if available
-# do this early so that an architecture can override it.
-KBUILD_CFLAGS   += $(call cc-option,-fconserve-stack)
-
 include $(srctree)/arch/$(SRCARCH)/Makefile
 
 ifneq ($(CONFIG_FRAME_WARN),0)
@@ -661,9 +657,6 @@ KBUILD_CFLAGS	+= $(call cc-option,-fno-strict-overflow)
 
 # disallow errors like 'EXPORT_GPL(foo);' with missing header
 KBUILD_CFLAGS   += $(call cc-option,-Werror=implicit-int)
-
-# require functions to have arguments in prototypes, not empty 'int foo()'
-KBUILD_CFLAGS   += $(call cc-option,-Werror=strict-prototypes)
 
 # use the deterministic mode of AR if available
 KBUILD_ARFLAGS := $(call ar-option,D)
