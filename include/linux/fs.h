@@ -2309,6 +2309,11 @@ extern struct file *file_open_root(struct dentry *, struct vfsmount *,
 				   const char *, int);
 extern struct file * dentry_open(struct dentry *, struct vfsmount *, int,
 				 const struct cred *);
+extern int finish_open(struct file *file, struct dentry *dentry,
+			int (*open)(struct inode *, struct file *),
+			int *opened);
+extern int finish_no_open(struct file *file, struct dentry *dentry);
+
 extern int filp_close(struct file *, fl_owner_t id);
 extern char * getname(const char __user *);
 
