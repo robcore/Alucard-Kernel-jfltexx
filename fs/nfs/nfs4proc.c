@@ -1812,14 +1812,7 @@ static inline void nfs4_exclusive_attrset(struct nfs4_opendata *opendata, struct
 /*
  * Returns a referenced nfs4_state
  */
-static int _nfs4_do_open(struct inode *dir,
-			struct dentry *dentry,
-			fmode_t fmode,
-			int flags,
-			struct iattr *sattr,
-			struct rpc_cred *cred,
-			struct nfs4_state **res,
-			struct nfs4_threshold **ctx_th)
+static int _nfs4_do_open(struct inode *dir, struct dentry *dentry, fmode_t fmode, int flags, struct iattr *sattr, struct rpc_cred *cred, struct nfs4_state **res)
 {
 	struct nfs4_state_owner  *sp;
 	struct nfs4_state     *state = NULL;
@@ -1844,11 +1837,6 @@ static int _nfs4_do_open(struct inode *dir,
 	if (opendata == NULL)
 		goto err_put_state_owner;
 
-	if (ctx_th && server->attr_bitmask[2] & FATTR4_WORD2_MDSTHRESHOLD) {
-		opendata->f_attr.mdsthreshold = pnfs_mdsthreshold_alloc();
-		if (!opendata->f_attr.mdsthreshold)
-			goto err_opendata_put;
-	}
 	if (dentry->d_inode != NULL)
 		opendata->state = nfs4_get_open_state(dentry->d_inode, sp);
 
@@ -1874,19 +1862,11 @@ static int _nfs4_do_open(struct inode *dir,
 			nfs_setattr_update_inode(state->inode, sattr);
 		nfs_post_op_update_inode(state->inode, opendata->o_res.f_attr);
 	}
-
-	if (pnfs_use_threshold(ctx_th, opendata->f_attr.mdsthreshold, server))
-		*ctx_th = opendata->f_attr.mdsthreshold;
-	else
-		kfree(opendata->f_attr.mdsthreshold);
-	opendata->f_attr.mdsthreshold = NULL;
-
 	nfs4_opendata_put(opendata);
 	nfs4_put_state_owner(sp);
 	*res = state;
 	return 0;
 err_opendata_put:
-	kfree(opendata->f_attr.mdsthreshold);
 	nfs4_opendata_put(opendata);
 err_put_state_owner:
 	nfs4_put_state_owner(sp);
@@ -1896,13 +1876,7 @@ out_err:
 }
 
 
-static struct nfs4_state *nfs4_do_open(struct inode *dir,
-					struct dentry *dentry,
-					fmode_t fmode,
-					int flags,
-					struct iattr *sattr,
-					struct rpc_cred *cred,
-					struct nfs4_threshold **ctx_th)
+static struct nfs4_state *nfs4_do_open(struct inode *dir, struct dentry *dentry, fmode_t fmode, int flags, struct iattr *sattr, struct rpc_cred *cred)
 {
 	struct nfs4_exception exception = { };
 	struct nfs4_state *res;
@@ -1910,8 +1884,7 @@ static struct nfs4_state *nfs4_do_open(struct inode *dir,
 
 	fmode &= FMODE_READ|FMODE_WRITE;
 	do {
-		status = _nfs4_do_open(dir, dentry, fmode, flags, sattr, cred,
-				       &res, ctx_th);
+		status = _nfs4_do_open(dir, dentry, fmode, flags, sattr, cred, &res);
 		if (status == 0)
 			break;
 		/* NOTE: BAD_SEQID means the server and client disagree about the
@@ -2243,8 +2216,7 @@ nfs4_atomic_open(struct inode *dir, struct nfs_open_context *ctx, int open_flags
 	struct nfs4_state *state;
 
 	/* Protect against concurrent sillydeletes */
-	state = nfs4_do_open(dir, ctx->dentry, ctx->mode, open_flags, attr,
-			     ctx->cred, &ctx->mdsthreshold);
+	state = nfs4_do_open(dir, ctx->dentry, ctx->mode, open_flags, attr, ctx->cred);
 	if (IS_ERR(state))
 		return ERR_CAST(state);
 	ctx->state = state;
@@ -2806,7 +2778,7 @@ nfs4_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
 		return PTR_ERR(ctx);
 
 	sattr->ia_mode &= ~current_umask();
-	state = nfs4_do_open(dir, dentry, ctx->mode, flags, sattr, ctx->cred, NULL);
+	state = nfs4_do_open(dir, dentry, ctx->mode, flags, sattr, ctx->cred);
 	d_drop(dentry);
 	if (IS_ERR(state)) {
 		status = PTR_ERR(state);
