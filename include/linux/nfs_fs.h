@@ -483,6 +483,9 @@ extern const struct inode_operations nfs_dir_inode_operations;
 #ifdef CONFIG_NFS_V3
 extern const struct inode_operations nfs3_dir_inode_operations;
 #endif /* CONFIG_NFS_V3 */
+#ifdef CONFIG_NFS_V4
+extern const struct inode_operations nfs4_dir_inode_operations;
+#endif /*CONFIG_NFS_V4 */
 extern const struct file_operations nfs_dir_operations;
 extern const struct dentry_operations nfs_dentry_operations;
 
