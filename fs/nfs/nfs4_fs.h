@@ -41,8 +41,7 @@ struct nfs4_minor_version_ops {
 			struct nfs_server *server,
 			struct rpc_message *msg,
 			struct nfs4_sequence_args *args,
-			struct nfs4_sequence_res *res,
-			int cache_reply);
+			struct nfs4_sequence_res *res);
 	bool	(*match_stateid)(const nfs4_stateid *,
 			const nfs4_stateid *);
 	int	(*find_root_sec)(struct nfs_server *, struct nfs_fh *,
@@ -203,6 +202,7 @@ struct nfs4_state_maintenance_ops {
 };
 
 extern const struct dentry_operations nfs4_dentry_operations;
+extern const struct inode_operations nfs4_dir_inode_operations;
 
 /* dir.c */
 int nfs_atomic_open(struct inode *, struct dentry *, struct file *,
