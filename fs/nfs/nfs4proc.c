@@ -2812,6 +2812,7 @@ static int nfs4_proc_readlink(struct inode *inode, struct page *page,
 /*
  * This is just for mknod.  open(O_CREAT) will always do ->open_context().
  */
+static int
 nfs_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
 		int flags, struct nfs_open_context *ctx)
 {

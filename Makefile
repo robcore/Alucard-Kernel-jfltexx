@@ -385,6 +385,7 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security -Wdeprecated-declarations \
 		   -fno-delete-null-pointer-checks -Wno-unused-variable \
+		   -fverbose-asm -save-temps
 		   -mtune=cortex-a15 -mfpu=neon-vfpv4 -std=gnu89 \
 		   $(KERNEL_FLAGS)
 
