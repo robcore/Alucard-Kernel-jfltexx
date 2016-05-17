@@ -87,7 +87,6 @@
 #define GP_VECTOR 13
 #define PF_VECTOR 14
 #define MF_VECTOR 16
-#define AC_VECTOR 17
 #define MC_VECTOR 18
 
 #define SELECTOR_TI_MASK (1 << 2)
@@ -510,7 +509,7 @@ struct kvm_arch {
 	struct kvm_pic *vpic;
 	struct kvm_ioapic *vioapic;
 	struct kvm_pit *vpit;
-	atomic_t vapics_in_nmi_mode;
+	int vapics_in_nmi_mode;
 
 	unsigned int tss_addr;
 	struct page *apic_access_page;

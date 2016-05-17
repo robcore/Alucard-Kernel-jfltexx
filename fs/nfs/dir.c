@@ -112,7 +112,7 @@ const struct inode_operations nfs3_dir_inode_operations = {
 #ifdef CONFIG_NFS_V4
 
 static struct file *nfs_atomic_open(struct inode *, struct dentry *,
-				    struct file *, unsigned, umode_t,
+				    struct opendata *, unsigned, umode_t,
 				    bool *);
 const struct inode_operations nfs4_dir_inode_operations = {
 	.create		= nfs_create,
@@ -1389,8 +1389,9 @@ static int do_open(struct inode *inode, struct file *filp)
 
 static struct file *nfs_finish_open(struct nfs_open_context *ctx,
 				    struct dentry *dentry,
-				    struct file *file, unsigned open_flags)
+				    struct opendata *od, unsigned open_flags)
 {
+	struct file *filp;
 	int err;
 
 	if (ctx->dentry != dentry) {
@@ -1400,12 +1401,16 @@ static struct file *nfs_finish_open(struct nfs_open_context *ctx,
 
 	/* If the open_intent is for execute, we have an extra check to make */
 	if (ctx->mode & FMODE_EXEC) {
-	err = finish_open(file, dentry, do_open, opened);
-	if (err)
- 		goto out;
+		err = nfs_may_open(dentry->d_inode, ctx->cred, open_flags);
+		if (err < 0) {
+			filp = ERR_PTR(err);
+			goto out;
 		}
 	}
-		nfs_file_set_open_context(fild, ctx);
+
+	filp = finish_open(od, dentry, do_open);
+	if (!IS_ERR(filp))
+		nfs_file_set_open_context(filp, ctx);
 
 out:
 	put_nfs_open_context(ctx);
@@ -1413,7 +1418,7 @@ out:
 }
 
 static struct file *nfs_atomic_open(struct inode *dir, struct dentry *dentry,
-				    struct file *file, unsigned open_flags,
+				    struct opendata *od, unsigned open_flags,
 				    umode_t mode, bool *created)
 {
 	struct nfs_open_context *ctx;
@@ -1492,7 +1497,7 @@ static struct file *nfs_atomic_open(struct inode *dir, struct dentry *dentry,
 	nfs_unblock_sillyrename(dentry->d_parent);
 	nfs_set_verifier(dentry, nfs_save_change_attribute(dir));
 
-	filp = nfs_finish_open(ctx, dentry, file, open_flags);
+	filp = nfs_finish_open(ctx, dentry, od, open_flags);
 
 	dput(res);
 	return filp;
@@ -1506,7 +1511,7 @@ no_open:
 	if (IS_ERR(res))
 		goto out_err;
 
-	finish_no_open(file, res);
+	finish_no_open(od, res);
 	return NULL;
 }
 

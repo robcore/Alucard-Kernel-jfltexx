@@ -500,7 +500,7 @@ retry:
 			return ERR_PTR(-ENOMEM);
 		goto retry;
 	}
-
+		
 	err = set(s, data);
 	if (err) {
 		spin_unlock(&sb_lock);
@@ -642,7 +642,7 @@ EXPORT_SYMBOL(iterate_supers_type);
 /**
  *	get_super - get the superblock of a device
  *	@bdev: device to get the superblock for
- *
+ *	
  *	Scans the superblock list and finds the superblock of the file system
  *	mounted on the device given. %NULL is returned if no match is found.
  */
@@ -732,7 +732,7 @@ restart:
 	spin_unlock(&sb_lock);
 	return NULL;
 }
-
+ 
 struct super_block *user_get_super(dev_t dev)
 {
 	struct super_block *sb;
@@ -792,8 +792,7 @@ int do_remount_sb(struct super_block *sb, int flags, void *data, int force)
 	   make sure there are no rw files opened */
 	if (remount_ro) {
 		if (force) {
-			sb->s_readonly_remount = 1;
-			smp_wmb();
+			mark_files_ro(sb);
 		} else {
 			retval = sb_prepare_remount_readonly(sb);
 			if (retval)
