@@ -2679,7 +2679,6 @@ SYSCALL_DEFINE4(mknodat, int, dfd, const char __user *, filename, umode_t, mode,
 {
 	struct dentry *dentry;
 	struct path path;
-	int opened = 0;
 	int error;
 
 	error = may_mknod(mode);

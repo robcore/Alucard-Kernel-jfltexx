@@ -41,7 +41,8 @@ struct nfs4_minor_version_ops {
 			struct nfs_server *server,
 			struct rpc_message *msg,
 			struct nfs4_sequence_args *args,
-			struct nfs4_sequence_res *res);
+			struct nfs4_sequence_res *res,
+			int cache_reply);
 	bool	(*match_stateid)(const nfs4_stateid *,
 			const nfs4_stateid *);
 	int	(*find_root_sec)(struct nfs_server *, struct nfs_fh *,
@@ -204,10 +205,6 @@ struct nfs4_state_maintenance_ops {
 extern const struct dentry_operations nfs4_dentry_operations;
 extern const struct inode_operations nfs4_dir_inode_operations;
 
-/* dir.c */
-int nfs_atomic_open(struct inode *, struct dentry *, struct file *,
-		    unsigned, umode_t, int *);
-
 /* nfs4namespace.c */
 rpc_authflavor_t nfs_find_best_sec(struct nfs4_secinfo_flavors *);
 struct rpc_clnt *nfs4_create_sec_client(struct rpc_clnt *, struct inode *, struct qstr *);
@@ -298,7 +295,7 @@ is_ds_client(struct nfs_client *clp)
 
 extern const struct nfs4_minor_version_ops *nfs_v4_minor_ops[];
 
-extern const u32 nfs4_fattr_bitmap[3];
+extern const u32 nfs4_fattr_bitmap[2];
 extern const u32 nfs4_statfs_bitmap[2];
 extern const u32 nfs4_pathconf_bitmap[2];
 extern const u32 nfs4_fsinfo_bitmap[3];

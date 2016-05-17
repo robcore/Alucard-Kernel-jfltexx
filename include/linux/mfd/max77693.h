@@ -29,11 +29,9 @@
 #define __LINUX_MFD_MAX77693_H
 
 #include <linux/regulator/consumer.h>
-#if defined (CONFIG_SEC_PRODUCT_8930)
-#include <linux/battery/sec_charger_8930.h>
-#include <linux/battery/charger/max77693_charger.h>
-#else
 #include <linux/battery/sec_charger.h>
+#if defined (CONFIG_SEC_PRODUCT_8930)
+#include <linux/battery/charger/max77693_charger.h>
 #endif
 
 enum {
@@ -114,7 +112,7 @@ struct max77693_platform_data {
 	/* led (flash/torch) data */
 	struct max77693_led_platform_data *led_data;
 #endif
-#if defined(CONFIG_CHARGER_MAX77XXX) || defined(CONFIG_CHARGER_MAX77693) || defined(CONFIG_MACH_MELIUS)
+#if defined(CONFIG_CHARGER_MAX77693)
 	sec_battery_platform_data_t *charger_data;
 #endif
 };
@@ -126,9 +124,9 @@ struct max77693_muic_data {
 	int (*charger_cb) (enum cable_type_muic);
 	void (*deskdock_cb) (bool attached);
 	void (*cardock_cb) (bool attached);
-#if defined(CONFIG_MACH_MELIUS)
+#if defined(CONFIG_SEC_PRODUCT_8930)
 	void (*smartdock_cb) (bool attached, u8 cable_type);
-#else 
+#else
 	void (*smartdock_cb) (bool attached);
 #endif
 	void (*audiodock_cb) (bool attached);

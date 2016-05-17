@@ -387,7 +387,7 @@ static void ulpi_init(struct msm_otg *motg)
 		return;
 
 	while (seq[0] >= 0) {
-		dev_info(motg->phy.dev, "ulpi: write 0x%02x to 0x%02x\n",
+		dev_vdbg(motg->phy.dev, "ulpi: write 0x%02x to 0x%02x\n",
 				seq[0], seq[1]);
 		ulpi_write(&motg->phy, seq[0], seq[1]);
 		seq += 2;
@@ -1594,7 +1594,7 @@ static void msm_otg_start_peripheral(struct usb_otg *otg, int on)
 	if (!use_mtp_during_fast_charge && on == 1)
 		on = 0;
 #endif
-
+	
 	if (!otg->gadget)
 		return;
 

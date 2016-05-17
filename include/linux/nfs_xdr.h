@@ -35,15 +35,6 @@ static inline int nfs_fsid_equal(const struct nfs_fsid *a, const struct nfs_fsid
 	return a->major == b->major && a->minor == b->minor;
 }
 
-struct nfs4_threshold {
-	__u32	bm;
-	__u32	l_type;
-	__u64	rd_sz;
-	__u64	wr_sz;
-	__u64	rd_io_sz;
-	__u64	wr_io_sz;
-};
-
 struct nfs_fattr {
 	unsigned int		valid;		/* which fields are valid */
 	umode_t			mode;
@@ -76,7 +67,6 @@ struct nfs_fattr {
 	unsigned long		gencount;
 	struct nfs4_string	*owner_name;
 	struct nfs4_string	*group_name;
-	struct nfs4_threshold	*mdsthreshold;	/* pNFS threshold hints */
 };
 
 #define NFS_ATTR_FATTR_TYPE		(1U << 0)
@@ -348,7 +338,6 @@ struct nfs_openargs {
 	const struct qstr *	name;
 	const struct nfs_server *server;	 /* Needed for ID mapping */
 	const u32 *		bitmask;
-	const u32 *		open_bitmap;
 	const u32 *		dir_bitmask;
 	__u32			claim;
 	struct nfs4_sequence_args	seq_args;
