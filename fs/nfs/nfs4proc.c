@@ -2825,9 +2825,7 @@ nfs4_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
 		return PTR_ERR(ctx);
 
 	sattr->ia_mode &= ~current_umask();
-	state = nfs4_do_open(dir, dentry, ctx->mode,
-			flags, sattr, ctx->cred,
-			&ctx->mdsthreshold);
+	state = nfs4_do_open(dir, dentry, ctx->mode, flags, sattr, ctx->cred, NULL);
 	d_drop(dentry);
 	if (IS_ERR(state)) {
 		status = PTR_ERR(state);
@@ -6658,26 +6656,6 @@ const struct nfs4_minor_version_ops *nfs_v4_minor_ops[] = {
 #if defined(CONFIG_NFS_V4_1)
 	[1] = &nfs_v4_1_minor_ops,
 #endif
-};
-
-const struct inode_operations nfs4_dir_inode_operations = {
-	.create		= nfs_create,
-	.lookup		= nfs_lookup,
-	.atomic_open	= nfs_atomic_open,
-	.link		= nfs_link,
-	.unlink		= nfs_unlink,
-	.symlink	= nfs_symlink,
-	.mkdir		= nfs_mkdir,
-	.rmdir		= nfs_rmdir,
-	.mknod		= nfs_mknod,
-	.rename		= nfs_rename,
-	.permission	= nfs_permission,
-	.getattr	= nfs_getattr,
-	.setattr	= nfs_setattr,
-	.getxattr	= generic_getxattr,
-	.setxattr	= generic_setxattr,
-	.listxattr	= generic_listxattr,
-	.removexattr	= generic_removexattr,
 };
 
 static const struct inode_operations nfs4_file_inode_operations = {
