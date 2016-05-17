@@ -2813,28 +2813,31 @@ static int nfs4_proc_readlink(struct inode *inode, struct page *page,
  * This is just for mknod.  open(O_CREAT) will always do ->open_context().
  */
 static int
-nfs_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
-		int flags, struct nfs_open_context *ctx)
+nfs4_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
+		 int flags)
 {
-	struct nfs_createdata *data;
-	struct rpc_message msg = {
-		.rpc_proc	= &nfs_procedures[NFSPROC_CREATE],
-	};
-	int status = -ENOMEM;
+	struct nfs_open_context *ctx;
+	struct nfs4_state *state;
+	int status = 0;
 
-	dprintk("NFS call  create %s\n", dentry->d_name.name);
-	data = nfs_alloc_createdata(dir, dentry, sattr);
-	if (data == NULL)
+	ctx = alloc_nfs_open_context(dentry, FMODE_READ);
+	if (IS_ERR(ctx))
+		return PTR_ERR(ctx);
+
+	sattr->ia_mode &= ~current_umask();
+	state = nfs4_do_open(dir, dentry, ctx->mode,
+			flags, sattr, ctx->cred,
+			&ctx->mdsthreshold);
+	d_drop(dentry);
+	if (IS_ERR(state)) {
+		status = PTR_ERR(state);
 		goto out;
-	msg.rpc_argp = &data->arg;
-	msg.rpc_resp = &data->res;
-	status = rpc_call_sync(NFS_CLIENT(dir), &msg, 0);
-	nfs_mark_for_revalidate(dir);
-	if (status == 0)
-		status = nfs_instantiate(dentry, data->res.fh, data->res.fattr);
-	nfs_free_createdata(data);
+	}
+	d_add(dentry, igrab(state->inode));
+	nfs_set_verifier(dentry, nfs_save_change_attribute(dir));
+	ctx->state = state;
 out:
-	dprintk("NFS reply create: %d\n", status);
+	put_nfs_open_context(ctx);
 	return status;
 }
 
